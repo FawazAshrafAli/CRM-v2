@@ -15,6 +15,7 @@ from deals.models import Deal
 from projects.models import Project
 from organizations.models import Company
 from leads.models import Lead
+from crm_admin.models import Customer
 
 class BaseTaskView(LoginRequiredMixin): #base class
     model = Task
@@ -100,7 +101,8 @@ class CloneTaskView(BaseTaskView, View):
                 status=task.status,
                 related_to=task.related_to,
                 description=task.description,
-                task_owner=task.record_owner
+                task_owner=task.record_owner,
+                organization_id=task.organization_id
             )
             return redirect('tasks:list')
         except Http404:
@@ -171,7 +173,8 @@ class TaskCompletionAndCloningView(BaseTaskView, UpdateView):
                 status=self.object.status,
                 related_to=self.object.related_to,
                 description=self.object.description,
-                task_owner=self.object.record_owner
+                task_owner=self.object.record_owner,
+                organization_id=self.object.organization_id
             )
         self.object.status = "Completed"
         self.object.save()
@@ -187,18 +190,25 @@ class TaskListView(BaseTaskView, ListView): # To list tasks.
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            "users": User.objects.all(),
+            "users": User.objects.all().exclude(username='admin'),
             "contacts": Contact.objects.all(),
             "deals": Deal.objects.all(),
             "projects": Project.objects.all(),
             "organizations": Company.objects.all(),
             "leads": Lead.objects.all(),
         })
+        try:
+            customer = get_object_or_404(Customer, organization_id = self.request.user.organization_id)
+            context['customer'] = customer
+        except Http404:
+            print("Customer not found.")
 
         return context
 
 class CompletedTaskListView(TaskListView):
-    queryset = Task.objects.filter(status="Completed")
+
+    def get_queryset(self, *kwargs):
+        return Task.objects.filter(status="Completed", organization_id=self.request.user.organization_id).order_by('created')
 
 class TaskDetailView(BaseTaskView, DetailView): # For providing a detail of a single task. 
     model = Task

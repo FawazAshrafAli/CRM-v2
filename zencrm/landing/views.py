@@ -23,7 +23,7 @@ class ApplicationView(CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        customer = Customer.objects.latest("-created")
+        customer = Customer.objects.latest("created")
         password = make_password(customer.organization_id)
         print(customer.organization_id)
         for i in range(len(customer.name)):

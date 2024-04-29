@@ -54,8 +54,8 @@
 				<!-- Logo -->
                 <div class="header-left">
                     <a href="{% url 'dashboard:deals_dashboard' %}" class="logo">
-						<img src="{% static 'images/zencrm_logo.png' %}"  alt="Logo" class="sidebar-logo">
-						<img src="{% static 'images/zencrm_logo.png' %}"  alt="Logo" class="mini-sidebar-logo">
+						<img {% if customer.logo %} src="{{customer.logo.url}}" {% else %} src="{% static 'images/zencrm_logo.png' %}" {% endif %}  alt="Logo" class="sidebar-logo">
+						<img {% if customer.logo %} src="{{customer.logo.url}}" {% else %} src="{% static 'images/zencrm_logo.png' %}" {% endif %}  alt="Logo" class="mini-sidebar-logo">
 					</a>
                 </div>
 				<!-- /Logo -->
@@ -810,9 +810,9 @@
 										<div class="col-sm-6">
 											<label class="col-form-label">Assigned To</label>
 											<select class="form-control" name="assigned_to" required>
-												<option hidden selected>-- Select --</option>
+												<option hidden selected>--Select--</option>
 												{% for user in users %}
-												<option value="{{user.pk}}">{% if user.last_name %} {{user.first_name}} {{user.last_name}} {% else %} {{user.first_name}} {% endif %}</option>
+												<option value="{{user.pk}}">{% if user == request.user %} Myself {% else %} {% if user.last_name %} {{user.first_name}} {{user.last_name}} {% else %} {{user.first_name}} {% endif %} {% endif %}</option>
 												{% endfor %}
 											</select>
 										</div>
@@ -937,9 +937,9 @@
 										<div class="col-sm-6">
 											<label class="col-form-label">Assigned To</label>
 											<select class="form-control" name="assigned_to" id="assigned-to-value" required>
-												<option disabled hidden selected>-- Select --</option>
+												<option hidden selected>-- Select --</option>
 												{% for user in users %}
-												<option value="{{user.pk}}" id="task-assigned-to-{{user.pk}}">{% if user.last_name %} {{user.first_name}} {{user.last_name}} {% else %} {{user.first_name}} {% endif %}</option>
+												<option value="{{user.pk}}">{% if user == request.user %} Myself {% else %} {% if user.last_name %} {{user.first_name}} {{user.last_name}} {% else %} {{user.first_name}} {% endif %} {% endif %}</option>
 												{% endfor %}
 											</select>
 										</div>
