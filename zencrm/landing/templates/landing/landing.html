@@ -1,0 +1,984 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<!-- Meta -->
+	<meta name="description" content="CRMS is a Customer Relationship Management admin dashboard for Companies/Offices with various features for all your needs. Try Demo and Buy Now!">
+	<meta name="keywords" content="admin, estimates, bootstrap, business, corporate, creative, management, minimal, modern, accounts, invoice, html5, responsive, CRM, Projects">
+	<meta name="author" content="Dreamguys - Bootstrap Admin Template">
+
+	<!-- Twitter -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:site" content="@dreamguystech">
+	<meta name="twitter:title" content="CRM Admin Template | CRM Bootstrap Website Template| CRMS">
+	<meta name="twitter:description" content="CRMS is a Customer Relationship Management admin dashboard for Companies/Offices with various features for all your needs. Try Demo and Buy Now!">
+	<meta name="twitter:image" content="http://dreamguys.co.in/crms/assets/img/crms.jpg">
+	<meta name="twitter:image:alt" content="CRMS">
+
+
+	<!-- Facebook -->
+	<meta property="og:url" content="http://dreamguys.co.in/crms/">
+	<meta property="og:title" content="CRM Admin Template | CRM Bootstrap Website Template| CRMS">
+	<meta property="og:description" content="CRMS is a Customer Relationship Management admin dashboard for Companies/Offices with various features for all your needs. Try Demo and Buy Now!">
+
+	<meta property="og:image" content="http://dreamguys.co.in/crms/assets/img/crms.jpg">
+	<meta property="og:image:secure_url" content="http://dreamguys.co.in/crms/assets/img/crms.jpg">
+	<meta property="og:image:type" content="image/png">
+	<meta property="og:image:width" content="1200">
+	<meta property="og:image:height" content="600">
+
+	<!-- Page Title -->
+	<title>CRM Admin Template | CRM Bootstrap Website Template| CRMS</title>
+
+	<!-- Favicon -->
+	<link rel="shortcut icon" href="{% static 'landing/assets/img/favicon.png' %}" type="image/x-icon">
+
+	<!-- Canonical -->
+	<link rel="canonical" href="https://crms-html.dreamguystech.com"/>
+
+
+	<!-- Bootstrap core CSS -->
+	<link href="{% static 'landing/assets/css/bootstrap.min.css' %}" rel="stylesheet">
+
+	<!-- Line Awesome CSS -->
+	<link href="{% static 'landing/assets/css/line-awesome.min.css' %}" rel="stylesheet">
+
+	<!-- Animate On Scroll CSS -->
+	<link href="{% static 'landing/assets/css/aos.css' %}" rel="stylesheet">
+
+	<!-- Owl Carousel CSS -->
+	<link href="{% static 'landing/assets/css/owl.carousel.min.css' %}" rel="stylesheet">
+	<link href="{% static 'landing/assets/css/owl.theme.default.min.css' %}" rel="stylesheet">
+
+	<link rel="stylesheet" type="text/css" href="{% static 'landing/assets/plugins/light-gallery/css/lightgallery.min.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'landing/assets/css/devices.min.css' %}">
+
+	<!-- Custom CSS -->
+	<link href="{% static 'landing/assets/css/style.css' %}" rel="stylesheet">
+
+	<!-- Google Font -->
+	<link href="https://fonts.googleapis.com/css?family=Poppins:400,500,600,700,800" rel="stylesheet">
+
+	<!-- Google Tag Manager -->
+	<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+	new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+	j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+	'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+	})(window,document,'script','dataLayer','GTM-5KRQQDM');</script>
+	<!-- End Google Tag Manager -->
+	
+
+</head>
+
+<body>
+
+	<!-- Google Tag Manager (noscript) -->
+	<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5KRQQDM"
+	height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+	<!-- End Google Tag Manager (noscript) -->
+	
+
+	<div class="main-wrapper">
+
+		<!-- Loader -->
+		<div id="loader-wrapper">
+			<div id="loader">
+				<div class="loader-ellips">
+					<span class="loader-ellips__dot"></span>
+					<span class="loader-ellips__dot"></span>
+					<span class="loader-ellips__dot"></span>
+					<span class="loader-ellips__dot"></span>
+				</div>
+			</div>
+		</div>
+		<div class="top-header">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-md-12 text-right">
+						<ul class="list-inline-item list-unstyled">
+							<li class="list-inline-items"><a href="tel:+91 75618660000" class="contact_list"><i class="fa fa-phone" aria-hidden="true"></i>+91 7561866000</a></li>
+							<li class="list-inline-items"><a href="mailto:w3digitalpmna@gmail.com" class="contact_list"><i class="fa fa-envelope" aria-hidden="true"></i>business@zencrm.com</a></li>
+							<li class="list-inline-items"><a href="mailto:w3digitalpmna@gmail.com" class="contact_list"><i class="fa fa-envelope" aria-hidden="true"></i>support@zencrm.com</a></li>
+						</ul>
+					</div>  
+				</div>
+			</div>
+		</div>
+		<!-- Header -->
+		<header id="home" class="header">
+
+			<!-- Start Navigation -->
+			<nav class="navbar navbar-expand-md home-menu">
+				<div class="container">
+
+					<!-- Start Header Navigation -->
+					<a class="logo-link smooth-menu" href="index.html">
+						<img src="{% static 'images/zencrm_logo.png' %}" class="logo logo-display" alt="Logo">
+						<img src="{% static 'images/zencrm_logo.png' %}" class="logo logo-scrolled" alt="Logo">
+					</a>
+					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu">
+						<i class="la la-bars"></i>
+					</button>
+					<!-- End Header Navigation -->
+
+					<div class="collapse navbar-collapse" id="navbar-menu">
+						<ul class="nav navbar-nav ml-auto">
+							<li class="nav-item">
+								<a class="smooth-menu nav-link" href="#home">Home</a>
+							</li>
+							<li class="nav-item">
+								<a class="smooth-menu nav-link" href="#features">Features</a>
+							</li>
+							<li class="nav-item">
+								<a class="smooth-menu nav-link" href="#viewdemos">Demo</a>
+							</li>
+							<li class="nav-item">
+								<a class="smooth-menu nav-link" href="#about">About</a>
+							</li>
+							<li class="nav-item">
+								<a class="smooth-menu nav-link" href="#customize">Customize</a>
+							</li>
+							<li class="nav-item">
+								<a class="smooth-menu nav-link" href="#overview">Pages</a>
+							</li>
+						</ul>
+						<div class="nav-btn">
+						<a href="https://themeforest.net/item/crms-bootstrap-admin-template/27850087" target="_blank" class="download-btn">Buy Now</a>
+					</div>
+					</div>
+				</div>
+
+			</nav>
+			<!-- End Navigation -->
+
+		</header>
+		<!-- End Header -->
+
+		<!-- Start Banner -->
+		<div class="hero-section auto-height">
+			<div class="container">
+				<div class="hero-wrap">
+					<div class="" data-aos="fade-up">
+						<div class="content">
+							<div class="row">
+								<div class="col-md-6">
+									<h1>ZENCRM<br> Customer Relationship Management</h1>
+									<p class="p-0">
+										From robust contact management to insightful analytics, our CRM empowers you to deliver personalized experiences and build stronger connections with your customers. Say goodbye to scattered data and missed opportunities – with our CRM, you'll have everything you need to drive growth and exceed your customers' expectations.
+									</p>
+									<a class="smooth-menu view-btn" href="template/index.html">Live Demo</a> 
+									<a class="view-btn" target="_blank" href="https://themeforest.net/item/crms-bootstrap-admin-template/27850087">Buy CRM</a>
+								</div>
+								<div class="col-md-6">
+									<div class="banner">
+										<img class="movebounce" src="{% static 'images/screenshot.jpg' %}" alt="dashboard">
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="snowflakes"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+				</div>
+			</div>
+		</div>
+		<!-- End Banner -->
+
+		<!-- Start Features -->
+		<div id="features" class="features-section">
+			<div class="container">
+				<div class="row">
+					
+					<div class="col-md-4 col-sm-6 equal-height" data-aos="fade-right" data-aos-delay="100">
+						<div class="feature-list bg-gradient-danger">
+							<img src="{% static 'landing/assets/img/circle.png' %}" class="card-img" alt="Image">
+							<div class="feature-icon">
+								<i class="la la-cube"></i>
+							</div>
+							<div class="feature-info">
+								<h4>Contact Management</h4>
+								<p>
+									Completely responsive, fully functional on ipads, iphones, tablets, and other mobile phones.
+								</p>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4 col-sm-6 equal-height" data-aos="fade-right" data-aos-delay="100">
+						<div class="feature-list bg-gradient-success">
+							<img src="{% static 'landing/assets/img/circle.png' %}" class="card-img" alt="Image">
+							<div class="feature-icon">
+								<i class="la la-cube"></i>
+							</div>
+							<div class="feature-info">
+								<h4>Lead Management</h4>
+								<p>
+									Advanced features tools like graphs, charts, invoices, video & audio call's, projects, etc.
+								</p>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4 col-sm-6 equal-height" data-aos="fade-right" data-aos-delay="100">
+						<div class="feature-list bg-gradient-warning">
+							<img src="{% static 'landing/assets/img/circle.png' %}" class="card-img" alt="Image">
+							<div class="feature-icon">
+								<i class="la la-cube"></i>
+							</div>
+							<div class="feature-info">
+								<h4>Deal Management</h4>
+								<p>
+									Well tested, well documented and W3 validated code. Developers can take advantage immediately.
+								</p>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		<!-- End Features -->
+
+		<!-- Start Demo -->
+		<div id="viewdemos" class="demo-section">
+			<div id="particles-js"></div>
+			<img src="{% static 'landing/assets/img/obj2.png' %}" alt="Image" class="obj1 rotate">
+			<img src="{% static 'landing/assets/img/obj1.png' %}" alt="Image" class="obj2 rotate">
+			<div id="particles"></div>
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						
+						<div class="container-xs" data-aos="fade-up">
+							<span class="circle-bg"></span>
+							<div class="section-heading text-center">
+								<h2>Multiple Template Options</h2>
+								<h3>LTR Gradient and Solid Colors</h3>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row demo-row">
+					<div class="col-md-12">
+						<div class="demo-wrap" data-aos="fade-up">
+							<div class="demo-tabs">
+								<ul class="nav nav-tabs">
+									<li class="nav-item"><a target="_blank" href="https://crms-html.dreamguystech.com/template/index.html" title="HTML">HTML</a></li>
+									<li class="nav-item"><a target="_blank" href="https://crms-laravel.dreamguystech.com/template/public" title="LARAVEL">LARAVEL</a></li>
+									<li class="nav-item"><a target="_blank" href="https://crms-vuejs.dreamguystech.com/template/light/index" title="VUEJS">VUEJS</a></li>
+									<li class="nav-item"><a target="_blank" href="https://crms-reactjs.dreamguystech.com/light/" title="REACTJS">REACTJS</a></li>
+									<li class="nav-item"><a target="_blank" href="https://crms-angular.dreamguystech.com/template/light/dashboard" title="VUEJS">ANGULAR</a></li>
+									<li class="nav-item"><a target="_blank" href="https://nodejs.dreamguystech.com/crms/login" title="NODEJS">NODEJS</a></li>
+
+								</ul>
+							</div>
+							<div class="text-center">
+								<img class="img-fluid" src="{% static 'landing/assets/img/screen1.png' %}" width="1200" height="500" alt="Purple">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="container-xs" data-aos="fade-up">
+							<!-- <span class="circle-bg"></span> -->
+							<div class="section-heading text-center">
+								<h3>RTL Gradient and Solid Colors</h3>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row demo-row">
+					<div class="col-md-12">
+						<div class="demo-wrap" data-aos="fade-up">
+							<div class="demo-tabs">
+								<ul class="nav nav-tabs">
+									<li class="nav-item"><a target="_blank" href="https://crms-html.dreamguystech.com/template-rtl/index.html" title="HTML">HTML</a></li>
+									<li class="nav-item"><a target="_blank" href="https://crms-laravel.dreamguystech.com/template-rtl/public" title="LARAVEL">LARAVEL</a></li>
+									<li class="nav-item"><a target="_blank" href="https://crms-vuejs.dreamguystech.com/template-rtl/light/index" title="VUEJS">VUEJS</a></li>
+									<li class="nav-item"><a target="_blank" href="https://crms-reactjs.dreamguystech.com/template-rtl/light/" title="REACTJS">REACTJS</a></li>
+									<li class="nav-item"><a target="_blank" href="https://crms-angular.dreamguystech.com/template-rtl/light/dashboard" title="ANGULAR">ANGULAR</a></li>
+									<li class="nav-item"><a target="_blank" href="https://crms-html.dreamguystech.com/template-rtl/index.html" title="NODEJS">Nodejs</a></li>
+								</ul>
+							</div>
+							<div class="text-center">
+								<img class="img-fluid" src="{% static 'landing/assets/img/screen2.PNG' %}" width="1200" height="418" alt="Purple">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- End Demo -->
+
+		<div id="about" class="about-section">
+			<div class="section-right">
+				<div class="content-table">
+					<div class="table-col" data-aos="fade-left">
+						<div class="showcase-img"><img src="{% static 'landing/assets/img/screen_3.png' %}" alt="tasks"></div>
+					</div>
+					<div class="table-col" data-aos="fade-right">
+						<div class="showcase">
+							<h3 class="title title1">Fully Responsive</h3>
+							<p class="desc"> Responsive design is a somewhat retro approach to web site design that solves a lot of design problems caused by the proliferation of new types of mobile devices.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			
+			<div class="section-right">
+				<div class="content-table">
+					
+					<div class="table-col" data-aos="fade-left">
+						<div class="showcase">
+							<h3 class="title title3">Components</h3>
+							<p class="desc">Utility classes are meant to be applied to various elements on the page to quickly style them in some manner without the need to write custom CSS rules. In many cases, you just provide a class for your element and observe the result right away.</p>
+						</div>
+					</div>
+					<div class="table-col" data-aos="fade-right">
+						<div class="showcase-img"><img src="{% static 'landing/assets/img/screen_6.png' %}" alt="components"></div>
+					</div>
+				</div>
+			</div>
+			<img class="movebounce mobile-res" src="{% static 'landing/assets/img/screen_4.png' %}"  alt="dashboard">
+		</div>
+
+		<div class="home-banner" id="home">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12 text-center">						
+						<a class="btn btn-primary preview-btn mt-4" href="mobile/framework7/index.html">Preview Framework7</a>
+						<div class="top-frame-tab">
+							<ul class="nav nav-tabs" id="view_tabs_top">
+								<li class="nav-item">
+                                	<a class="nav-link active" href="#framework7_tab" data-toggle="tab">
+                                		<span class="item-img"><img src="{% static 'landing/assets/img/framwork7-logo.png' %}" alt=""></span>
+                                		<span>Framework7</span>
+                                	</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">								
+								<div class="tab-pane show active" id="framework7_tab" data-src="mobile/framework7/index.html">
+		                    		<div class="frame-tabs">
+			                            <ul class="nav nav-tabs" id="view_tabs">
+			                                <li class="nav-item"><a class="nav-link active" href="#mobile_tab" data-toggle="tab">Mobile</a></li>
+			                                <li class="nav-item"><a class="nav-link" href="#ipad_tab" data-toggle="tab">Ipad</a></li>
+			                            </ul>
+			                            <div class="tab-content">
+			                                <div class="tab-pane show active" id="mobile_tab" data-src="mobile/framework7/index.html">
+												<div class="marvel-device iphone8plus black">
+													<div class="top-bar"></div>
+													<div class="sleep"></div>
+													<div class="volume"></div>
+													<div class="camera"></div>
+													<div class="sensor"></div>
+													<div class="speaker"></div>
+													<div class="screen">
+														<iframe src="" id="iframe1"></iframe>
+													</div>
+													<div class="home"></div>
+													<div class="bottom-bar"></div>
+												</div>
+			                                </div>
+			                                <div class="tab-pane" id="ipad_tab" data-src="mobile/framework7/index.html">
+												<div class="marvel-device ipad black landscape">
+													<div class="camera"></div>
+													<div class="screen">
+														<iframe src="" id="iframe4"></iframe>
+													</div>
+													<div class="home"></div>
+												</div>
+			                                </div>
+			                            </div>
+			                        </div>
+		                    	</div>
+	                    	</div>
+                    	</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<section class="info-section">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="section-title text-center">
+							<h3>We provide various kind of <br>service for you</h3>				
+						</div>	
+					</div>
+				</div>
+				<div class="row mt-4">
+					<div class="col-md-4">
+						<div class="card">
+							<div>
+								<img src="{% static 'landing/assets/img/security.png' %}" alt="Security Icon" />
+							</div>							
+							<h4>Fully Secured</h4>
+							<p>Lorem ipsum is simply dummy text for typing and printing test</p>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="card">
+							<div>
+								<img src="{% static 'landing/assets/img/edit.png' %}" alt="Edit Icon" />
+							</div>							
+							<h4>Easy to Edit</h4>
+							<p>Lorem ipsum is simply dummy text for typing and printing test</p>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="card">
+							<div>
+								<img src="{% static 'landing/assets/img/responsive.png' %}" alt="Responsive Icon" />
+							</div>							
+							<h4>Responsive Design</h4>
+							<p>Lorem ipsum is simply dummy text for typing and printing test</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="screens-section" id="viewdemos">
+			<div class="container">
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="section-title text-center">
+							<h3>Screenshots</h3>				
+						</div>	
+					</div>
+				</div>
+				<div class="row mt-4">
+					<div class="col-sm-12">
+
+						<div id="lightgallery" class="screen-shot-slider owl-carousel owl-theme">
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen01.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen01.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen2.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen2.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen3.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen3.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen4.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen4.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen16.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen16.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen5.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen5.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen6.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen6.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen17.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen17.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen18.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen18.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen7.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen7.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen15.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen15.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen8.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen8.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen09.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen09.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen10.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen10.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen11.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen11.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen12.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen12.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen13.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen13.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen14.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen14.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen15.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen15.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen19.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen19.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen20.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen20.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen21.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen21.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen22.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen22.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen23.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen23.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen24.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen24.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen25.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen25.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen26.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen26.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+							<div class="item">
+								<div class="iphone-frame">
+									<div class="screen-inner">
+										<a href="{% static 'landing/assets/img/screen27.jpg' %}"><img class="img-fluid" src="{% static 'landing/assets/img/screen27.jpg' %}" alt=""></a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Start Subscribe -->
+		<div id="customize" class="custom-section">
+			<div class="container">
+				<div class="container-xs">
+					<div class="section-heading text-center" data-aos="fade-up">
+						<h2>Looking for a custom design?</h2>
+						<p>We (Dreamguys Technologies) are happy to customise your products based on your needs, send us a note!!!</p>
+					</div>
+					<div class="subscribe" data-aos="fade-up">
+						<form id="contact-form" method="post">
+							<div class="messages"></div>
+							<div class="input-group">
+								<input maxlength=50 id="form_email" type="email" placeholder="Enter your e-mail here" class="form-control" name="email">
+								<span class="input-group-addon">
+									<button id="submit_button" type="submit">
+										<i class="la la-send"></i>
+									</button>
+								</span>
+							</div>
+							<span class="alert" style="color: #ff9b44; display: none;" id="alert_message">Please enter a valid email</span>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- End Subscribe -->
+
+		<!-- Start Overview -->
+		<div id="overview" class="overview-section">
+			<img src="{% static 'landing/assets/img/obj3.png' %}" alt="Image" class="obj3">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="container-xs" data-aos="fade-up" data-aos-delay="100">
+							<div class="section-heading text-center">
+								<h2>Pages Overview</h2>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-md-12 text-center overview-items">
+						<div class="overview-carousel owl-carousel owl-style owl-theme" data-aos="fade-up" data-aos-delay="200">
+							
+							<div class="overview-img">
+								<img src="{% static 'landing/assets/img/screen_3.png' %}" alt="task">
+								<h4>Tasks</h4>
+							</div>
+							<div class="overview-img">
+								<img src="{% static 'landing/assets/img/screen_8.png' %}" alt="contact">
+								<h4>Contacts</h4>
+							</div>
+							<div class="overview-img">
+								<img src="{% static 'landing/assets/img/screen_9.png' %}" alt="company">
+								<h4>Companies</h4>
+							</div>
+							<div class="overview-img">
+								<img src="{% static 'landing/assets/img/screen_10.png' %}" alt="lead">
+								<h4>Leads</h4>
+							</div>
+							<div class="overview-img">
+								<img src="{% static 'landing/assets/img/screen_11.png' %}" alt="deal">
+								<h4>Deals</h4>
+							</div>
+							<div class="overview-img">
+								<img src="{% static 'landing/assets/img/screen_12.png' %}" alt="project">
+								<h4>Projects</h4>
+							</div>
+							<div class="overview-img">
+								<img src="{% static 'landing/assets/img/screen_13.png' %}" alt="report">
+								<h4>Reports</h4>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- End Overview -->
+
+		<!-- Contact Form -->
+		<section class="contact-form-sec">
+			<div class="container">
+				<div class="section-heading text-center">
+					<h2>Get In Touch</h2>
+					<p class="sub-title">We Will Connect You Shortly</p>
+				</div>
+				<div class="row">
+					<div class="col-md-6 m-auto">
+						<form action="https://dreamguystech.com/" target="_blank">
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group ">
+										<input type="text" id="full_name" name="full_name" class="form-control" placeholder="Full Name" minlength="2" maxlength="100" required="required" autocomplete="off" value="">
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group ">
+										<input type="email" id="email" name="email" class="form-control" placeholder="Email" minlength="2" maxlength="100" required="required" autocomplete="off" value="">
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group ">
+										<input type="text" id="company_name" name="company_name" class="form-control" placeholder="Company Name" minlength="2" maxlength="100" required="required" autocomplete="off" value="">
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group ">
+										<input type="number" id="phone-num" name="phone_num" class="form-control" placeholder="Phone Number" minlength="2" maxlength="100" required="required" autocomplete="off" value="">
+									</div>
+								</div>
+								<div class="col-lg-12">
+									<div class="form-group">
+										<textarea type="text" class="form-control" rows="4" name="comments" placeholder="Your Comments here" id="comments"></textarea>
+									</div>
+								</div>
+								<button type="submit" class="button btn-primary m-auto">Submit</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</section>
+		<!-- /Contact Form -->
+
+		<!-- Start Footer -->
+		<footer class="footer ">
+			<div class="container">
+				<div class="footer-top">
+					<div class="row justify-content-center"><br /><br /><br />
+						<div class="col-lg-4 col-md-6 col-sm-12">
+							<div class="footer-widget" data-aos="fade-up">
+								<h4>Social Links</h4>
+								<div class="footer-list">
+									<ul>
+										<li>
+											<div class="info-list">
+												<a href="https://themeforest.net/user/dreamguys/portfolio" target="_blank"><img src="{% static 'landing/assets/img/themeforest.png' %}" alt="Theme Forest"></a>
+											</div>
+										</li>
+										<li>
+											<div class="info-list">
+												<a href="https://codecanyon.net/user/dreamguys/portfolio" target="_blank"><img src="{% static 'landing/assets/img/codecanyon.png' %}" alt="Codecanyon"></a>
+											</div>
+										</li>
+										<li>
+											<div class="info-list social-list">
+												<a href="https://www.facebook.com/dreamguystech" class="social-icon" target="_blank"><i class="la la-facebook"></i></a>
+												<a href="https://twitter.com/dreamguystech" class="social-icon" target="_blank"><i class="la la-twitter"></i></a>
+												<a href="https://plus.google.com/109323598703850221904" class="social-icon" target="_blank"><i class="la la-google-plus"></i></a>
+												<a href="https://www.linkedin.com/company/dreamguystech" class="social-icon" target="_blank"><i class="la la-linkedin"></i></a>
+												<a href="https://www.instagram.com/dreamguystech" class="social-icon" target="_blank"><i class="la la-instagram"></i></a>
+												<a href="https://www.behance.net/dreamguystech" class="social-icon" target="_blank"><i class="la la-behance"></i></i></a>
+											</div>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-4 col-md-6 col-sm-12">
+							<div class="footer-widget" data-aos="fade-up" data-aos-delay="100">
+								<h4>Other Templates</h4>
+								<div class="footer-list">
+									<ul>
+										<li>
+											<div class="info-list">
+												<a href="https://themeforest.net/item/preadmin-bootstrap-admin-template/21457074" target="_blank">
+													<img src="{% static 'landing/assets/img/preadmin.png' %}" alt="Preadmin">
+													<span>Preadmin <span class="category">Admin Template</span></span>
+												</a>
+											</div>
+										</li>
+										<li>
+											<div class="info-list">
+												<a href="https://themeforest.net/item/medifab-health-medical-html-template/22301706" target="_blank">
+													<img src="{% static 'landing/assets/img/medifab.png' %}" alt="Medifab">
+													<span>Medifab <span class="category">Medical Template</span></span>
+												</a>
+											</div>
+										</li>
+										<li>
+											<div class="info-list">
+												<a href="https://themeforest.net/item/crms-framework7-mobile-template/30636201" target="_blank">
+													<img src="{% static 'landing/assets/img/dhr.png' %}" alt="crms">
+													<span>crms <span class="category">Mobile Template</span></span>
+												</a>
+											</div>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-4 col-md-6 col-sm-12">
+							<div class="footer-widget twitter-widget" data-aos="fade-up" data-aos-delay="200">
+								<h4>Contact Info</h4>
+								<div class="footer-list">
+									<ul>
+										<li>
+											<div class="info-list">
+												<a href="https://dreamguystech.com/" target="_blank">
+													<i class="la la-globe"></i>
+													<span>www.dreamguystech.com</span>
+												</a>
+											</div>
+										</li>
+										<li>
+											<div class="info-list">
+												<a href="mailto:admin@dreamguys.co.in" target="_blank">
+													<i class="la la-envelope"></i>
+													<span>business@dreamguystech.com
+													</span>
+												</a>
+											</div>
+										</li>
+										<li>
+											<div class="info-list">
+												<a href="tel:+91 75618660000">
+													<i class="la la-whatsapp"></i>
+													<span>+91 75618660000</span>
+												</a>
+											</div>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Start Footer Bottom -->
+				<div class="footer-bottom">
+					<div class="row align-items-center">
+						<div class="col-md-6">
+							<p>&copy; Copyright 2023. All Rights Reserved by <a href="#">Dreamguys Technologies</a></p>
+						</div>
+						<div class="col-md-6">
+							<div class="powered-by">
+								<p>A Product Of <a target="_blank" href="https://dreamguystech.com/"><img alt="Dreamguys" src="{% static 'landing/assets/img/dreamguys.png' %}"></a></p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- End Footer Bottom -->
+
+			</div>
+		</footer>
+		<!-- End Footer -->
+
+	</div>
+	
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/5d7c946e9f6b7a4457e1a16b/default';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
+
+<!-- Google tag (gtag.js) -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-CDF86FB05Q"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+
+			gtag('config', 'G-CDF86FB05Q');
+		</script>
+
+	<script type="application/ld+json">
+		{
+		"@context": "https://schema.org/", 
+		"@type": "Product", 
+		"name": "CRMS",
+		"image": "https://crms-html.dreamguystech.com/assets/img/logo.png",
+		"description": "CRM Bootstrap Admin Template Dashboard",
+		"brand": {
+			"@type": "Brand",
+			"name": "CRMS"
+		},
+		"offers": {
+			"@type": "Offer",
+			"url": "https://themeforest.net/item/crms-bootstrap-admin-template/27850087",
+			"priceCurrency": "USD",
+			"price": "24"
+		}
+		}
+	</script>
+	
+	<!-- jQuery -->
+	<script src="{% static 'landing/assets/js/jquery-1.12.4.min.js' %}"></script>
+
+	<!-- Bootstrap Core JavaScript -->
+	<script src="{% static 'landing/assets/js/popper.min.js' %}"></script>
+	<script src="{% static 'landing/assets/js/bootstrap.min.js' %}"></script>
+
+	<!-- jQuery Validation -->
+	<script src="{% static 'landing/assets/js/jquery.validate.min.js' %}"></script>
+
+	<!-- Owl Carousel -->
+	<script src="{% static 'landing/assets/js/owl.carousel.min.js' %}"></script>
+
+	<!-- Animate Scroll -->
+	<script src="{% static 'landing/assets/js/jquery.easing.min.js' %}"></script>
+	<script src="{% static 'landing/assets/js/aos.js' %}"></script>
+	<script src="{% static 'landing/assets/js/particle.min.js' %}"></script>
+
+	<script type="text/javascript" src="{% static 'landing/assets/plugins/light-gallery/js/lightgallery-all.min.js' %}"></script>
+
+	<!-- Custom JS -->
+	<script src="{% static 'landing/assets/js/main.js' %}"></script>
+   
+</body>
+</html>
