@@ -42,6 +42,12 @@
 		<!-- Main CSS -->
         <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" class="themecls">
 
+		<style>
+			#message-div li{
+				list-style-type: none;
+			}
+		</style>
+	
     </head>
     <body id="skin-color" class="inter">
 		 
@@ -314,8 +320,8 @@
 							<span>Admin</span>
 						</a>
 						<div class="dropdown-menu">
-							<a class="dropdown-item" href="profile.html">My Profile</a>
-							<a class="dropdown-item" href="settings.html">Settings</a>
+							<a class="dropdown-item" href="{% url 'authentication:my_profile' %}">My Profile</a>
+							<a class="dropdown-item" href="{% url 'authentication:settings' %}">Settings</a>
 							<a class="dropdown-item" href="{% url 'authentication:logout' %}">Logout</a>
 						</div>
 					</li>
@@ -326,9 +332,9 @@
 				<div class="dropdown mobile-user-menu">
 					<a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 					<div class="dropdown-menu dropdown-menu-right">
-						<a class="dropdown-item" href="profile.html">My Profile</a>
-						<a class="dropdown-item" href="settings.html">Settings</a>
-						<a class="dropdown-item" href="login.html">Logout</a>
+						<a class="dropdown-item" href="{% url 'authentication:my_profile' %}">My Profile</a>
+						<a class="dropdown-item" href="{% url 'authentication:settings' %}">Settings</a>
+						<a class="dropdown-item" href="{% url 'authentication:logout' %}">Logout</a>
 					</div>
 				</div>
 				<!-- /Mobile Menu -->
@@ -352,35 +358,27 @@
 				                  
 				                </div>
 				                <div class="nav-profile-text d-flex flex-column">
-				                  <span class="font-weight-bold mb-2">David Grey. H</span>
-				                  <span class="text-white text-small">Project Manager</span>
+				                  <span class="font-weight-bold mb-2 text-capitalize">{{request.user.username}}</span>
+				                  <span class="text-white text-small">ZENCRM Admin</span>
 				                </div>
 				                <i class="mdi mdi-bookmark-check text-success nav-profile-badge"></i>
 				              </a>
 				            </li>
 							<li class="menu-title"> 
 								<span>Main</span>
-							</li>
-							<li class="submenu">
-								<a href="#"><i class="feather-home"></i> <span> Dashboard</span> <span class="menu-arrow"></span></a>
-								<ul class="sub-menus">
-									<li><a href="index.html">Deals Dashboard</a></li>
-									<li><a href="projects-dashboard.html">Projects Dashboard</a></li>
-									<li><a href="leads-dashboard.html">Leads Dashboard</a></li>
-								</ul>
-							</li>
+							</li>						
 							
 							<li> 
-								<a href="tasks.html" class="active"><i class="feather-check-square"></i> <span>Customers</span></a>
+								<a href="{% url 'crm_admin:admin' %}" class="active"><i class="feather-check-square"></i> <span>Customers</span></a>
+							</li>
+							<li> 
+								<a href="{% url 'crm_admin:users' %}"><i class="feather-user"></i> <span>Users</span></a>
+							</li>
+							<li> 
+								<a href="{% url 'crm_admin:plans' %}"><i class="feather-calendar"></i> <span>Plan</span></a>
 							</li>
 							{% comment %} <li> 
-								<a href="contacts.html"><i class="feather-smartphone"></i> <span>Contacts</span></a>
-							</li>
-							<li> 
 								<a href="companies.html"><i class="feather-database"></i> <span>Companies</span></a>
-							</li>
-							<li> 
-								<a href="leads.html"><i class="feather-user"></i> <span>Leads</span></a>
 							</li>
 							
 							<li> 
@@ -564,6 +562,7 @@
 			                  <i class="feather-check-square"></i>
 			                </span> Customers </h3>
                 		</div>
+						
                 		<div class="col p-0 text-end">
                 			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
 								<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
@@ -571,6 +570,18 @@
 							</ul>
                 		</div>
                 	</div>
+
+					<br>
+
+					<div id="message-div">
+						{% if messages %}
+							<ul class="messages ps-0">
+								{% for message in messages %}
+								<li {% if message.tags %} class="{{message.tags}}" {% endif %}>{{message}}</li>
+								{% endfor %}
+							</ul>
+						{% endif %}
+					</div>
 					
 					<!-- Page Header -->
 					<div class="page-header pt-3 mb-0 ">
@@ -602,7 +613,7 @@
 					                    </div>
 					                </li>
 					                <li class="list-inline-item">
-					                    <button class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" id="add-task" data-bs-toggle="modal" data-bs-target="#add_task">New Task</button>
+					                    <button class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" id="add-task" data-bs-toggle="modal" data-bs-target="#add_task">New Customer</button>
 					                </li>
 					            </ul>
 							</div>
@@ -625,12 +636,11 @@
 														  <input type="checkbox">
 														  <span class="checkmark"></span>
 													</label>
-												</th>'
-												<th></th>
+												</th>
 												<th>Customer Name</th>
 												<th>Organization</th>
 												<th>Phone</th>
-												<th>Number of Users</th>
+												<th class="text-center">Number of Users</th>
 												<th>Status</th>
 												<th class="text-end">Actions</th>
 											</tr>											
@@ -643,25 +653,23 @@
 														<input type="checkbox">
 														<span class="checkmark"></span>
 													</label>
-												</td>
+												</td>											
 												<td>
-													<a href="#" class="avatar"><img alt="" {% if contact.image %} src="{{contact.image.url}}" {% else %} src="{% static 'assets/img/profiles/avatar-11.jpg' %}" {% endif %}></a>
-													<a href="#" data-bs-toggle="modal" data-bs-target="#system-user" data-contact-id={{contact.pk}} onclick="loadContactDetails({{ contact.pk }}); return false;">{{contact.first_name}} {{contact.last_name}}</a>
+													<a href="#" class="avatar"><img alt="" {% if customer.favicon %} src="{{customer.favicon.url}}" {% else %} src="{% static 'assets/img/profiles/avatar-11.jpg' %}" {% endif %}></a>
+													<a href="#" data-bs-toggle="modal" data-bs-target="#system-user" data-customer-id={{customer.pk}} onclick="loadCustomerDetails({{ customer.pk }}); return false;">{{customer.name}}</a>
 												</td>
-												<td>{{customer.name}}</td>
 												<td>
 													{{customer.organization}}
 												</td>
 												<td>{{customer.phone}}</td>
-												<td>{{customer.no_of_users}}</td>
-												<td>{% if customer.active %} Active {% else %} Not Active {% endif %}</td>
+												<td class="text-center">{{customer.no_of_users}}</td>
+												<td>{% if customer.active %} <span class="text-success">Active</span> {% else %} <span class="text-danger">Not Active</span> {% endif %}</td>
 												<td class="text-center">
 													<div class="dropdown dropdown-action">
 														<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
-														<div class="dropdown-menu dropdown-menu-right">
-															<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edit_contact" data-contact-id='{{contact.pk}}' onclick="editContact({{contact.pk}}); return false;">Edit This Contact</a>
-															<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#change_contact_image" data-contact-id="{{contact.pk}}" onclick="updateContactImage({{contact.pk}}); return false;">Change Contact Image</a>
-															<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#delete-contact-confirmation" data-contact-id="{{contact.pk}}" onclick="deleteContact({{contact.pk}}); return false;">Delete This Contact</a>
+														<div class="dropdown-menu dropdown-menu-right shadow rounded-3" style="max-height:200px; overflow:scroll;">
+															<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edit_customer_modal" data-customer-id='{{customer.pk}}' onclick="updateCustomerDetails({{customer.pk}}); return false;">Edit This Customer</a>
+															<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#customer-deletion-modal" data-customer-id="{{customer.pk}}" onclick="deleteCustomer({{customer.pk}}); return false;">Delete This Customer</a>
 															<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#clone_task_confirmation" data-contact-id="{{contact.pk}}" onclick="cloneContact({{contact.pk}}); return false;" >Clone This Contact</a>
 															<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#change_contact_owner" data-contact-id="{{contact.pk}}" onclick="changeContactOwner({{contact.pk}}); return false;">Change Record Owner</a>
 															<a class="dropdown-item" href="#">Generate Merge Document</a>
@@ -673,6 +681,11 @@
 															<a class="dropdown-item" href="#">Add Activity Set To Contact</a>
 															<a class="dropdown-item" href="#">Add New Deal For Contact</a>
 															<a class="dropdown-item" href="#">Add New Project For Contact</a>
+															{% if customer.active %}
+															<a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#customer-deactivation-modal" data-customer-id="{{customer.pk}}" onclick="deactivateCustomer({{customer.pk}}); return false;">Deactivate This Customer</a>
+															{% else %}
+															<a class="dropdown-item text-success" href="#" data-bs-toggle="modal" data-bs-target="#customer-activation-modal" data-customer-id="{{customer.pk}}" onclick="activateCustomer({{customer.pk}}); return false;">Activate This Customer</a>
+															{% endif %}
 														</div>
 													</div>
 												</td>
@@ -754,120 +767,72 @@
 						<div class="modal-body">
 							<div class="row">
 						        <div class="col-md-12">
-						            <form>
-						            	<h4>Task Details</h4>
+						            <form method="POST" action="{% url 'crm_admin:create_customer' %}">
+										{% csrf_token %}
+						            	<h4>Name & Organization</h4>
 						                <div class="form-group row">
 											<div class="col-sm-6">
-												 <label class="col-form-label">Task Name <span class="text-danger">*</span></label>
-				                            	<input class="form-control" type="text" name="task-name" id="task-name" placeholder="Task Name">
+												<label class="col-form-label" for="name">Customer Name <span class="text-danger">*</span></label>
+				                            	<input class="form-control" type="text" name="name" id="customer-name" placeholder="Customer Name" required>
 											</div>
 											<div class="col-sm-6">
-												<label class="col-form-label">Assigned To</label>
-					                            <select class="form-control">
-					                                <option>Me</option>
-					                            </select>
+												<label class="col-form-label">Organization Name</label>
+					                            <input class="form-control" type="text" name="organization" id="organization-name" placeholder="Organization Name" required>
 											</div>
 										</div>
 										<div class="form-group row">
 											<div class="col-sm-6">
-												 <label class="col-form-label">Category</label>
-					                            <select class="form-control">
-					                                <option>Email</option>
-					                                <option>Follow up</option>
-					                                <option>Get Started</option>
-					                                <option>Meeting</option>
-					                                <option>Phone call</option>
-					                             </select>
-											</div>
-											<div class="col-sm-6">
-												<label class="col-form-label">Due Date <span class="text-danger">*</span></label>
-				                                <div class="cal-icon"><input class="form-control datetimepicker" type="text" placeholder="MM/DD/YY"></div>
-											</div>
+												 <label class="col-form-label">Type of Organization <span class="text-danger">*</span></label>
+												 <select class="form-control" name="type_of_organization" id="organization_type" required>
+													<option hidden disabled selected>Select Type of Organization</option>
+													<option value="Corporate">Corporate</option>
+													<option value="Service Provider">Service Provider</option>
+													<option value="Manufacturing">Manufacturing</option>
+													<option value="Retail">Retail</option>
+													<option value="Financial Institution">Financial Institution</option>
+													<option value="Healthcare Provider">Healthcare Provider</option>
+													<option value="Technology Company">Technology Company</option>
+													<option value="Educational Institution">Educational Institution</option>
+													<option value="Nonprofit Organization">Nonprofit Organization</option>
+													<option value="Hospitality Industry">Hospitality Industry</option>
+													<option value="Government Agency">Government Agency</option>
+													<option value="Consulting Firm">Consulting Firm</option>
+													<option value="Legal Firm">Legal Firm</option>
+													<option value="Accounting Firm">Accounting Firm</option>
+													<option value="Transportation Company">Transportation Company</option>
+													<option value="Other">Other</option>                        
+												</select>
+											</div>											
 										</div>
-										<h4>Additional Information</h4>
+										<h4>Contact Information</h4>
 										<div class="form-group row">
 											<div class="col-sm-6">
-												 <label class="col-form-label">Start Date <span class="text-danger">*</span></label>
-				                            	<div class="cal-icon"><input class="form-control datetimepicker" type="text" placeholder="MM/DD/YY"></div>
+												<label class="col-form-label">Email <span class="text-danger">*</span></label>
+				                            	<input class="form-control" type="email" name="email" placeholder="Email of Customer" required>
 											</div>
 											<div class="col-sm-6">
-												<label class="col-form-label">Reminder Date <span class="text-danger">*</span></label>
-				                            	<div class="cal-icon"><input class="form-control datetimepicker" type="text" placeholder="MM/DD/YY"></div>
+												<label class="col-form-label">Phone <span class="text-danger">*</span></label>
+				                            	<input class="form-control" type="text" name="phone" pattern="[0-9]{10}" title="Please enter a 10-digit phone number (numbers only)" placeholder="Phone Number of Customer" required>
 											</div>
-										</div>
+										</div>									
+										<h4>Plan Information</h4>
 										<div class="form-group row">
 											<div class="col-sm-6">
-												<label class="col-form-label">Progress</label>
-				                            	<input class="form-control" type="text" name="progress" placeholder="Progress">
+												<label for="plan" class="form-label">Plan <span class="text-danger">*</span></label>
+												<select class="form-control" name="plan" id="plan" oninput="userRegistration()">
+													<option value="" hidden selected>Select Plan</option>
+													{% for plan in plans %}
+													<option value="{{plan.duration}}">{{plan.name}}</option>
+													{% endfor %}													
+												</select>
 											</div>
 											<div class="col-sm-6">
-												<label class="col-form-label">Progress</label>
-				                            	<input class="form-control" type="text" name="progress"  placeholder="Progress">
-											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-sm-6">
-												<label class="col-form-label">Priority</label>
-					                            <select class="form-control">
-					                                <option>Low</option>
-					                                <option>Medium</option>
-					                                <option>High</option>
-					                                
-					                             </select>
-											</div>
-											<div class="col-sm-6">
-												<label class="col-form-label">Priority</label>
-					                            <select class="form-control">
-					                                <option>Low</option>
-					                                <option>Medium</option>
-					                                <option>High</option>
-					                                
-					                             </select>
-											</div>
-										</div>
-										<div class="form-group row">
-											<div class="col-sm-6">
-												<label class="col-form-label">Status</label>
-					                            <select class="form-control">
-					                                <option>Not Started</option>
-					                                <option>Inprogress</option>
-					                                <option>Deferred</option>
-					                                <option>Waiting</option>
-					                             </select>
-											</div>
-											
-										</div>
-										<h4>Related To</h4>
-										<div class="form-group row">
-											<div class="col-sm-6">
-												<label class="col-form-label">Related To</label>
-					                            <select class="form-control">
-					                                <option>Select</option>
-					                                <option>Test</option>
-					                             </select>
-											</div>
-											
-										</div>
-										<h4>Description Information</h4>
-										<div class="form-group row">
-											<div class="col-sm-12">
-												<label class="col-form-label">Description </label>
-				                            	<textarea class="form-control" rows="3" id="description" placeholder="Description"></textarea>
-											</div>
-										</div>
-										<h4>Permissions</h4>
-										<div class="form-group row">
-											<div class="col-sm-6">
-												<label class="col-form-label">Permission</label>
-					                        	<select class="form-control">
-					                                <option>Task Visibility</option>
-					                                <option>Private Task</option>
-					                         	</select>
-											</div>
-											
-										</div>
+												<label for="no_of_users" class="form-label">Number of Users <span class="text-danger">*</span></label>
+												<input type="number" class="form-control" name="no_of_users" id="no_of_users" placeholder="Number of Users" value=0 oninput="userRegistration()" required>
+											</div>									
+										</div>										
 						                <div class="text-center py-3">
-						                	<button type="button" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Save</button>&nbsp;&nbsp;
+						                	<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Save</button>&nbsp;&nbsp;
 						                	<button type="button" class="btn btn-secondary btn-rounded">Cancel</button>
 						                </div>
 						            </form>
@@ -880,6 +845,222 @@
 				</div><!-- modal-dialog -->
 			</div><!-- modal -->
 
+			<!-- Modal (Update Customer) -->
+			<div class="modal right fade" id="edit_customer_modal" tabindex="-1" role="dialog" aria-modal="true">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title text-center">Edit Customer</h4>
+							<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+							</div>
+						<div class="modal-body">
+							<div class="row">
+								<div class="col-md-12">
+									<form method="POST" id="edit-customer-form">
+										{% csrf_token %}
+						            	<h4>Customer Name & Company</h4>
+						            	<div class="form-group row">
+				                            <div class="col-md-6">
+												<label class="col-form-label">Name <span class="text-danger">*</span></label>
+				                                <input class="form-control" type="text" placeholder="Name of Customer" name="name" id="customer-name-value" required>
+				                            </div>
+											<div class="col-md-6">
+												<label class="col-form-label">Website Name <span class="text-danger">*</span></label>
+				                                <input class="form-control" type="text" placeholder="Website Name" name="website_name" id="website-name-value" required>
+				                            </div>											
+				                        </div>
+						                <div class="form-group row">
+											<div class="col-sm-6">
+												<label class="col-form-label">Organization Name <span class="text-danger">*</span></label>
+												<input type="text" class="form-control"  name="organization" id="organization-name-value" placeholder="Organization Name" required>
+											</div>
+											<div class="col-sm-6">
+												<label class="col-form-label">Type of Organization <span class="text-danger">*</span></label>
+					                            <select class="form-control" name="type_of_organization" id='type-of-organization-value' required>
+					                                <option hidden selected>Select Organization</option>
+													<option value="Corporate">Corporate</option>
+													<option value="Service Provider">Service Provider</option>
+													<option value="Manufacturing">Manufacturing</option>
+													<option value="Retail">Retail</option>
+													<option value="Financial Institution">Financial Institution</option>
+													<option value="Healthcare Provider">Healthcare Provider</option>
+													<option value="Technology Company">Technology Company</option>
+													<option value="Educational Institution">Educational Institution</option>
+													<option value="Nonprofit Organization">Nonprofit Organization</option>
+													<option value="Hospitality Industry">Hospitality Industry</option>
+													<option value="Government Agency">Government Agency</option>
+													<option value="Consulting Firm">Consulting Firm</option>
+													<option value="Legal Firm">Legal Firm</option>
+													<option value="Accounting Firm">Accounting Firm</option>
+													<option value="Transportation Company">Transportation Company</option>
+													<option value="Other">Other</option>
+					                            </select>
+											</div>
+										</div>
+										<div class="form-group row">
+				                            <div class="col-md-6">
+												<label class="col-form-label">Logo <span class="text-danger">*</span></label>
+				                                <input class="form-control" type="file" name="logo">
+												<small><span>Current File: <a target="_blank" href="#" id="logo-value"></a></span></small>
+
+				                            </div>
+											<div class="col-md-6">
+												<label class="col-form-label">Favicon <span class="text-danger">*</span></label>
+				                                <input class="form-control" type="file" name="favicon">
+												<small><span>Current File: <a target="_blank" href="#" id="favicon-value"></a></span></small>
+				                            </div>											
+				                        </div>
+										<h4>Additional Details</h4>
+										<div class="form-group row">
+											<div class="col-sm-6">
+												<label class="col-form-label">Email</label>
+                            					<input type="email" class="form-control"  name="email" id="email-value" placeholder="Email" required>
+											</div>
+											<div class="col-sm-6">
+												<label class="col-form-label">Phone</label>
+                            					<input type="text" class="form-control" name="phone" id="phone-value" placeholder="Phone">
+											</div>
+										</div>
+										<div class="form-group row">
+											<div class="col-sm-6">
+												<label class="col-form-label">Plan <span class="text-danger">*</span></label>
+					                            <select class="form-control" name="plan" id='plan-value' required>
+					                                <option value="0" hidden selected>Select Plan</option>
+													<option value="0.25">3 Months</option>
+													<option value="0.5">6 Months</option>
+													<option value="1">1 Year</option>
+													<option value="2">2 Years</option>
+													<option value="3">3 Years</option>
+													<option value="4">4 Years</option>
+													<option value="5">5 Years</option>
+													<option value="6">6 Years</option>
+													<option value="7">7 Years</option>
+													<option value="8">8 Years</option>
+													<option value="9">9 Years</option>
+													<option value="10">10 Years</option>
+					                            </select>
+											</div>
+											<div class="col-sm-6">
+												<label class="col-form-label">Number of Users</label>
+                            					<input type="number" class="form-control"  name="no_of_users" id="no-of-users-value" placeholder="Number of Users">
+											</div>
+											<div class="text-center py-3">
+												<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Save</button>&nbsp;&nbsp;
+												<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+											</div>
+										</div>										
+						            </form>
+								</div>
+							</div>
+						</div>
+					</div><!-- modal-content -->
+				</div><!-- modal-dialog -->
+			</div><!-- modal (Update Customer) -->
+
+			<!-- Modal (Activate Customer) -->
+			<div class="modal fade" id="customer-activation-modal" tabindex="-1" role="dialog" aria-modal="true">
+				<div class="modal-dialog" role="document">
+					<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+					<div class="modal-content">
+
+						<div class="modal-header">
+		                    <h4 class="modal-title text-center">Activating Customer '<span id="activating-customer-object"></span>'</h4>
+		                    <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+		                  </div>
+
+						<div class="modal-body">
+							<div class="row">
+						        <div class="col-md-12">
+						            <form method="POST" id="customer-activation-form" enctype="multipart/form-data">
+										{% csrf_token %}						            	
+						            	<div class="form-group row">
+				                            <div class="col-md-12">
+				                                <label for="no_of_users" class="form-label">Plan <span class="text-danger">*</span></label>
+												<select class="form-control" name="plan" id="plan" required>
+													<option value="" hidden disabled selected>Select Plan</option>
+													<option value="0.25">3 Months</option>
+													<option value="0.5">6 Months</option>
+													<option value="1">1 Year</option>
+													<option value="2">2 Years</option>
+													<option value="3">3 Years</option>
+													<option value="4">4 Years</option>
+													<option value="5">5 Years</option>
+													<option value="6">6 Years</option>
+													<option value="7">7 Years</option>
+													<option value="8">8 Years</option>
+													<option value="9">9 Years</option>
+													<option value="10">10 Years</option>
+												</select>
+				                            </div>				                            
+				                        </div>						                
+						                <div class="text-center py-3">
+						                	<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded px-0" style="width:100px">Activate</button>&nbsp;&nbsp;
+						                	<button type="button" class="btn btn-secondary btn-rounded px-0" style="width:100px" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+						                </div>
+						            </form>
+						        </div>
+							</div>
+						</div>
+
+					</div><!-- modal-content -->
+				</div><!-- modal-dialog -->
+			</div><!-- modal (Activate Customer)-->
+
+			<!-- Modal (Deactivate Customer) -->
+			<div class="modal fade" id="customer-deactivation-modal" tabindex="-1" role="dialog" aria-modal="true">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title text-center">Deactivating Customer '<span id="deactivating-customer-object"></span>'</h4>
+							<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+						</div>
+						<div class="modal-body">
+							<div class="row">
+								<div class="col-md-12">
+									<form method="POST" id="deactivate-customer-form" enctype="multipart/form-data">
+										{% csrf_token %}
+										<h5>Are you sure?</h5>								
+										<div class="text-center py-3">
+											<button type="submit" class="border-0 btn btn-danger btn-gradient-primary btn-rounded">Yes</button>&nbsp;&nbsp;
+											<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div><!-- modal-content -->
+				</div><!-- modal-dialog -->
+			</div><!-- modal (Deactivate Customer) --> 
+
+			<!-- Modal (Delete Customer) -->
+			<div class="modal fade" id="customer-deletion-modal" tabindex="-1" role="dialog" aria-modal="true">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title text-center">Deleting Customer '<span id="customer-deletion-object"></span>'</h4>
+							<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+						</div>
+						<div class="modal-body">
+							<div class="row">
+								<div class="col-md-12">
+									<form method="GET" id="customer-deletion-form">
+										{% csrf_token %}
+										<h5>Are you sure?</h5>
+										<div class="alert alert-danger">
+											<small><span>Note: This would also delete all the users that belong to the organization '<span id='deleting-organization-object'></span>' from the CRM system.</span></small>
+										</div>								
+										<div class="text-center py-3">
+											<button type="submit" class="border-0 btn btn-danger btn-gradient-primary btn-rounded">Yes</button>&nbsp;&nbsp;
+											<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div><!-- modal-content -->
+				</div><!-- modal-dialog -->
+			</div><!-- modal (Delete Customer) --> 
+
 			<!--system users Modal -->
             <div class="modal right fade" id="system-user" tabindex="-1" role="dialog" aria-modal="true">
               <div class="modal-dialog" role="document">
@@ -891,11 +1072,11 @@
                     <div class="row w-100">
                       <div class="col-md-7 account d-flex">
                       	<div class="company_img">
-                      		<img src="{% static 'assets/img/system-user.png' %}" alt="User" class="user-image" class="img-fluid" />
+                      		<img src="{% static 'assets/img/system-user.png' %}" id="company-image" alt="User" class="user-image" class="img-fluid" />
                   		</div>
                   		<div>
-                  			<p class="mb-0">System User</p>
-                  			<span class="modal-title">John Doe</span>
+                  			<p class="mb-0">Customer</p>
+                  			<span class="modal-title customer-name"></span>
                     		<span class="rating-star"><i class="fa fa-star" aria-hidden="true"></i></span>
                     		<span class="lock"><i class="fa fa-lock" aria-hidden="true"></i></span>
                   		</div>
@@ -932,27 +1113,19 @@
 
                   <div class="card due-dates">
                   	<div class="card-body">
-	                    <div class="row">
+	                    <div class="row">	                      
 	                      <div class="col">
-	                        <span>Title</span>
-	                        <p>VB of sales</p>
-	                      </div>
-	                      <div class="col">
-	                        <span>Companies</span>
-	                        <p>Solemen tech</p>
+	                        <span>Company</span>
+	                        <p class="customer-organization"></p>
 	                      </div>
 	                      <div class="col">
 	                        <span>Phone</span>
-	                        <p>9876764875</p>
+	                        <p class="customer-phone"></p>
 	                      </div>
 	                      <div class="col">
 	                        <span>Email</span>
-	                        <p>johndoe@gmail.com</p>
-	                      </div>
-	                      <div class="col">
-	                        <span>Contact owner</span>
-	                        <p>John Doe</p>
-	                      </div>
+	                        <p class="customer-email"></p>
+	                      </div>	                      
 	                    </div>
 	                </div>
                   </div>
@@ -968,27 +1141,23 @@
 							<div class="tab-pane show active" id="task-details">
 								<div class="crms-tasks">
 							  	<div class="tasks__item crms-task-item active">
-							    	<div class="accordion-header js-accordion-header">Name & Occupation</div> 
+							    	<div class="accordion-header js-accordion-header">Customer Name & Company</div> 
 								  	<div class="accordion-body js-accordion-body">
 									    <div class="accordion-body__contents">
 									      <table class="table">
 				                                <tbody>
 				                                  <tr>
-				                                    <td class="border-0">Record ID</td>
-				                                    <td class="border-0">124192692</td>
+				                                    <td class="border-0">Organization ID</td>
+				                                    <td class="border-0 customer-organization-id"></td>
 				                                  </tr>
 				                                  <tr>
 				                                    <td class="border-0">Name</td>
-				                                    <td class="border-0">John Doe</td>
+				                                    <td class="border-0 customer-name"></td>
 				                                  </tr>
 				                                  <tr>
 				                                    <td>Company</td>
-				                                    <td>Solemen</td>
-				                                  </tr>
-				                                  <tr>
-				                                    <td>Title</td>
-				                                    <td>Phone Enquiry</td>
-				                                  </tr>
+				                                    <td class="customer-organization"></td>
+				                                  </tr>				                                  
 				                                </tbody>
 				                            </table>
 									    </div>
@@ -1002,104 +1171,18 @@
 			                                <tbody>
 			                                  <tr>
 			                                    <td class="border-0">Email</td>
-			                                    <td class="border-0">johndoe@gmail.com</td>
-			                                  </tr>
-			                                  <tr>
-			                                    <td>Email Opted out</td>
-			                                    <td>
-			                                      <div class="form-check m-0 ps-0">
-			                                        <label class="form-check-label">
-			                                          <input class="checkbox" type="checkbox"> <i class="input-helper"></i><i class="input-helper"></i><i class="input-helper"></i></label>
-			                                      </div>
-			                                    </td>
+			                                    <td class="border-0 customer-email"></td>
 			                                  </tr>
 			                                  <tr>
 			                                    <td>Phone</td>
-			                                    <td>9878767565</td>
-			                                  </tr>
-			                                  <tr>
-			                                    <td>Home Phone</td>
-			                                    <td>0422-453444</td>
-			                                  </tr>
-			                                  <tr>
-			                                    <td>Mobile Phone</td>
-			                                    <td>9788787888</td>
-			                                  </tr>
-			                                  <tr>
-			                                    <td>Other Phone</td>
-			                                    <td>9098686787</td>
-			                                  </tr>
-			                                  <tr>
-			                                    <td>Assistant Phone</td>
-			                                    <td>8755589866</td>
-			                                  </tr>
-			                                  <tr>
-			                                    <td>Assistant Name</td>
-			                                    <td>Williams</td>
-			                                  </tr>
-			                                  <tr>
-			                                    <td>Fax</td>
-			                                    <td>5345</td>
-			                                  </tr>
-			                                  <tr>
-			                                    <td>Linkedin</td>
-			                                    <td>Lorem ipsum</td>
-			                                  </tr>
-			                                  <tr>
-			                                    <td>Facebook</td>
-			                                    <td>Lorem ipsum</td>
-			                                  </tr>
-			                                  <tr>
-			                                    <td>Twitter</td>
-			                                    <td>will_ams</td>
-			                                  </tr>
-			                                  
+			                                    <td class="customer-phone"></td>
+			                                  </tr>			                                  			                                  
 			                                </tbody>
 			                            </table>
 								    </div>
 							    </div>
 							  </div>
-							  <div class="tasks__item crms-task-item active">
-							    <div class="accordion-header js-accordion-header">Address Information</div> 
-							  	<div class="accordion-body js-accordion-body">
-								    <div class="accordion-body__contents">
-								      <table class="table">
-		                                <tbody>
-		                                  <tr>
-		                                    <td class="border-0">Mailling Address</td>
-		                                    <td class="border-0">USA</td>
-		                                  </tr>
-		                                  <tr>
-		                                    <td>Other Address</td>
-		                                    <td>Winson Road</td>
-		                                  </tr>
-		                                </tbody>
-		                              </table>
-								    </div>
-								    
-							    </div>
-							  </div>
-							  <div class="tasks__item crms-task-item active">
-							    <div class="accordion-header js-accordion-header">Dates To Remember</div> 
-							  	<div class="accordion-body js-accordion-body">
-								    <div class="accordion-body__contents">
-								      <table class="table">
-			                                <tbody>
-			                                  <tr>
-			                                    <td class="border-0">Dates to Remember</td>
-			                                    <td class="border-0">09/05/2000</td>
-			                                  </tr>
-			                                  <tr>
-			                                    <td>Date of Birth</td>
-			                                    <td>01/01/2013</td>
-			                                  </tr>
-			                                  
-			                                </tbody>
-			                              </table>
-								    </div>
-								    
-							    </div>
-							  </div>
+							  
 							  <div class="tasks__item crms-task-item active">
 							    <div class="accordion-header js-accordion-header">Additional Information</div> 
 							  	<div class="accordion-body js-accordion-body">
@@ -1107,20 +1190,28 @@
 								      	<table class="table">
 			                                <tbody>
 				                                  <tr>
-				                                    <td class="border-0">Date of Next Activity</td>
-				                                    <td class="border-0">01/04/2013</td>
+				                                    <td class="border-0">Website Name</td>
+				                                    <td class="border-0 customer-website-name"></td>
 				                                  </tr>
 				                                  <tr>
-				                                    <td>Date of Last Activity</td>
-				                                    <td>01/01/2013</td>
+				                                    <td>Number of Users</td>
+				                                    <td class="customer-no-of-users"></td>
 				                                  </tr>
 				                                  <tr>
-				                                    <td>Contact Owner</td>
-				                                    <td>John Doe</td>
+				                                    <td>Plan</td>
+				                                    <td class="customer-plan"></td>
 				                                  </tr>
 				                                  <tr>
-				                                    <td>Contact Created</td>
-				                                    <td>Jun 20, 2020</td>
+				                                    <td>Amount Payed</td>
+				                                    <td class="customer-amount"></td>
+				                                  </tr>
+												  <tr>
+				                                    <td>Created On</td>
+				                                    <td class="customer-created-on"></td>
+				                                  </tr>
+												  <tr>
+				                                    <td>Expiry Date</td>
+				                                    <td class="customer-expiry-date"></td>
 				                                  </tr>
 			                                  
 			                                	</tbody>
@@ -1128,38 +1219,7 @@
 								    </div>
 								    
 							    </div>
-							  </div>
-							  <div class="tasks__item crms-task-item active">
-							    <div class="accordion-header js-accordion-header">Description Information</div> 
-							  	<div class="accordion-body js-accordion-body">
-								    <div class="accordion-body__contents">
-								      <table class="table">
-			                                <tbody>
-				                                <tr>
-				                                    <td class="border-0">Description</td>
-				                                    <td class="border-0">Lorem Ipsum</td>
-				                                </tr>
-			                                </tbody>
-			                              </table>
-								    </div>
-							    </div>
-							  </div>
-							  <div class="tasks__item crms-task-item active">
-							    <div class="accordion-header js-accordion-header">Tag List</div> 
-							  	<div class="accordion-body js-accordion-body">
-								    <div class="accordion-body__contents">
-								      <table class="table">
-			                                <tbody>
-			                                  <tr>
-			                                    <td class="border-0">Tag List</td>
-			                                    <td class="border-0">Lorem Ipsum</td>
-			                                  </tr>
-			                                </tbody>
-			                              </table>
-								    </div>
-								    
-							    </div>
-							  </div>
+							  </div>				
 							</div>
 							</div>
 								
@@ -1818,7 +1878,7 @@
 							<div class="tab-pane show active" id="tasks-details">
 								<div class="crms-tasks">
 							  	<div class="tasks__item crms-task-item active">
-							    	<div class="accordion-header js-accordion-header">Name & Occupation</div> 
+							    	<div class="accordion-header js-accordion-header">Customer Name & Company</div> 
 								  	<div class="accordion-body js-accordion-body">
 									    <div class="accordion-body__contents">
 									      <table class="table">
@@ -2485,6 +2545,22 @@
 		<!-- Custom JS -->
 		<script src="{% static 'assets/js/app.js' %}"></script>
 
+		<!-- Fetching customer main user details -->
+		<script src="{% static 'js/crm_admin/loadCustomerDetails.js' %}"></script>
+
+		<!-- Edit Customer Details -->
+		<script src="{% static 'js/crm_admin/updateCustomerDetails.js' %}"></script>
+
+		<!-- Delete Customer Details -->
+		<script src="{% static 'js/crm_admin/deleteCustomer.js' %}"></script>
+
+		<!-- Deactivate Customer -->
+		<script src="{% static 'js/crm_admin/deactivateCustomer.js' %}"></script>
 		
+		<!-- Activate Customer -->
+		<script src="{% static 'js/crm_admin/activateCustomer.js' %}"></script>
+		
+		<!-- Customer Registration -->
+		<script src="{% static 'js/landing/userRegistration.js' %}"></script>
     </body>
 </html>

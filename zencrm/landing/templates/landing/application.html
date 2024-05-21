@@ -1,4 +1,5 @@
 <!doctype html>
+{% load static %}
 <html lang="en">
     <head>
         <title>Application For Crm</title>
@@ -20,6 +21,16 @@
 
     <body>
         <main class="container mt-3">
+            <div id="message-div">
+                {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                    <li {% if message.tags %} class="{{message.tags}}" {% endif %}>{{message}}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            <br>
             <form class="border shadow rounded-3 p-3 row" enctype="multipart/form-data" method="POST" action="{% url 'landing:application' %}">
                 {% csrf_token %}
                 <h4 class="text-center text-uppercase">Application Form</h4>
@@ -30,15 +41,11 @@
                         <input type="text" class="form-control" name="name" placeholder="Name" required>
                     </div>
                     <div class="form-group col-md-6 mb-3">
-                        <label for="logo" class="form-label">Logo <span class="text-danger"></span></label>
-                        <input type="file" class="form-control" name="logo">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="form-group col-md-6 mb-3">
                         <label for="organization" class="form-label">Organization Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" name="organization" placeholder="Organization Name" required>
                     </div>
+                </div>
+                <div class="row">
                     <div class="form-group col-md-6 mb-3">
                         <label for="type_of_organization" class="form-label">Type of Organization <span class="text-danger">*</span></label>
                         <select class="form-control" name="type_of_organization" id="organization_type" required>
@@ -61,25 +68,47 @@
                             <option value="Other">Other</option>                        
                         </select>
                     </div>
-                </div>
-                <div class="row">
                     <div class="form-group col-md-6 mb-3">
                         <label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" pattern="[0-9]+" title="Please provide a valid phone number." name="phone" placeholder="Phone" required>
                     </div>
+                </div>
+                <div class="row">
                     <div class="form-group col-md-6 mb-3">
                         <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
                         <input type="email" class="form-control" name="email" placeholder="Email" required>
+                    </div>
+                    <div class="form-group col-md-6 mb-3">
+                        <label for="plan" class="form-label">Plan <span class="text-danger">*</span></label>
+                        <select class="form-control" name="plan" id="plan" oninput="userRegistration()">
+                            <option value="" hidden selected>Select Plan</option>
+                            <option value="0.25">3 Months</option>
+                            <option value="0.5">6 Months</option>
+                            <option value="1">1 Year</option>
+                            <option value="2">2 Years</option>
+                            <option value="3">3 Years</option>
+                            <option value="4">4 Years</option>
+                            <option value="5">5 Years</option>
+                            <option value="6">6 Years</option>
+                            <option value="7">7 Years</option>
+                            <option value="8">8 Years</option>
+                            <option value="9">9 Years</option>
+                            <option value="10">10 Years</option>
+                        </select>
                     </div>
                 </div>
                 <div class="row">
                     <div class="form-group col-md-6 mb-3">
                         <label for="no_of_users" class="form-label">Number of Users <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control" name="no_of_users" placeholder="Number of Users" required>
-                    </div>                
-                    <div class="form-group col-md-6 mb-4">
-                        <label for="amount" class="form-label">Amount <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" pattern="[0-9]+" title="Please provide amount in digits." name="amount" placeholder="Amount" required>
+                        <input type="number" class="form-control" name="no_of_users" id="no_of_users" placeholder="Number of Users" value=0 oninput="userRegistration()" required>
+                    </div>
+                    <div class="form-group col-md-6 mb-4" id="amount-details" style="display: none;">
+                        <br>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <p>Total Amount: <span id="total-amount"></span></p>
+                            <p>Discount: <span class="text-danger" id="discount"></span></p>
+                        </div>
+                        <p>Amount Payable: <span class="text-success" id="amount-payable"></span></p>
                     </div>
                 </div>
                 <div class="form-group text-center">
@@ -99,5 +128,6 @@
             integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
             crossorigin="anonymous"
         ></script>
+        <script src="{% static 'js/landing/userRegistration.js' %}"></script>
     </body>
 </html>

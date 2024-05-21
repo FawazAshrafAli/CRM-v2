@@ -194,3 +194,11 @@ CORS_ALLOWED_ORIGINS = [
 # Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
+
+# Email Response
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Replace with your SMTP server
+EMAIL_PORT = 587  # You can also try using port 465 with SSL/TLS
+EMAIL_USE_TLS = True  # Use TLS (True/False)
+EMAIL_HOST_USER = 'w3digitalpmna@gmail.com'  # Replace with your email
+EMAIL_HOST_PASSWORD = 'kznq nfik tmpc fqlj'  # Replace with your email password

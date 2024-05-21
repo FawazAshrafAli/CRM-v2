@@ -54,8 +54,8 @@
 				<!-- Logo -->
                 <div class="header-left">
                     <a href="{% url 'dashboard:deals_dashboard' %}" class="logo">
-						<img {% if customer.logo %} src="{{customer.logo.url}}" {% else %} src="{% static 'images/zencrm_logo.png' %}" {% endif %}  alt="Logo" class="sidebar-logo">
-						<img {% if customer.logo %} src="{{customer.logo.url}}" {% else %} src="{% static 'images/zencrm_logo.png' %}" {% endif %}  alt="Logo" class="mini-sidebar-logo">
+						<img {% if customer.logo %} src="{{customer.logo.url}}" {% else %} src="{% static 'images/zencrm_logo.png' %}" {% endif %}  alt="Logo"  style="height:50px; width:auto" class="sidebar-logo">
+						<img {% if customer.logo %} src="{{customer.logo.url}}" {% else %} src="{% static 'images/zencrm_logo.png' %}" {% endif %}  alt="Logo" class="mini-sidebar-logo"  style="height:50px; width:auto">
 					</a>
                 </div>
 				<!-- /Logo -->
@@ -320,7 +320,7 @@
 						</a>
 						<div class="dropdown-menu">
 							<a class="dropdown-item" href="{% url 'authentication:my_profile' %}">My Profile</a>
-							<a class="dropdown-item" href="settings.html">Settings</a>
+							<a class="dropdown-item" href="{% url 'authentication:settings' %}">Settings</a>
 							<a class="dropdown-item" href="{% url 'authentication:logout' %}">Logout</a>
 						</div>
 					</li>
@@ -331,9 +331,9 @@
 				<div class="dropdown mobile-user-menu">
 					<a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 					<div class="dropdown-menu dropdown-menu-right">
-						<a class="dropdown-item" href="profile.html">My Profile</a>
-						<a class="dropdown-item" href="settings.html">Settings</a>
-						<a class="dropdown-item" href="login.html">Logout</a>
+						<a class="dropdown-item" href="{% url 'authentication:my_profile' %}">My Profile</a>
+						<a class="dropdown-item" href="{% url 'authentication:settings' %}">Settings</a>
+						<a class="dropdown-item" href="{% url 'authentication:logout' %}">Logout</a>
 					</div>
 				</div>
 				<!-- /Mobile Menu -->

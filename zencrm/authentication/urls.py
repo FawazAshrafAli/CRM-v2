@@ -9,7 +9,15 @@ from .views import (LoginView, LogoutView, RegisterUserView,
                     FamilyMemberDeleteView, EducationDetailView, 
                     EducationUpdateView, EducationDeleteView, 
                     ExperienceDetailView, ExperienceUpdateView, 
-                    ExperienceDeleteView)
+                    ExperienceDeleteView, SettingsView,
+                    LocalizationView, PaymentSettingsView, 
+                    EmailSettingsView, SocialMediaLoginView, 
+                    SocialLinksView, SeoSettingsView, 
+                    OtherSettingsView, AddNewUserView, 
+                    UpdateCustomerBasicView, RemoveCustomerLogoView, 
+                    RemoveCustomerFaviconView, UpdateNumberOfUsers, 
+                    DeleteUserView, UserDetailView,
+                    UpdateUsername, ChangePassword)
 
 app_name = "authentication"
 
@@ -40,6 +48,25 @@ urlpatterns = [
     path('delete_experience/<pk>', ExperienceDeleteView.as_view(), name="delete_experience"),
 
     path('my_profile/', MyProfileView.as_view(), name="my_profile"),
+
+    path('settings/', SettingsView.as_view(), name="settings"),
+    path('update_customer_basic/<pk>', UpdateCustomerBasicView.as_view(), name="update_customer_basic"),
+    path('update_number_of_users/<pk>', UpdateNumberOfUsers.as_view(), name="update_number_of_users"),
+    path('remove_customer_logo/<pk>', RemoveCustomerLogoView.as_view(), name="remove_customer_logo"),
+    path('remove_customer_favicon/<pk>', RemoveCustomerFaviconView.as_view(), name="remove_customer_favicon"),
+    path('add_user/', AddNewUserView.as_view(), name="add_user"),
+    path('detail_user/<pk>', UserDetailView.as_view(), name="detail_user"),
+    path('delete_user/<pk>', DeleteUserView.as_view(), name="delete_user"),
+    path('update_username/', UpdateUsername.as_view(), name="update_username"),
+    path('change_password/', ChangePassword.as_view(), name="change_password"),
+
+    path('localization_settings/', LocalizationView.as_view(), name="localization_settings"),
+    path('payment_settings/', PaymentSettingsView.as_view(), name="payment_settings"),
+    path('email_settings/', EmailSettingsView.as_view(), name="email_settings"),
+    path('social_media_settings/', SocialMediaLoginView.as_view(), name="social_media_settings"),
+    path('social_link_settings/', SocialLinksView.as_view(), name="social_link_settings"),
+    path('seo_settings/', SeoSettingsView.as_view(), name="seo_settings"),
+    path('other_settings/', OtherSettingsView.as_view(), name="other_settings"),
 
     path('error404', Error404.as_view(), name="error404"),
     path('error500', Error500.as_view(), name="error500"),

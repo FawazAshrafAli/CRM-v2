@@ -4,10 +4,12 @@ from leads.models import Lead
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import Http404, JsonResponse
-from django.core.serializers import serialize
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 
 from .models import Program, Course
 
+@method_decorator(never_cache, name='dispatch')
 class FormView(TemplateView):
     template_name = 'capture_form/form.html'
 
@@ -23,6 +25,8 @@ class FormView(TemplateView):
         context['states'] = states
         return context
 
+
+@method_decorator(never_cache, name='dispatch')
 
 class CreateLeadView(FormView, CreateView):
     model = Lead

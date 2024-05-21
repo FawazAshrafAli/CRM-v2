@@ -321,8 +321,8 @@
 						</a>
 						<div class="dropdown-menu">
 							<a class="dropdown-item" href="{% url 'authentication:my_profile' %}">My Profile</a>
-							<a class="dropdown-item" href="settings.html">Settings</a>
-							<a class="dropdown-item" href="login.html">Logout</a>
+							<a class="dropdown-item" href="{% url 'authentication:settings' %}">Settings</a>
+							<a class="dropdown-item" href="{% url 'authentication:logout' %}">Logout</a>
 						</div>
 					</li>
 				</ul>
@@ -332,9 +332,9 @@
 				<div class="dropdown mobile-user-menu">
 					<a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
 					<div class="dropdown-menu dropdown-menu-right">
-						<a class="dropdown-item" href="profile.html">My Profile</a>
-						<a class="dropdown-item" href="settings.html">Settings</a>
-						<a class="dropdown-item" href="login.html">Logout</a>
+						<a class="dropdown-item" href="{% url 'authentication:my_profile' %}">My Profile</a>
+						<a class="dropdown-item" href="{% url 'authentication:settings' %}">Settings</a>
+						<a class="dropdown-item" href="{% url 'authentication:logout' %}">Logout</a>
 					</div>
 				</div>
 				<!-- /Mobile Menu -->
@@ -1740,11 +1740,11 @@
 									<div class="form-group row">
 										<div class="col-sm-6">
 											<label class="col-form-label">Started Month and Year <span class="text-danger">*</span></label>
-											<input class="form-control" type="month" pattern="\d{4}" title="Enter a valid year." name="started_month_and_year" placeholder="MM/YYYY" required>
+											<input class="form-control" type="text" pattern="\d{2}/\d{4}" title="Enter a valid month and year in the format MM/YYYY." name="started_month_and_year" id="started_month_and_year" placeholder="MM/YYYY" required>
 										</div>
 										<div class="col-sm-6">
 											<label class="col-form-label">Completed Month and Year <span class="text-danger"></span></label>
-											<input class="form-control" type="month" pattern="\d{4}" title="Enter a valid year." name="completed_month_and_year" id="completed_month_and_year" placeholder="MM/YYYY">
+											<input class="form-control" type="text" pattern="\d{2}/\d{4}" title="Enter a valid month and year in the format MM/YYYY." name="completed_month_and_year" id="completed_month_and_year" placeholder="MM/YYYY">
 											<br>
 											<input type="checkbox" name="present" id="present-checkbox" checked> Present
 										</div>
@@ -2255,11 +2255,11 @@
 									<div class="form-group row">
 										<div class="col-sm-6">
 											<label class="col-form-label">Started Month and Year <span class="text-danger">*</span></label>
-											<input class="form-control" type="month" pattern="\d{4}" title="Enter a valid year." name="started_month_and_year" id="started-month-and-year-value" placeholder="MM/YYYY" required>
+											<input class="form-control" type="text" pattern="\d{2}/\d{4}" title="Enter a valid month and year in the format MM/YYYY." name="started_month_and_year"  id="started-month-and-year-value" placeholder="MM/YYYY" required>
 										</div>
 										<div class="col-sm-6">
 											<label class="col-form-label">Completed Month and Year <span class="text-danger"></span></label>
-											<input class="form-control" type="month" pattern="\d{4}" title="Enter a valid year." name="completed_month_and_year" id="completed-month-and-year-value" placeholder="MM/YYYY">
+											<input class="form-control" type="text" pattern="\d{2}/\d{4}" title="Enter a valid month and year in the format MM/YYYY." name="completed_month_and_year"  id="completed-month-and-year-value" placeholder="MM/YYYY">
 											<br>
 											<input type="checkbox" name="present" id="experience-update-checkbox" checked> Present
 										</div>

@@ -14,14 +14,20 @@ from django.db.utils import IntegrityError
 from django.http import Http404
 from datetime import datetime
 from django.db import models
+from django.views.decorators.cache import never_cache
+from django.utils.decorators import method_decorator
 
-from authentication.models import User
-from .models import CrmUserFamilyInformation, CrmUserEducation, CrmUserExperience
+from crm_admin.models import Customer
+from .models import User, CrmUserFamilyInformation, CrmUserEducation, CrmUserExperience
 
+@method_decorator(never_cache, name='dispatch')
 class RegisterUserView(TemplateView):
     template_name = 'authentication/register.html'
 
     def post(self, request, *args, **kwargs):
+        if request.method != "POST":
+            return redirect(reverse_lazy("authentication:error500"))
+            
         context = {}
         message = None
 
@@ -72,6 +78,7 @@ class RegisterUserView(TemplateView):
 
 class LoginView(View):
     template_name = 'authentication/login.html'
+    success_url = reverse_lazy('authentication:login')
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
@@ -79,18 +86,19 @@ class LoginView(View):
         return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
-        if request.method == "POST":
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request,user)
-                return redirect(reverse('dashboard:deals_dashboard'))
-            else:
-                messages.error(request, 'Invalid username or password')                
+        if request.method != "POST":
+            return redirect(reverse_lazy("authentication:error500"))
 
-        return redirect(reverse_lazy('authentication:login'))
-        
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request,user)
+            return redirect(reverse('dashboard:deals_dashboard'))
+        else:
+            messages.error(request, 'Invalid username or password')                
+            return redirect('/authentication/')
+
         
 class LogoutView(LoginRequiredMixin, View):
     login_url = 'authentication:login'
@@ -103,6 +111,8 @@ class LogoutView(LoginRequiredMixin, View):
 class BaseCrmUserView(LoginRequiredMixin):
     login_url = "authentication:login"
     model = User
+    error404 = reverse_lazy('authentication:error404')
+    error500 = reverse_lazy('authentication:error500')
 
 
 class CrmUserDetailView(BaseCrmUserView, DetailView):    
@@ -148,8 +158,12 @@ class CrmUserUpdateView(BaseCrmUserView, View):
     model = User
     fields = "__all__"
     success_url = reverse_lazy('authentication:my_profile')
+    redirect_url = success_url
 
     def post(self, request, *args, **kwargs):
+        if request.method != "POST":
+            return redirect(self.error500)
+
         try:
             self.object = get_object_or_404(User, pk = self.request.user.pk)
         except Http404:
@@ -209,8 +223,12 @@ class CrmUserPersonalInfoUpdateView(BaseCrmUserView, View):
         "employment_of_spouse", "number_of_children", 
     ]
     success_url = reverse_lazy('authentication:my_profile')
+    redirect_url = success_url
 
     def post(self, request, *args, **kwargs):
+        if request.method != "POST":
+            return redirect(self.error500)
+
         try:
             self.object = get_object_or_404(User, pk = self.request.user.pk)
         except Http404:
@@ -252,8 +270,12 @@ class CrmUserEmergencyContactUpdateView(BaseCrmUserView, View):
         "secondary_contact_phone1", "secondary_contact_phone2"
     ]
     success_url = reverse_lazy('authentication:my_profile')
+    redirect_url = success_url
 
     def post(self, request, *args, **kwargs):
+        if request.method != "POST":
+            return redirect(self.error500)
+
         try:
             self.object = get_object_or_404(User, pk = self.request.user.pk)
         except Http404:
@@ -295,6 +317,9 @@ class CrmUserBankInfoUpdateView(BaseCrmUserView, View):
     success_url = reverse_lazy('authentication:my_profile')
 
     def post(self, request, *args, **kwargs):
+        if request.method != "POST":
+            return redirect(self.error500)
+
         try:
             self.object = get_object_or_404(User, pk = self.request.user.pk)
         except Http404:
@@ -331,6 +356,9 @@ class CrmUserFamilyUpdationView(BaseCrmUserView, CreateView):
             return redirect(reverse_lazy('authentication:error404'))
 
     def post(self, request, *args, **kwargs):
+        if request.method != "POST":
+            return redirect(self.error500)
+
         self.object = self.get_object()
 
         name = request.POST.get('name')
@@ -376,6 +404,9 @@ class CrmUserEducationUpdationView(BaseCrmUserView, UpdateView):
             return redirect(reverse_lazy('authentication:error404'))
 
     def post(self, request, *args, **kwargs):
+        if request.method != "POST":
+            return redirect(self.error500)
+
         self.object = self.get_object()
 
         institution = request.POST.get('institution')
@@ -425,6 +456,9 @@ class CrmUserExperienceUpdationView(BaseCrmUserView, CreateView):
             return redirect(reverse_lazy('authentication:error404'))
 
     def post(self, request, *args, **kwargs):
+        if request.method != "POST":
+            return redirect(self.error500)
+
         self.object = self.get_object()
 
         designation = request.POST.get('designation')
@@ -480,7 +514,7 @@ class MyProfileView(BaseCrmUserView, TemplateView):
         return context
 
 
-class FamilyMemberDetailView(LoginRequiredMixin, DetailView):
+class FamilyMemberDetailView(BaseCrmUserView, DetailView):
     model = CrmUserFamilyInformation
     
     def get_object(self, **kwargs):
@@ -560,7 +594,7 @@ class FamilyMemberDeleteView(BaseCrmUserView, View):
             return redirect(reverse_lazy('authentication:error500'))
 
 
-class EducationDetailView(LoginRequiredMixin, DetailView):
+class EducationDetailView(BaseCrmUserView, DetailView):
     model = CrmUserEducation
     
     def get_object(self, **kwargs):
@@ -642,7 +676,7 @@ class EducationDeleteView(BaseCrmUserView, View):
 
 
 
-class ExperienceDetailView(LoginRequiredMixin, DetailView):
+class ExperienceDetailView(BaseCrmUserView, DetailView):
     model = CrmUserExperience
     
     def get_object(self, **kwargs):
@@ -721,6 +755,226 @@ class ExperienceDeleteView(BaseCrmUserView, View):
         except Exception as e:
             print(e)
             return redirect(reverse_lazy('authentication:error500'))
+
+
+class SettingsView(BaseCrmUserView, TemplateView):
+    model = User
+    template_name = 'crmuser/settings.html'
+    success_url = reverse_lazy('authentication:settings')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try: 
+            customer = get_object_or_404(Customer, organization_id = self.request.user.organization_id)
+        except Http404:
+            return redirect(self.error404)
+        no_of_users = User.objects.filter(organization_id = customer.organization_id).count()
+        if no_of_users < customer.no_of_users:
+            context['eligible_to_create'] = True
+        context ['customer'] = customer
+        context['users'] = User.objects.filter(organization_id = customer.organization_id)
+        return context
+
+
+class UpdateCustomerBasicView(SettingsView, UpdateView):
+    model = Customer
+    fields = ["website_name", "logo", "favicon"]
+
+    def form_valid(self, form):
+        messages.success(self.request, "Successfully updated base details of organization.")
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        for field, errors in form.errors.items():
+            for error in errors:
+                print(f"Error on field {field}: {error}")
+        return super().form_invalid(form)
+    
+
+class RemoveCustomerLogoView(SettingsView, UpdateView):
+    model = Customer
+    fields = ["logo"]
+    
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.logo = None
+        self.object.save()
+        serialized_data = {
+            'message': 'Success',
+            }
+        return JsonResponse(serialized_data)
+        
+
+class RemoveCustomerFaviconView(SettingsView, UpdateView):
+    model = Customer
+    fields = ["favicon"]
+    
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.favicon = None
+        self.object.save()
+        serialized_data = {
+            'message': 'Success',
+            }
+        return JsonResponse(serialized_data)
+
+
+class UpdateNumberOfUsers(SettingsView, UpdateView):
+    model = Customer
+    fields = ['no_of_users']
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Upgraded number of users.')
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        for field, errors in form.errors.items():
+            for error in errors:
+                print(f"Error on field, {field}: {error}")
+        return super().form_invalid(form)
+
+
+class AddNewUserView(SettingsView, CreateView):
+    fields = ["username", "email", "password"]
+    redirect_url = reverse_lazy('authentication:settings')
+
+    def post(self, request, *args, **kwargs):
+        if request.method != "POST":
+            return redirect(self.error500)
+
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        repeat_password = request.POST.get("repeat_password")
+        if password != repeat_password:
+            messages.error(self.request, "The passwords does not match.")
+            return redirect(self.redirect_url)
+
+        email_exists = User.objects.filter(email = email).exists()
+        username_exists = User.objects.filter(username = username).exists()
+
+        if email_exists:
+            messages.warning(self.request, "User with similar email already exists.")
+            return redirect(self.redirect_url)
+        
+        if username_exists:
+            messages.warning(self.request, "User with similar username already exists.")
+            return redirect(self.redirect_url)
+
+        password = make_password(password)
+        try:
+            User.objects.create(username=username, email=email, password=password, organization_id = self.request.user.organization_id)
+        except Exception as e:
+            print(e)
+            return redirect(self.error500)
+        messages.success(self.request, "New user created successfully.")
+        return redirect(self.success_url)
+    
+    def form_invalid(self, form):
+        for field, errors in form.errors.items():
+            for error in errors:
+                print(f"Error on field {field}: {error}")
+        return super().form_invalid(form)
+
+class UserDetailView(SettingsView, DetailView):
+    model = User
+    query_pk_and_slug = 'pk'
+        
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        serialized_data = {
+            'username' : self.object.username,
+        }
+        return JsonResponse(serialized_data)
+
+
+class DeleteUserView(SettingsView, View):
+    def get(self, request, *args, **kwargs):
+        try:
+            object = get_object_or_404(User, pk = self.kwargs['pk'])
+        except Http404:
+            return redirect(self.error404)
+        
+        object.delete()
+        messages.success(self.request, "Deleted user successfully.")
+        return redirect(self.success_url)
+    
+
+class UpdateUsername(SettingsView, UpdateView):
+    model = User
+    fields = ["username"]
+
+    def get_object(self):
+        try:
+            return get_object_or_404(User, pk = self.request.user.pk)
+        except Http404:
+            return redirect(self.error404)
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Successfully updated your username.')
+        return response
+    
+    def form_invalid(self, form):
+        for field, errors in form.errors.items():
+            for error in errors:
+                print(f"Error on field {field}: {error}")
+        return super().form_invalid(form)
+        
+@method_decorator(never_cache, name='dispatch')
+class ChangePassword(SettingsView, UpdateView):
+    model = User
+    fields = ["password"]
+
+    def post(self, request, *args, **kwargs):
+        password = request.POST.get('password')
+        new_password = request.POST.get('new_password')
+        repeat_password = request.POST.get('repeat_password')
+
+        user = authenticate(username=self.request.user.username, password=password)
+        if user:
+            if new_password == repeat_password:
+                new_password = make_password(new_password)
+                user.password = new_password
+                user.save()
+                messages.success(self.request, "Successfully updated your password.")
+                return redirect(self.success_url)
+            else:
+                messages.error(self.request, "New passwords are not matching.")
+        else:
+            messages.error(self.request, "Invalid current password")
+        return redirect(reverse_lazy('authentication:settings'))
+
+
+
+
+class LocalizationView(BaseCrmUserView, TemplateView):
+    template_name = 'crmuser/localization-details.html'
+
+
+class PaymentSettingsView(BaseCrmUserView, TemplateView):
+    template_name = 'crmuser/payment-settings.html'
+
+
+class EmailSettingsView(BaseCrmUserView, TemplateView):
+    template_name = 'crmuser/email-settings.html'
+
+
+class SocialMediaLoginView(BaseCrmUserView, TemplateView):
+    template_name = 'crmuser/social-settings.html'
+
+
+class SocialLinksView(BaseCrmUserView, TemplateView):
+    template_name = 'crmuser/social-links.html'
+
+
+class SeoSettingsView(BaseCrmUserView, TemplateView):
+    template_name = 'crmuser/seo-settings.html'
+
+
+class OtherSettingsView(BaseCrmUserView, TemplateView):
+    template_name = 'crmuser/others-settings.html'
+
 
 class Error404(TemplateView):
     template_name = "error_pages/error-404.html"
