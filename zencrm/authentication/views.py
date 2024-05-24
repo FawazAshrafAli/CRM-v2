@@ -3,87 +3,105 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import (TemplateView, DetailView, 
                                   UpdateView, CreateView, 
                                   DeleteView)
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.mixins import  LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
-from django.views.generic import View
-from django.contrib.auth import  authenticate, login, logout
-from django.urls import reverse, reverse_lazy
-from django.contrib import messages
-from django.db.utils import IntegrityError
-from django.http import Http404
-from datetime import datetime
-from django.db import models
 from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from django.template.loader import render_to_string
+from common.mixins import CrmLoginRequiredMixin
+from django.urls import reverse, reverse_lazy
+from django.core.mail import EmailMessage
+from django.views.generic import View
+from django.contrib import messages
+from django.http import Http404
+from datetime import datetime
+from random import randrange
 
-from crm_admin.models import Customer
-from .models import User, CrmUserFamilyInformation, CrmUserEducation, CrmUserExperience
+from crm_admin.models import Customer, Plan
+from .models import User, CrmUserFamilyInformation, CrmUserEducation, CrmUserExperience, UserOtp
 
-@method_decorator(never_cache, name='dispatch')
-class RegisterUserView(TemplateView):
-    template_name = 'authentication/register.html'
 
-    def post(self, request, *args, **kwargs):
-        if request.method != "POST":
-            return redirect(reverse_lazy("authentication:error500"))
+@method_decorator(never_cache, name="dispatch")
+class ExpiredTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = 'authentication/expired.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['plans'] = Plan.objects.all().order_by('duration')
+        try:
+            context['customer'] = get_object_or_404(Customer, organization_id = self.request.user.organization_id)
+        except Http404:
+            pass
+        return context
+
+
+# @method_decorator(never_cache, name='dispatch')
+# class RegisterUserView(TemplateView):
+#     template_name = 'authentication/register.html'
+
+#     def post(self, request, *args, **kwargs):
+#         if request.method != "POST":
+#             return redirect(reverse_lazy("authentication:error500"))
             
-        context = {}
-        message = None
+#         context = {}
+#         message = None
 
-        first_name = request.POST.get("first_name")
-        last_name = request.POST.get("last_name")
-        username = request.POST.get("username")
-        email = request.POST.get("email")        
-        password = request.POST.get("password")
-        repeat_password = request.POST.get("repeat_password")
+#         first_name = request.POST.get("first_name")
+#         last_name = request.POST.get("last_name")
+#         username = request.POST.get("username")
+#         email = request.POST.get("email")        
+#         password = request.POST.get("password")
+#         repeat_password = request.POST.get("repeat_password")
 
-        required_fields = ["first_name", "username", "email", "password", "repeat_password"]
+#         required_fields = ["first_name", "username", "email", "password", "repeat_password"]
 
-        for field in required_fields:
-            if not locals()[field]:
-                message = f"{field.capitalize()} field cannot be blank"                
-                break
-            else:
-                context.update({str(field.lower()): locals()[field]})                
+#         for field in required_fields:
+#             if not locals()[field]:
+#                 message = f"{field.capitalize()} field cannot be blank"                
+#                 break
+#             else:
+#                 context.update({str(field.lower()): locals()[field]})                
 
-        if not message:
-            if password != repeat_password:
-                message = "Passwords do not match."
-                context.update({"password": password})
+#         if not message:
+#             if password != repeat_password:
+#                 message = "Passwords do not match."
+#                 context.update({"password": password})
 
-            if not message:
-                try:
-                    hashed_password = make_password(password)
-                    user = User.objects.create(first_name=first_name, last_name=last_name, username=username, email=email, password=hashed_password)                                    
-                    messages.success(request, "User creation successful")
-                    login(request, user)
-                    return redirect(reverse('dashboard:deals_dashboard'))
-                except IntegrityError:
-                    try:
-                        get_object_or_404(User, username = username)
-                        message = "User with the given username already exists."
-                    except Http404:
-                        pass
-                    try:
-                        get_object_or_404(User, email = email)
-                        message = "User with the given email already exists."
-                    except Http404:
-                        pass
-                    context.update({"repeat_password": repeat_password})
+#             if not message:
+#                 try:
+#                     hashed_password = make_password(password)
+#                     user = User.objects.create(first_name=first_name, last_name=last_name, username=username, email=email, password=hashed_password)                                    
+#                     messages.success(request, "User creation successful")
+#                     login(request, user)
+#                     return redirect(reverse('dashboard:deals_dashboard'))
+#                 except IntegrityError:
+#                     try:
+#                         get_object_or_404(User, username = username)
+#                         message = "User with the given username already exists."
+#                     except Http404:
+#                         pass
+#                     try:
+#                         get_object_or_404(User, email = email)
+#                         message = "User with the given email already exists."
+#                     except Http404:
+#                         pass
+#                     context.update({"repeat_password": repeat_password})
 
-        if message:
-            messages.error(request, message)        
-        return render(request, self.template_name, context)
+#         if message:
+#             messages.error(request, message)        
+#         return render(request, self.template_name, context)
 
-class LoginView(View):
+class LoginView(TemplateView):
     template_name = 'authentication/login.html'
-    success_url = reverse_lazy('authentication:login')
+    success_url = reverse_lazy('dashboard:deals_dashboard')
 
     def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect(reverse('dashboard:deals_dashboard'))
-        return render(request, self.template_name)
+        if request.user.is_authenticated:            
+            return redirect(self.success_url)
+        else:            
+            return render(request, self.template_name)   
 
     def post(self, request, *args, **kwargs):
         if request.method != "POST":
@@ -91,13 +109,15 @@ class LoginView(View):
 
         username = request.POST.get('username')
         password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request,user)
-            return redirect(reverse('dashboard:deals_dashboard'))
-        else:
-            messages.error(request, 'Invalid username or password')                
-            return redirect('/authentication/')
+        if username and password:
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect(reverse('dashboard:deals_dashboard'))                    
+            else:
+                messages.error(request, 'Invalid username or password')                
+
+        return render(request, self.template_name)
 
         
 class LogoutView(LoginRequiredMixin, View):
@@ -105,10 +125,142 @@ class LogoutView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         logout(request)
-        return redirect(reverse('authentication:login'))
-    
+        return redirect(reverse_lazy('authentication:login'))
 
-class BaseCrmUserView(LoginRequiredMixin):
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ForgotPasswordView(View):
+
+    def post(self, request, *args, **kwargs):
+        email = request.POST.get('email')
+
+        if not email:
+            return JsonResponse({'message': 'Email is required'}, status=400)
+        
+        valid_user = False
+        try:
+            self.user = get_object_or_404(User, email = email)
+            valid_user = True
+            otp = randrange(100000, 1000000)
+            UserOtp.objects.update_or_create(email = email, defaults = {'otp': otp})
+
+            self.otp_object = get_object_or_404(UserOtp, email = email)
+
+            subject = "OTP FOr Resetting Password"
+            message = f"""OTP for resetting your crm user account is {self.otp_object.otp}.
+                    Submit this OTP along with your new password to reset your password."""
+            html_content = render_to_string('authentication_email_template/email_otp.html', {
+                'subject': subject,
+                'message': message,
+                "email_subject": subject,
+                "email_content": message,
+                "name": self.user.first_name,
+                "otp": self.otp_object.otp,                    
+                })            
+                    
+
+            email = EmailMessage(
+                subject=subject,
+                body=html_content,
+                from_email="w3digitalpmna@gmail.com",
+                to=["w3digitalpmna@gmail.com"]
+            )
+                        
+
+            # Set the content type of the email to 'text/html'
+            email.content_subtype = 'html'
+
+            # Send the email
+            email.send()
+
+            return JsonResponse({'message': 'Mailed OTP'})
+
+        except Http404:
+            if valid_user:
+                return JsonResponse({'message': 'Invalid OTP'}, status=403)
+            else:
+                return JsonResponse({'message': 'Invalid User'}, status=403)                
+    
+        except Exception as e:
+            print(f"Error: {e}")
+            return JsonResponse({'message': 'Server Error'}, status=500)
+        
+
+class ResetPasswordView(UpdateView):
+    model = User
+    pk_url_kwarg = 'email'
+    fields = ["password"]
+    success_url = reverse_lazy('authentication:login')
+
+    def get_object(self, **kwargs):
+        try:
+            return get_object_or_404(User, email = self.kwargs['email'])
+        except Http404:
+            pass
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        otp = request.POST.get('otp')
+        new_password = request.POST.get('new_password')
+        repeat_password = request.POST.get('repeat_password')
+
+        try:
+            get_object_or_404(UserOtp, email = self.object.email, otp = otp)
+            if new_password == repeat_password:
+                password = make_password(new_password)
+                self.object.password = password
+                self.object.save()
+                messages.success(self.request, 'Successfully resetted password.')
+                return redirect(self.get_success_url())
+            else:
+                return JsonResponse({'error': 'Error', 'message': 'Passwords not matching'}, status=403)
+        except Http404:
+            return JsonResponse({'error': 'Error', 'message': 'Invalid OTP'}, status=403)    
+    
+        except Exception as e:
+            print(f"Error: {e}")
+            return JsonResponse({'error': 'Error','message': 'Server Error'}, status=500)
+
+
+
+class RenewAccountView(LoginRequiredMixin, UpdateView):    
+    model = Customer
+    fields = ['plan', 'no_of_users', 'active']
+    success_url = reverse_lazy('dashboard:deals_dashboard')
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        plan = request.POST.get('plan')
+        no_of_users = request.POST.get('no_of_users')
+
+        if plan and no_of_users:
+            self.object.plan = plan
+            self.object.no_of_user = no_of_users
+            self.object.active = True
+            self.object.save()
+
+            messages.success(self.request, 'Congratulations. Your CRM account has been successfully reactivated.')
+            return redirect(self.get_success_url())
+        else:
+            if not plan:
+                messages.warning(self.request, 'Please select a plan.')
+            elif not no_of_users:
+                messages.warning(self.request, 'Please provide the number of users.')
+            else:
+                messages.warning(self.request, 'Please select a plan and provide the number of users.')
+            return redirect(reverse_lazy('authentication:expired'))
+        
+    def form_invalid(self, form):
+        for field, errors in form.errors.items():
+            for error in errors:
+                print(f"Error on field, {field}: {error}")
+        return super().form_invalid(form)
+
+
+
+
+class BaseCrmUserView(CrmLoginRequiredMixin):
     login_url = "authentication:login"
     model = User
     error404 = reverse_lazy('authentication:error404')

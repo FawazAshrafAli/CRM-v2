@@ -1,7 +1,7 @@
 from django.http import HttpRequest, HttpResponse, Http404
 from django.views.generic import CreateView, UpdateView, ListView, DetailView, DeleteView, View
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.mixins import LoginRequiredMixin
+from common.mixins import CrmLoginRequiredMixin
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import Http404, JsonResponse
@@ -17,7 +17,7 @@ from authentication.models import User
 from contacts.models import Contact
 from deals.models import Deal
 
-class BaseLeadView(LoginRequiredMixin):
+class BaseLeadView(CrmLoginRequiredMixin):
     model = Lead
     login_url = 'authentication:login'
     template_name = 'leads/leads.html' #

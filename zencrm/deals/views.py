@@ -1,5 +1,5 @@
 from django.views.generic import CreateView, UpdateView, ListView, DetailView, DeleteView, View
-from django.contrib.auth.mixins import LoginRequiredMixin
+from common.mixins import CrmLoginRequiredMixin
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import  reverse_lazy
 from django.contrib import messages
@@ -14,7 +14,7 @@ from contacts.models import Contact
 from projects.models import Project
 from leads.models import Lead
 
-class BaseDealView(LoginRequiredMixin):
+class BaseDealView(CrmLoginRequiredMixin):
     model = Deal
     login_url = 'authentication:login'
     template_name = "deals/deals.html"

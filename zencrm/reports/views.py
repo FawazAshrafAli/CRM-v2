@@ -1,9 +1,9 @@
 from django.shortcuts import render
-from django.contrib.auth.mixins import LoginRequiredMixin
+from common.mixins import CrmLoginRequiredMixin
 from django.views.generic import ListView
 from .models import Report
 
-class BaseReportView(LoginRequiredMixin):
+class BaseReportView(CrmLoginRequiredMixin):
     login_url = 'login'
     model = Report
 

@@ -3,7 +3,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, D
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from django.http  import Http404, HttpResponse, HttpResponseRedirect
-from django.contrib.auth.mixins import LoginRequiredMixin
+from common.mixins import CrmLoginRequiredMixin
 from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.timezone import timedelta
@@ -17,7 +17,7 @@ from leads.models import Lead
 from .models import Contact
 
 
-class BaseContactView(LoginRequiredMixin):
+class BaseContactView(CrmLoginRequiredMixin):
     login_url = 'authentication:login'
     model = Contact
     template_name = 'contacts/contacts.html'

@@ -11,7 +11,7 @@
         <title>Login - CRMS admin template</title>
 		
 		<!-- Favicon -->
-        <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/favicon.png' %}">
+        <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/zencrm_mini_logo.png' %}">
 		
 		<!-- Bootstrap CSS -->
         <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
@@ -33,6 +33,19 @@
 			<script src="{% static 'assets/js/html5shiv.min.js' %}"></script>
 			<script src="{% static 'assets/js/respond.min.js' %}"></script>
 		<![endif]-->
+
+		<style>
+			.message-div ul {
+				padding-left: 0;
+			}
+			.message-div li {
+				list-style: none;
+			}
+
+			#resend-otp {
+            	display: none;
+        	}
+		</style>
     </head>
     <body class="account-page">
 	
@@ -65,10 +78,10 @@
 
 							<!-- Account Form -->
 							<form method="POST" action="{% url 'authentication:login' %}">
-								{% csrf_token %}
+								{% csrf_token %}								
 								<div class="form-group">
 									<label>Username</label>
-									<input class="form-control" type="text" name="username">
+									<input class="form-control" type="text" name="username" required>
 								</div>
 								<div class="form-group">
 									<div class="row">
@@ -76,19 +89,17 @@
 											<label>Password</label>
 										</div>
 										<div class="col-auto">
-											<a class="text-muted" href="forgot-password.html">
+											<a class="text-muted" tabindex="-1" href="#" data-bs-toggle="modal" data-bs-target="#forgot-password-modal">
 												Forgot password?
 											</a>
 										</div>
 									</div>
-									<input class="form-control" type="password" name="password">
+									<input class="form-control" type="password" name="password" required>
 								</div>
+								<br>
 								<div class="form-group text-center">
 									<button class="btn btn-primary account-btn" type="submit">Login</button>
-								</div>
-								<div class="account-footer">
-									<p>Don't have an account yet? <a href="{% url 'authentication:register' %}">Register</a></p>
-								</div>
+								</div>								
 							</form>
 							<!-- /Account Form -->
 							
@@ -98,6 +109,106 @@
 			</div>
         </div>
 		<!-- /Main Wrapper -->
+
+		<!-- Modal (Forgot Password) -->
+		<div class="modal fade" id="forgot-password-modal" tabindex="-1" role="dialog" aria-modal="true">
+			<div class="modal-dialog" role="document">
+				<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+				<div class="modal-content">
+
+					<div class="modal-header">
+						<h4 class="modal-title text-center" id="modal-title">Forgot Password ?</h4>
+						<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+					  </div>
+
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-md-12">
+								<form method="POST" id="forgot-password-form" enctype="multipart/form-data">
+									{% csrf_token %}
+									<div id="forgot-password-inner-div">					            	
+										<div class="form-group row">
+											<div class="col-md-12">
+												<label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+												<input type="email" class="form-control" name="email" id="email-input" placeholder="Email ID" required>
+												<small>
+													<p class="text-danger" id="invalid-email"></p>
+												</small>
+											</div>				                            
+										</div>
+										<div class="alert alert-light">
+											<small>
+												<p>Provide your correct email id and click submit. <br>Once submitted you will receive the OTP required for resetting your account password via email.</p>
+											</small>
+										</div>										
+									</div>
+									<div class="text-center py-3">
+										<button type="button" class="border-0 btn btn-primary btn-gradient-primary btn-rounded px-0" style="width:100px" id="forgot-password-submit-btn" onclick="forgotPassword()">Submit</button>&nbsp;&nbsp;
+										<button type="button" class="btn btn-secondary btn-rounded px-0" style="width:100px" data-bs-dismiss="modal" aria-label="Close" id="forgot-password-cancel-btn">Cancel</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+
+				</div><!-- modal-content -->
+			</div><!-- modal-dialog -->
+		</div><!-- modal (Forgot Password)-->
+
+
+		<!-- Modal (Reset Password) -->
+		<div class="modal fade" id="reset-password-modal" tabindex="-1" role="dialog" aria-modal="true">
+			<div class="modal-dialog" role="document">
+				<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+				<div class="modal-content">
+
+					<div class="modal-header">
+						<h4 class="modal-title text-center" id="modal-title">Resetting Password</h4>
+						<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+					  </div>
+
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-md-12">
+								<form method="POST" id="password-reset-form">
+									{% csrf_token %}									
+									<div class="form-group row">
+										<div class="col-md-12">
+											<label for="otp" class="form-label">OTP <span class="text-danger">*</span></label>
+											<input type="text" class="form-control" name="otp" id="otp" placeholder="OTP" required>
+										</div>
+										<div class="text-end">
+											<small>
+												<p class="m-0 p-0" id="resend-otp-standby">Resent OTP in <span id="timer" class="mb-0"></span></p>
+												<button type="button" id="resend-otp" class="btn btn-primary btn-sm" onclick="startCountdown(5, document.getElementById('timer'), document.getElementById('resend-otp'))">Resend OTP</button>
+											</small>
+										</div>			                            
+									</div>
+									<div class="form-group row">
+										<div class="col-md-12">
+											<label for="password" class="form-label">New Password <span class="text-danger">*</span></label>
+											<input type="password" class="form-control" name="new_password" id="new_password" placeholder="New Password" required>
+										</div>				                            
+									</div>
+									<div class="form-group row">
+										<div class="col-md-12">
+											<label for="repeat_password" class="form-label">Repeat Password <span class="text-danger">*</span></label>
+											<input type="password" class="form-control" name="repeat_password" id="repeat_password" placeholder="Repeat Password" required>
+										</div>				                            
+									</div>										
+									<div class="text-center py-3">
+										<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded px-0" style="width:100px">Submit</button>&nbsp;&nbsp;
+										<button type="button" class="btn btn-secondary btn-rounded px-0" style="width:100px" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+									</div>
+								</form>
+								
+							</div>
+						</div>
+					</div>
+
+				</div><!-- modal-content -->
+			</div><!-- modal-dialog -->
+		</div><!-- modal (Reset Password)-->
 		
 		<!-- jQuery -->
         <script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
@@ -111,6 +222,39 @@
 
 		<!-- Custom JS -->
 		<script src="{% static 'assets/js/app.js' %}"></script>
-		
+
+		<!-- W3 -->
+
+		<!-- Forgot Password -->
+		<script src="{% static 'js/authentication/forgotPassword.js' %}"></script>
+
+
+		<script>
+			// document.getElementById('reset-password-btn').addEventListener('click', function () {
+			// 	var resetPasswordModal = new bootstrap.Modal(document.getElementById('reset-password-modal'));
+			// 	resetPasswordModal.show();
+			// 	startCountdown(300, document.getElementById('timer'), document.getElementById('resend-otp'));
+			// });
+	
+			function startCountdown(duration, display, resendBtn) {
+				var timer = duration, minutes, seconds;
+				var countdownInterval = setInterval(function () {
+					minutes = parseInt(timer / 60, 10);
+					seconds = parseInt(timer % 60, 10);
+	
+					minutes = minutes < 10 ? "0" + minutes : minutes;
+					seconds = seconds < 10 ? "0" + seconds : seconds;
+	
+					display.textContent = minutes + ":" + seconds;
+	
+					if (--timer < 0) {
+						clearInterval(countdownInterval);
+						display.textContent = "";
+						document.getElementById('resend-otp-standby').style.display='none';
+						resendBtn.style.display = 'block';
+					}
+				}, 1000);
+			}
+		</script>
     </body>
 </html>

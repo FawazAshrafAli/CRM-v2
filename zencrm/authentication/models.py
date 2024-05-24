@@ -1,6 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+
+class UserOtp(models.Model):
+    email = models.EmailField(max_length=254, unique=True, null=False, blank=False)
+    otp = models.CharField(max_length=7, null=False, blank=False)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+
 class CrmUserFamilyInformation(models.Model):
     crm_user_id = models.CharField(max_length=50)
     name = models.CharField(max_length=150)

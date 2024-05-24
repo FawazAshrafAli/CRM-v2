@@ -8,7 +8,7 @@
 		<meta name="keywords" content="admin, estimates, bootstrap, business, corporate, creative, management, minimal, modern, accounts, invoice, html5, responsive, CRM, Projects">
         <meta name="author" content="Dreamguys - Bootstrap Admin Template">
         <meta name="robots" content="noindex, nofollow">
-        <title>Users - ZENCRM</title>
+        <title>Admin - ZENCRM</title>
 		
 		<!-- Favicon -->
         <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/favicon.png' %}">
@@ -664,24 +664,12 @@
 													<div class="dropdown dropdown-action">
 														<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
 														<div class="dropdown-menu dropdown-menu-right shadow rounded-3" style="max-height:200px; overflow:scroll;">
-															<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edit_user_modal" data-user-id='{{user.pk}}' onclick="editUser({{user.pk}}); return false;">Edit This User</a>
-															<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#plan-deletion-modal" data-plan-id='{{plan.pk}}' onclick="deletePlan({{plan.pk}}); return false;">Delete This Plan</a>
-															<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#clone_task_confirmation" data-contact-id="{{contact.pk}}" onclick="cloneContact({{contact.pk}}); return false;" >Clone This Contact</a>
-															<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#change_contact_owner" data-contact-id="{{contact.pk}}" onclick="changeContactOwner({{contact.pk}}); return false;">Change Record Owner</a>
-															<a class="dropdown-item" href="#">Generate Merge Document</a>
-															<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#lead_convertion" data-contact-id="{{contact.pk}}" onclick="contactToLead({{contact.pk}}); return false;">Change Contact To Lead</a>
-															<a class="dropdown-item" href="#" data-bs-toggle="modal" data-contact-id="{{contact.pk}}" onclick="fetchAndPrintContact({{contact.pk}}, 'contact-content-div'); return false;">Print This Contact</a>
-															<a class="dropdown-item" href="mailto:{{contact.email}}">Email This Contact</a>
-															<a class="dropdown-item" href="#">Add New Task For Contact</a>
-															<a class="dropdown-item" href="#">Add New Event For Contact</a>
-															<a class="dropdown-item" href="#">Add Activity Set To Contact</a>
-															<a class="dropdown-item" href="#">Add New Deal For Contact</a>
-															<a class="dropdown-item" href="#">Add New Project For Contact</a>
-															{% if customer.active %}
-															<a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#customer-deactivation-modal" data-customer-id="{{customer.pk}}" onclick="deactivateCustomer({{customer.pk}}); return false;">Deactivate This Customer</a>
-															{% else %}
-															<a class="dropdown-item text-success" href="#" data-bs-toggle="modal" data-bs-target="#customer-activation-modal" data-customer-id="{{customer.pk}}" onclick="activateCustomer({{customer.pk}}); return false;">Activate This Customer</a>
+															<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edit_user_modal" data-user-id='{{user.pk}}' onclick="editUser({{user.pk}}); return false;">Edit This User</a>													
+															{% if user.email not in customer_emails %}											
+															<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#user-deletion-modal" data-user-id='{{user.pk}}' onclick="deleteUser({{user.pk}}); return false;">Delete This User</a>
 															{% endif %}
+															<a class="dropdown-item" href="#" data-bs-toggle="modal" data-contact-id="{{contact.pk}}" onclick="fetchAndPrintContact({{contact.pk}}, 'contact-content-div'); return false;">Print This Contact</a>
+															<a class="dropdown-item" href="mailto:{{contact.email}}">Email This Contact</a>															
 														</div>
 													</div>
 												</td>
@@ -829,82 +817,7 @@
 				</div><!-- modal-dialog -->
 			</div><!-- modal -->
 
-			<!-- Modal (Activate Customer) -->
-			<div class="modal fade" id="customer-activation-modal" tabindex="-1" role="dialog" aria-modal="true">
-				<div class="modal-dialog" role="document">
-					<button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
-					<div class="modal-content">
-
-						<div class="modal-header">
-		                    <h4 class="modal-title text-center">Activating Customer '<span id="activating-customer-object"></span>'</h4>
-		                    <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
-		                  </div>
-
-						<div class="modal-body">
-							<div class="row">
-						        <div class="col-md-12">
-						            <form method="POST" id="customer-activation-form" enctype="multipart/form-data">
-										{% csrf_token %}						            	
-						            	<div class="form-group row">
-				                            <div class="col-md-12">
-				                                <label for="no_of_users" class="form-label">Plan <span class="text-danger">*</span></label>
-												<select class="form-control" name="plan" id="plan" required>
-													<option value="" hidden disabled selected>Select Plan</option>
-													<option value="0.25">3 Months</option>
-													<option value="0.5">6 Months</option>
-													<option value="1">1 Year</option>
-													<option value="2">2 Years</option>
-													<option value="3">3 Years</option>
-													<option value="4">4 Years</option>
-													<option value="5">5 Years</option>
-													<option value="6">6 Years</option>
-													<option value="7">7 Years</option>
-													<option value="8">8 Years</option>
-													<option value="9">9 Years</option>
-													<option value="10">10 Years</option>
-												</select>
-				                            </div>				                            
-				                        </div>						                
-						                <div class="text-center py-3">
-						                	<button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded px-0" style="width:100px">Activate</button>&nbsp;&nbsp;
-						                	<button type="button" class="btn btn-secondary btn-rounded px-0" style="width:100px" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
-						                </div>
-						            </form>
-						        </div>
-							</div>
-						</div>
-
-					</div><!-- modal-content -->
-				</div><!-- modal-dialog -->
-			</div><!-- modal (Activate Customer)-->
-
-			<!-- Modal (Deactivate Customer) -->
-			<div class="modal fade" id="customer-deactivation-modal" tabindex="-1" role="dialog" aria-modal="true">
-				<div class="modal-dialog" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h4 class="modal-title text-center">Deactivating Customer '<span id="deactivating-customer-object"></span>'</h4>
-							<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
-						</div>
-						<div class="modal-body">
-							<div class="row">
-								<div class="col-md-12">
-									<form method="POST" id="deactivate-customer-form" enctype="multipart/form-data">
-										{% csrf_token %}
-										<h5>Are you sure?</h5>								
-										<div class="text-center py-3">
-											<button type="submit" class="border-0 btn btn-danger btn-gradient-primary btn-rounded">Yes</button>&nbsp;&nbsp;
-											<button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
-										</div>
-									</form>
-								</div>
-							</div>
-						</div>
-					</div><!-- modal-content -->
-				</div><!-- modal-dialog -->
-			</div><!-- modal (Deactivate Customer) --> 
-
-            <!-- Modal (Update Plan) -->
+            <!-- Modal (Edit User) -->
 			<div class="modal right fade" id="edit_user_modal" tabindex="-1" role="dialog" aria-modal="true">
 				<div class="modal-dialog" role="document">
 					<div class="modal-content">
@@ -915,7 +828,7 @@
 						<div class="modal-body">
 							<div class="row">
 								<div class="col-md-12">
-									<form method="POST" id="edit-user-form">
+									<form method="POST" enctype="multipart/form-data" id="edit-user-form">
 										{% csrf_token %}
 										<h4>User & Organization Details</h4>
 										<div class="form-group row">
@@ -925,7 +838,7 @@
 				                            </div>
 											<div class="col-md-6">
 												<label class="col-form-label">Image <span class="text-danger">*</span></label>
-				                                <input class="form-control" type="file" name="image">
+				                                <input class="form-control" type="file" name="image" id="favicon-input">
 												<small><span>Current File: <a href="#" target="_blank" id="image-value"></a></span></small>
 				                            </div>											
 				                        </div>
@@ -979,26 +892,26 @@
 										<div class="form-group row">
 				                            <div class="col-md-6">
 												<label class="col-form-label">Address</label>
-				                                <input class="form-control" type="text" placeholder="Address of User" name="address" id="address-value" required>
+				                                <input class="form-control" type="text" placeholder="Address of User" name="address" id="address-value">
 				                            </div>
 											<div class="col-md-6">
-												<label class="col-form-label">City <span class="text-danger">*</span></label>
-				                                <input class="form-control" type="text" placeholder="City of User" name="city" id="city-value" required>
+												<label class="col-form-label">City</label>
+				                                <input class="form-control" type="text" placeholder="City of User" name="city" id="city-value">
 				                            </div>											
 				                        </div>
 										<div class="form-group row">
 											<div class="col-md-6">
-												<label class="col-form-label">State <span class="text-danger">*</span></label>
-												<input class="form-control" type="text" placeholder="State of User" name="state" id="state-value" required>
+												<label class="col-form-label">State</label>
+												<input class="form-control" type="text" placeholder="State of User" name="state" id="state-value">
 											</div>
 				                            <div class="col-md-6">
 												<label class="col-form-label">Postal Code</label>
-				                                <input class="form-control" type="text" placeholder="Postal Code of User" name="postal_code" id="postal-code-value" required>
+				                                <input class="form-control" type="text" placeholder="Postal Code of User" name="postal_code" id="postal-code-value">
 				                            </div>
 				                        </div>
 										<div class="form-group row">
 											<div class="col-md-6">
-												<label class="col-form-label">Country <span class="text-danger">*</span></label>
+												<label class="col-form-label">Country</label>
 												<select class="form-control" name="country" id="country-select">
 													<option hidden selected>Select Country</option>
 													{% for country in countries %}
@@ -1010,8 +923,8 @@
 										<h4>Additional Details</h4>
 										<div class="form-group row">
 											<div class="col-md-6">
-												<label class="col-form-label">Title <span class="text-danger">*</span></label>
-												<input class="form-control" type="text" placeholder="Title of User" name="title" id="title-value" required>
+												<label class="col-form-label">Title</label>
+												<input class="form-control" type="text" placeholder="Title of User" name="title" id="title-value">
 											</div>				                            
 											<div class="col-md-6">
 												<label class="col-form-label">Gender <span class="text-danger">*</span></label>
@@ -1041,20 +954,20 @@
 						</div>
 					</div><!-- modal-content -->
 				</div><!-- modal-dialog -->
-			</div><!-- modal (Update Plan) -->
+			</div><!-- modal (Edit User) -->
 
-            <!-- Modal (Delete Plan) -->
-			<div class="modal fade" id="plan-deletion-modal" tabindex="-1" role="dialog" aria-modal="true">
+            <!-- Modal (Delete User) -->
+			<div class="modal fade" id="user-deletion-modal" tabindex="-1" role="dialog" aria-modal="true">
 				<div class="modal-dialog" role="document">
 					<div class="modal-content">
 						<div class="modal-header">
-							<h4 class="modal-title text-center">Deleting Plan '<span id="plan-deletion-object"></span>'</h4>
+							<h4 class="modal-title text-center">Deleting User '<span id="user-deletion-object"></span>'</h4>
 							<button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
 						</div>
 						<div class="modal-body">
 							<div class="row">
 								<div class="col-md-12">
-									<form method="GET" id="plan-deletion-form">
+									<form method="GET" id="user-deletion-form">
 										{% csrf_token %}
 										<h5>Are you sure?</h5>								
 										<div class="text-center py-3">
@@ -1067,7 +980,7 @@
 						</div>
 					</div><!-- modal-content -->
 				</div><!-- modal-dialog -->
-			</div><!-- modal (Delete Plan) --> 
+			</div><!-- modal (Delete User) --> 
 
 			<!--system users Modal -->
             <div class="modal right fade" id="system-user" tabindex="-1" role="dialog" aria-modal="true">
@@ -2748,36 +2661,10 @@
         <!-- Edit User -->
 		<script src="{% static 'js/crm_admin/editUser.js' %}"></script>
 
-		{% comment %} 
-        <!-- Delete Plan -->
-		<script src="{% static 'js/crm_admin/deletePlan.js' %}"></script> {% endcomment %}
+        <!-- Delete User -->
+		<script src="{% static 'js/crm_admin/deleteUser.js' %}"></script>
 		
-		<script>
-			function setOrganization(customerName) {
-				var customerSelectValue = customerName.value
-				var organizationSelect = document.getElementById('organization-select');
-
-				for (var i = 0; i < organizationSelect.options.length; i++) {
-					if (organizationSelect.options[i].value == customerSelectValue) {
-						organizationSelect.options[i].selected = true;
-					} else {
-						organizationSelect.options[i].selected = false;
-					};
-				};				
-			};
-
-			function setCustomer(organizationName) {
-				var organizationSelectValue = organizationName.value
-				var customerSelect = document.getElementById('customer-select');
-
-				for (var i = 0; i < customerSelect.options.length; i++) {
-					if (customerSelect.options[i].value == organizationSelectValue) {
-						customerSelect.options[i].selected = true;
-					} else {
-						customerSelect.options[i].selected = false;
-					};
-				};				
-			};			
-		</script>
+		<!-- Set Customer Or Set Organization -->
+		<script src="{% static 'js/crm_admin/setCustomerOrOrganization.js' %}"></script>
     </body>
 </html>

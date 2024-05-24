@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, View
-from django.contrib.auth.mixins import LoginRequiredMixin
+from common.mixins import CrmLoginRequiredMixin
 from .models import Project, PipelineStage
 from django.contrib import messages
 from django.http import Http404
@@ -12,7 +12,7 @@ from organizations.models import Company
 from deals.models import Deal
 from contacts.models import Contact
 
-class BaseProjectView(LoginRequiredMixin):
+class BaseProjectView(CrmLoginRequiredMixin):
     login_url = 'authentication:login'
     model = Project
     template_name = "projects/projects.html"

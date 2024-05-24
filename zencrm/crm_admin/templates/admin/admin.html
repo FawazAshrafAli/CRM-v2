@@ -8,7 +8,7 @@
 		<meta name="keywords" content="admin, estimates, bootstrap, business, corporate, creative, management, minimal, modern, accounts, invoice, html5, responsive, CRM, Projects">
         <meta name="author" content="Dreamguys - Bootstrap Admin Template">
         <meta name="robots" content="noindex, nofollow">
-        <title>Customers - ZENCRM</title>
+        <title>Admin - ZENCRM</title>
 		
 		<!-- Favicon -->
         <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/favicon.png' %}">
@@ -43,6 +43,10 @@
         <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" class="themecls">
 
 		<style>
+			#message-div ul{
+				padding-left: 0;
+			}
+
 			#message-div li{
 				list-style-type: none;
 			}
@@ -975,7 +979,7 @@
 										{% csrf_token %}						            	
 						            	<div class="form-group row">
 				                            <div class="col-md-12">
-				                                <label for="no_of_users" class="form-label">Plan <span class="text-danger">*</span></label>
+				                                <label for="plan" class="form-label">Plan <span class="text-danger">*</span></label>
 												<select class="form-control" name="plan" id="plan" required>
 													<option value="" hidden disabled selected>Select Plan</option>
 													<option value="0.25">3 Months</option>

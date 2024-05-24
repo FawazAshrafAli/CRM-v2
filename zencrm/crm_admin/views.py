@@ -323,12 +323,45 @@ class UserListView(UserBaseView, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['customers'] = Customer.objects.all().order_by("name"),
+        context['customers'] = Customer.objects.all().order_by("name")
+        context['customer_emails'] = [customer.email for customer in Customer.objects.all()]
         return context
     
 
 class UpdateUserView(UserBaseView, UpdateView):
-    model = 
+    model = User
+    fields = ["username", "image", "first_name", "last_name", "team", "email", "phone", "address", "address_city", "address_state", "address_postal_code", "address_country", "gender", "title"]
+
+    def form_valid(self, form):
+        self.object = self.get_object()
+        email = self.object.email
+
+        response = super().form_valid(form)
+
+        try:
+            self.customer = get_object_or_404(Customer, email = email)
+
+            new_first_name = form.cleaned_data.get('first_name', None)
+            new_last_name = form.cleaned_data.get('last_name', None)
+            new_email = form.cleaned_data.get('email', None)
+            new_phone = form.cleaned_data.get('phone', None)
+
+            if new_last_name:
+                full_name = f"{new_first_name} {new_last_name}"
+            else:
+                full_name = new_first_name
+
+            self.customer.name = full_name
+            self.customer.email = new_email
+            self.customer.phone = new_phone
+            self.customer.save()
+        except Http404:
+            pass
+
+        messages.success(self.request, "Successfully updated the user details.")
+        return response
+
+
 
 
 class UserDetailView(UserBaseView, DetailView):

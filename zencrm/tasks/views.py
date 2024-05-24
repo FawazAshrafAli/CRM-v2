@@ -2,11 +2,11 @@ from django.db.models.base import Model as Model
 from django.db.models.query import QuerySet
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect
 from django.views.generic  import DeleteView, ListView, DetailView, CreateView, UpdateView, View
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from django.http import Http404, HttpResponse
 from django.http import JsonResponse
+from common.mixins import CrmLoginRequiredMixin
 
 from .models import Task
 from authentication.models import User
@@ -17,7 +17,7 @@ from organizations.models import Company
 from leads.models import Lead
 from crm_admin.models import Customer
 
-class BaseTaskView(LoginRequiredMixin): #base class
+class BaseTaskView(CrmLoginRequiredMixin): #base class
     model = Task
     login_url = 'authentication:login'
     template_name = 'tasks/tasks.html'

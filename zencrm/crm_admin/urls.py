@@ -6,7 +6,7 @@ from .views import (CustomerListView, CustomerDetailView,
                     UpdatePlanView, DeletePlanView, 
                     DeleteCustomerView, UserListView, 
                     UserDetailView, CreateCustomerView, 
-                    CreateUserView)
+                    CreateUserView, UpdateUserView)
 
 app_name = "crm_admin"
 
@@ -22,6 +22,7 @@ urlpatterns = [
     path('create_user/', CreateUserView.as_view(), name="create_user"),
     path('users/', UserListView.as_view(), name="users"),
     path('user_details/<pk>', UserDetailView.as_view(), name="user_details"),
+    path('update_user/<pk>', UpdateUserView.as_view(), name="update_user"),
 
     path('plans/', PlanListView.as_view(), name="plans"),
     path('create_plan/', CreatePlanView.as_view(), name="create_plan"),

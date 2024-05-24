@@ -37,6 +37,15 @@
 		<!-- Main CSS -->
         <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" class="themecls">
 
+		<style>
+			#message-div ul{
+				padding-left: 0;
+			}
+
+			#message-div li{
+				list-style-type: none;
+			}
+		</style>
     </head>
     <body id="skin-color" class="skin-color inter">
 		<!-- Main Wrapper -->
@@ -574,6 +583,16 @@
                 	</div>
                 	
 					<!-- /Page Header -->
+
+					<div id="message-div">
+						{% if messages %}
+							<ul class="messages ps-0">
+								{% for message in messages %}
+								<li {% if message.tags %} class="{{message.tags}}" {% endif %}>{{message}}</li>
+								{% endfor %}
+							</ul>
+						{% endif %}
+					</div>
 
 					<div class="row graphs">
 						<div class="col-md-6">

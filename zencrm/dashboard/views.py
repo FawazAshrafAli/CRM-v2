@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from common.mixins import CrmLoginRequiredMixin
 from django.http import Http404
 from django.urls import reverse_lazy
 
 from authentication.models import User
 
-class BaseDashboardView(LoginRequiredMixin):
+class BaseDashboardView(CrmLoginRequiredMixin):
     login_url='authentication:login'
 
     def dispatch(self, request, *args, **kwargs):

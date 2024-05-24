@@ -4,6 +4,8 @@ function editUser(userId) {
         url: '/crm_admin/user_details/' + userId,
         dataType: 'json',
         success: function (user) {
+            $('#edit-user-form').prop('action', '/crm_admin/update_user/' + userId)
+
             if (user.username != null && user.username != '') {
                 $('#username-value').val(user.username);
             } else {
@@ -74,7 +76,7 @@ function editUser(userId) {
                         countrySelect.options[i].selected = false;
                     };
                 } else {
-                    companySelect.options[i].selected = false;
+                    countrySelect.options[i].selected = false;
                 }
             };
 
@@ -146,3 +148,15 @@ function editUser(userId) {
         }
     });
 };
+
+var faviconInput = document.getElementById('favicon-input');
+
+faviconInput.addEventListener('change', function() {
+    var file = faviconInput.files[0];
+    if (file) {
+        imageUrl = URL.createObjectURL(file);
+        var imageValue = document.getElementById('image-value')
+        imageValue.setAttribute('href', imageUrl);
+        imageValue.innerHTML = faviconInput.value;
+    };
+})
