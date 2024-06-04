@@ -1,0 +1,73 @@
+{% extends "contacts/base.html" %}
+
+{% block title %} Settings {% endblock title %}
+
+{% block settings %} class="active" {% endblock settings %}
+
+{% block page_content %}
+<!-- Page Content -->
+<div class="content container-fluid">
+
+    <div class="crms-title row bg-white">
+        <div class="col  p-0">
+            <h3 class="page-title m-0">
+            <span class="page-title-icon bg-gradient-primary text-white me-2">
+              <i class="fa fa-cog" aria-hidden="true"></i>
+            </span> Settings </h3>
+        </div>
+        <div class="col p-0 text-end">
+            <ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
+                <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+                <li class="breadcrumb-item active">Settings</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="settings-menu-links">
+        <ul class="nav nav-tabs menu-tabs">
+            <li class="nav-item {% block general_settings %}{% endblock general_settings %}">
+                <a class="nav-link" href="{% url 'authentication:settings' %}">General Settings</a>
+            </li>
+            <li class="nav-item {% block localization %}{% endblock localization %}">
+                <a class="nav-link" href="{% url 'authentication:localization_settings' %}">Localization</a>
+            </li>
+            <li class="nav-item {% block payment_settings %}{% endblock payment_settings %}">
+                <a class="nav-link" href="{% url 'authentication:payment_settings' %}">Payment Settings</a>
+            </li>
+            <li class="nav-item {% block email_settings %}{% endblock email_settings %}">
+                <a class="nav-link" href="{% url 'authentication:email_settings' %}">Email Settings</a>
+            </li>
+            <li class="nav-item {% block social_media_login %}{% endblock social_media_login %}">
+                <a class="nav-link" href="{% url 'authentication:social_media_settings' %}">Social Media Login</a>
+            </li>
+            <li class="nav-item {% block social_links %}{% endblock social_links %}">
+                <a class="nav-link" href="{% url 'authentication:social_link_settings' %}">Social Links</a>
+            </li>
+            <li class="nav-item {% block seo_settings %}{% endblock seo_settings %}">
+                <a class="nav-link" href="{% url 'authentication:seo_settings' %}">SEO Settings</a>
+            </li>
+            <li class="nav-item {% block others_settings %}{% endblock others_settings %}">
+                <a class="nav-link" href="{% url 'authentication:other_settings' %}">Others</a>
+            </li>
+        </ul>
+    </div>
+
+    <div id="message-div">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li {% if message.tags %} class="{{message.tags}}" {% endif %}>{{message}}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    
+    {% block content %}{% endblock content %}
+    
+</div>
+<!-- /Page Content -->
+{% endblock page_content %}
+
+{% block scripts %}
+
+{% endblock scripts %}

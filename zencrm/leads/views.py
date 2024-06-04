@@ -11,22 +11,125 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from pycountry import countries
 
-from .models import Lead
 from organizations.models import Company
 from authentication.models import User
 from contacts.models import Contact
 from deals.models import Deal
+from crm_admin.models import Customer
+from .models import Lead
 
 class BaseLeadView(CrmLoginRequiredMixin):
     model = Lead
     login_url = 'authentication:login'
-    template_name = 'leads/leads.html' #
+    template_name = 'leads/leads.html'
+
+    error404 = reverse_lazy('authentication:error404')
+    error500 = reverse_lazy('authentication:error500')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            context.update({
+                "customer": get_object_or_404(Customer, organization_id = self.request.user.organization_id),
+                "organizations" : Company.objects.all(),
+                "users" : User.objects.filter(organization_id = self.request.user.organization_id),
+                "countries": [country.name for country in countries]
+            })
+        except Http404:
+            pass
+        return context
+ 
 
 class CreateLeadView(BaseLeadView, CreateView):
     template_name = 'leads/leads.html'    
     fields = "__all__"
     success_url = reverse_lazy('leads:list')
     raise_exception = True
+
+    def post(self, request, *args, **kwargs):
+        image = request.FILES.get('image')
+        prefix = request.POST.get('prefix')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        company = request.POST.get('company')
+
+        try:
+            company = get_object_or_404(Company, pk = company)
+        except Http404:
+            return HttpResponse("Invalid company")
+
+        title = request.POST.get('title')
+        lead_status = request.POST.get('lead_status')
+        user_responsible = request.POST.get('user_responsible')
+
+        try:
+            user_responsible = get_object_or_404(User, pk = user_responsible)
+        except Http404:
+            return HttpResponse("Invalid user responsible")
+
+        lead_rating = request.POST.get('lead_rating')
+        lead_owner = request.POST.get('lead_owner')
+
+        try:
+            lead_owner = get_object_or_404(User, pk = lead_owner)
+        except Http404:
+            return HttpResponse("Invalid lead owner")
+
+        email = request.POST.get('email')
+        email_opted_out = request.POST.get('email_opted_out')
+        phone = request.POST.get('phone')
+        mobile_phone = request.POST.get('mobile_phone')
+        fax = request.POST.get('fax')
+        website = request.POST.get('website')
+        industry = request.POST.get('industry')
+        number_of_employees = request.POST.get('number_of_employees')
+        lead_source = request.POST.get('lead_source')
+        mailing_address = request.POST.get('mailing_address')
+        mailing_city = request.POST.get('mailing_city')
+        mailing_state = request.POST.get('mailing_state')
+        mailing_postal_code = request.POST.get('mailing_postal_code')
+        mailing_country = request.POST.get('mailing_country')
+        description = request.POST.get('description')
+        tag_list = request.POST.get('tag_list')
+        permission = request.POST.get('permission')
+
+        data = {
+            "image": image, 
+            "prefix": prefix, 
+            "first_name": first_name, 
+            "last_name": last_name, 
+            "company": company, 
+            "organization_id": self.request.user.organization_id, 
+            "title": title, 
+            "lead_status": lead_status, 
+            "user_responsible": user_responsible, 
+            "lead_rating": lead_rating, 
+            "lead_owner": lead_owner, 
+            "email": email, 
+            "email_opted_out": email_opted_out, 
+            "phone": phone, 
+            "mobile_phone": mobile_phone, 
+            "fax": fax, 
+            "website": website, 
+            "industry": industry, 
+            "number_of_employees": number_of_employees, 
+            "lead_source": lead_source, 
+            "mailing_address": mailing_address, 
+            "mailing_city": mailing_city, 
+            "mailing_state": mailing_state, 
+            "mailing_postal_code": mailing_postal_code, 
+            "mailing_country": mailing_country, 
+            "description": description, 
+            "tag_list": tag_list, 
+            "permission": permission, 
+        }
+        try:
+            Lead.objects.create(**data)
+            messages.success(self.request, 'Created Lead successfully.')
+            return redirect(self.success_url)
+        except Exception as e:
+            print(e)
+            return redirect(self.error500)
 
     def form_valid(self, form):
         messages.success(self.request, 'Created Lead successfully.')
@@ -59,7 +162,7 @@ class CloneLeadView(BaseLeadView, CreateView):
                 prefix = self.object.prefix,
                 first_name = self.object.first_name,
                 last_name = self.object.last_name,
-                organization = self.object.organization,
+                organization = self.object.company,
                 title = self.object.title,
                 lead_status = self.object.lead_status,
                 user_responsible = self.object.user_responsible,
@@ -111,15 +214,6 @@ class ListLeadView(BaseLeadView, ListView):
     template_name = 'leads/leads.html'
     queryset = Lead.objects.all().exclude(archived = True)
     context_object_name = 'leads'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            "organizations" : Company.objects.all(),
-            "users" : User.objects.all(),
-            "countries": [country.name for country in countries]
-        })        
-        return context
 
 class DetailLeadView(BaseLeadView, DetailView):
     template_name = 'leads/detail.html'

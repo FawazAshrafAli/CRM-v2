@@ -7,41 +7,60 @@ from django.http import Http404, JsonResponse
 from .models import PipelineStage
 from pycountry import countries
 
-from .models import Deal
 from authentication.models import User
 from organizations.models import Company
 from contacts.models import Contact
 from projects.models import Project
 from leads.models import Lead
+from crm_admin.models import Customer
+from .models import Deal
 
 class BaseDealView(CrmLoginRequiredMixin):
     model = Deal
     login_url = 'authentication:login'
     template_name = "deals/deals.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            "customer": get_object_or_404(Customer, organization_id = self.request.user.organization_id),
+            'users': User.objects.filter(organization_id = self.request.user.organization_id),
+            'organizations': Company.objects.all(),
+            'stages': PipelineStage.objects.all(),
+            'contacts': Contact.objects.filter(organization_id = self.request.user.organization_id),
+            'projects': Project.objects.filter(organization_id = self.request.user.organization_id),
+            'countries': [country.name for country in countries]
+            })
+        return context
 
 
 class CreateDealView(BaseDealView, CreateView):    
     success_url = reverse_lazy('deals:list')
     fields = [
-        "name","company","category","probability_of_winning","forecast_close_date",
-        "actual_close_date","user_responsible","deal_value","bid_amount","bid_type",
-        "description","tag_list","pipeline","visibility"
+        "prefix", "first_name", "last_name", "company", "organization_id", 
+        "title", "email", "email_opted_out", "phone", "mobile_phone", 
+        "fax", "website", "industry", "number_of_employees", "category", 
+        "probability_of_winning", "forecast_close_date", "actual_close_date", 
+        "user_responsible", "deal_value", "bid_amount", "bid_type", 
+        "mailing_address", "mailing_city", "mailing_state", 
+        "mailing_postal_code", "mailing_country", "description", "tag_list", 
+        "pipeline", "visibility", "record_owner"
     ]
-
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        
-        stage = self.request.POST.getlist("stage")        
-        self.object.stage.add(*stage)
-        self.object.save()
-
-        return response
         
 
     def form_valid(self, form):
-        response = super().form_valid(form)
+        self.object = form.save(commit=False)
+        self.object.organization_id = self.request.user.organization_id
+        self.object.save()
+
+        stage = self.request.POST.getlist("stage") 
+
+        if stage:
+            self.object.stage.add(*stage)
+            self.object.save()
+
         messages.success(self.request, 'Deal Created.')
-        return response
+        return super().form_valid(form)
     
     def form_invalid(self, form):
         response = super().form_invalid(form)
@@ -139,17 +158,7 @@ class ListDealView(BaseDealView, ListView):
     queryset = Deal.objects.all()
     context_object_name = 'deals'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'users': User.objects.all(),
-            'organizations': Company.objects.all(),
-            'stages': PipelineStage.objects.all(),
-            'contacts': Contact.objects.all(),
-            'projects': Project.objects.all(),
-            'countries': [country.name for country in countries]
-            })
-        return context
+    
 
 
 class DetailDealView(BaseDealView, DetailView):

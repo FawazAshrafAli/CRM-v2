@@ -15,6 +15,7 @@ class Deal(models.Model):
     first_name = models.CharField(max_length=100, blank=False, null=False)
     last_name = models.CharField(max_length=100, blank=True, null=True)    
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    organization_id = models.CharField(max_length=20, null=True, blank=True)
     title = models.CharField(max_length=150, blank=False, null=False)
 
     # Additional Informations
@@ -61,6 +62,12 @@ class Deal(models.Model):
     # Created and Updated Datetime
     created = models.DateTimeField(auto_now_add=True)
     updated  = models.DateTimeField(auto_now=True)
+
+    def full_name(self):
+        full_name = self.first_name
+        if self.last_name:
+            full_name += f" {self.last_name}"
+        return full_name
 
     def __str__(self):
         return self.name

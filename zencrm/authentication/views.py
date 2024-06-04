@@ -266,6 +266,12 @@ class BaseCrmUserView(CrmLoginRequiredMixin):
     error404 = reverse_lazy('authentication:error404')
     error500 = reverse_lazy('authentication:error500')
 
+    def get_context_data(self, **kwargs):
+        try:
+            context = {"customer": get_object_or_404(Customer, organization_id = self.request.user.organization_id)}
+        except Http404:
+            pass
+        return context
 
 class CrmUserDetailView(BaseCrmUserView, DetailView):    
     context_object_name = "user"
@@ -655,12 +661,13 @@ class MyProfileView(BaseCrmUserView, TemplateView):
     def get_object(self, **kwargs):
         return get_object_or_404(User, pk = self.request.user.pk)        
 
-    def get_context_data(self, **kwargs):        
-        self.object = self.get_object()
-        context = {
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)        
+        self.object = self.get_object()        
+        context.update({
             'user': self.object,    
             'users': User.objects.all()
-            }
+            })
         if self.object.birthday:
             context['user_birthday'] = datetime.strptime(self.object.birthday, "%d/%m/%Y")
         return context

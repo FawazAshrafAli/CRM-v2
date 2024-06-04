@@ -1,4 +1,8 @@
 from django.db import models
+from authentication.models import User
+from contacts.models import Contact
+from leads.models import Lead
+from deals.models import Deal
 
 class Activity(models.Model):
     activity = models.CharField(max_length=150, blank=False, null=False)
@@ -8,22 +12,25 @@ class Activity(models.Model):
     ending_time = models.TimeField()
 
     availability = models.CharField(max_length=150, blank=True, null=True, default="Busy")
-    notes = models.TextField()
+    notes = models.TextField(blank=True, null=True)
 
-    user_responsible = models.CharField(max_length=150, blank=False, null=False)
-    deal_or_lead = models.CharField(max_length=150, blank=False, null=False)
-    people = models.CharField(max_length=250, blank=False, null=False)
-    organization = models.CharField(max_length=150, blank=False, null=False)
+    user_responsible = models.ForeignKey(User, on_delete=models.CASCADE)
+    guest_type = models.CharField(max_length=150, blank=True, null=True)
+    host = models.CharField(max_length=250, blank=False, null=False)
+    contact_guest = models.ForeignKey(Contact, on_delete=models.CASCADE, null=True, blank=True)
+    lead_guest = models.ForeignKey(Lead, on_delete=models.CASCADE, null=True, blank=True)
+    deal_guest = models.ForeignKey(Deal, on_delete=models.CASCADE, null=True, blank=True)
+    organization = models.CharField(max_length=150, blank=True, null=True)
 
     # meeting_follow_up_action = models.CharField(max_length=150, blank=True, null=True)
 
     # # Meeting
-    # meeting_organizer = models.CharField(max_length=150, blank=True, null=True)
-    # meeting_title = models.CharField(max_length=150, blank=True, null=True)
-    # meeting_location = models.CharField(max_length=150, blank=True, null=True)
-    # meeting_participants = models.JSONField(blank=True, null=True, default=list)
-    # meeting_purpose = models.CharField(max_length=150, blank=True, null=True)
-    # meeting_notes = models.TextField(blank=True, null=True)    
+    meeting_title = models.CharField(max_length=150, blank=True, null=True)
+    meeting_location = models.CharField(max_length=150, blank=True, null=True)
+    meeting_purpose = models.CharField(max_length=150, blank=True, null=True)
+    contact_guest = models.ManyToManyField(Contact)
+    lead_guest = models.ManyToManyField(Lead)
+    deal_guest = models.ManyToManyField(Deal)
 
     # # Lunch/Meal
     # meal_organizer = models.CharField(max_length=150, blank=True, null=True)

@@ -5,6 +5,7 @@ from django.http import Http404
 from django.urls import reverse_lazy
 
 from authentication.models import User
+from crm_admin.models import Customer
 
 class BaseDashboardView(CrmLoginRequiredMixin):
     login_url='authentication:login'
@@ -14,6 +15,13 @@ class BaseDashboardView(CrmLoginRequiredMixin):
             return redirect(reverse_lazy('crm_admin:admin'))
         else:
             return super().dispatch(request, *args, **kwargs)
+        
+    def get_context_data(self, **kwargs):
+        try:
+            context = {"customer": get_object_or_404(Customer, organization_id = self.request.user.organization_id)}
+        except Http404:
+            pass
+        return context
 
 
 class DealsDashboardView(BaseDashboardView, TemplateView):

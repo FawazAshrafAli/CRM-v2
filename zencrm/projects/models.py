@@ -36,6 +36,8 @@ class Project(models.Model):
     
     record_owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE, related_name="project_owner")
 
+    organization_id = models.CharField(max_length=20)
+
     # Created and Updated Datetime
     created = models.DateTimeField(auto_now_add=True)
     updated  = models.DateTimeField(auto_now=True)

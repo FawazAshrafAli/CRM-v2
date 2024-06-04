@@ -13,16 +13,24 @@ from pycountry import countries
 
 from authentication.models import User
 
-from .models import Company, CompanyRecentlyViewed
 from contacts.models import Contact
 from projects.models import Project
 from deals.models import Deal
+from crm_admin.models import Customer
+from .models import Company, CompanyRecentlyViewed
 
 
 class BaseOrganizationView(CrmLoginRequiredMixin):
     model = Company
     template_name = "organizations/companies.html"
-    login_url = 'authentication:login'    
+    login_url = 'authentication:login'
+
+    def get_context_data(self, **kwargs):
+        try:
+            context = {"customer": get_object_or_404(Customer, organization_id = self.request.user.organization_id)}    
+        except Http404:
+            pass
+        return context
 
 
 class CreateOrganizationView(BaseOrganizationView, CreateView):    

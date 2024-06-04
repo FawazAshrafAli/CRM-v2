@@ -1,10 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, TemplateView
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
-from django.http  import Http404, HttpResponse, HttpResponseRedirect
+from django.http  import Http404, HttpResponse, HttpResponseRedirect, JsonResponse
 from common.mixins import CrmLoginRequiredMixin
-from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.timezone import timedelta
 from pycountry import countries
@@ -14,6 +13,7 @@ from organizations.models import Company
 from projects.models import Project
 from deals.models import Deal
 from leads.models import Lead
+from crm_admin.models import Customer
 from .models import Contact
 
 
@@ -22,13 +22,21 @@ class BaseContactView(CrmLoginRequiredMixin):
     model = Contact
     template_name = 'contacts/contacts.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            context.update({'customer': get_object_or_404(Customer, organization_id = self.request.user.organization_id)})
+        except Http404:
+            pass
+        return context
 
 class CreateContactView(BaseContactView, CreateView):    
     template_name = 'contacts/contacts.html'
     fields = "__all__"
-    success_url = reverse_lazy('contacts:list')    
+    success_url = reverse_lazy('contacts:list') 
 
     def form_valid(self, form):
+        form.instance.organization_id = self.request.organization_id
         response = super().form_valid(form)
         messages.success(self.request, "New contact has been created!")
         return response
@@ -99,9 +107,12 @@ class CloneContactView(BaseContactView, CreateView):
         
         
 class ListContactView(BaseContactView, ListView):
+    model = Contact
     template_name = 'contacts/contacts.html'    
     context_object_name = "contacts"
-    queryset = Contact.objects.filter(archived = False)
+
+    def get_queryset(self):
+        return Contact.objects.filter(archived = False, organization_id = self.request.user.organization_id)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -111,6 +122,7 @@ class ListContactView(BaseContactView, ListView):
             'deals': Deal.objects.all(),
             'projects': Project.objects.all(),
             'users': User.objects.all(),
+            'contacts': self.get_queryset(),
             'countries': [country.name for country in countries],
         })
         return context

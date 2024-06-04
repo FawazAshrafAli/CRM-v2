@@ -11,7 +11,8 @@ class Lead(models.Model):
     prefix = models.CharField(max_length=25, blank=True, null=True)
     first_name = models.CharField(max_length=100, blank=False, null=False)
     last_name = models.CharField(max_length=100, blank=True, null=True)
-    organization = models.ForeignKey(Company, on_delete=models.PROTECT, blank=True, null=True)
+    company = models.ForeignKey(Company, on_delete=models.PROTECT, blank=True, null=True)
+    organization_id = models.CharField(max_length=20, blank=True, null=True)
     title = models.CharField(max_length=150, blank=False, null=False)
     lead_status = models.CharField(max_length=150, blank=False, null=False, default = 'Not Contacted')
     user_responsible = models.ForeignKey(User, on_delete=models.PROTECT, blank=True, null=True, related_name="user_responsible")
@@ -22,7 +23,7 @@ class Lead(models.Model):
 
     # Additional Information
     email = models.EmailField(max_length=254, blank=False, null=False)
-    email_opted_out = models.BooleanField(default=False)
+    email_opted_out = models.BooleanField(default=False, blank=True, null=True)
     phone = models.CharField(max_length=20, blank=False, null=False)
     mobile_phone = models.CharField(max_length=20, blank=True, null=True)
     fax = models.CharField(max_length=20, blank=True, null=True)
@@ -51,3 +52,9 @@ class Lead(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    def full_name(self):
+        full_name = self.first_name
+        if self.last_name:
+            full_name += f" {self.last_name}"
+        return full_name

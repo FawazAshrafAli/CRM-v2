@@ -90,6 +90,12 @@ class User(AbstractUser):
     organization_id = models.CharField(max_length=10)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    def full_name(self):
+        full_name = self.first_name
+        if self.last_name:
+            full_name += f" {self.last_name}"
+        return full_name
     
     def __str__(self):
         if self.last_name:

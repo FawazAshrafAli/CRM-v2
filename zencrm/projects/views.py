@@ -11,11 +11,19 @@ from django.http import JsonResponse
 from organizations.models import Company
 from deals.models import Deal
 from contacts.models import Contact
+from crm_admin.models import Customer
 
 class BaseProjectView(CrmLoginRequiredMixin):
     login_url = 'authentication:login'
     model = Project
     template_name = "projects/projects.html"
+
+    def get_context_data(self, **kwargs):
+        try:
+            context = {"customer": get_object_or_404(Customer, organization_id = self.request.user.organization_id)}
+        except Http404:
+            pass
+        return context
 
 
 class ProjectCreateView(BaseProjectView, CreateView):    
