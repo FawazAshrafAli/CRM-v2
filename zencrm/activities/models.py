@@ -28,20 +28,12 @@ class Activity(models.Model):
     title = models.CharField(max_length=150, blank=True, null=True)
     purpose = models.CharField(max_length=150, blank=True, null=True)
     location = models.CharField(max_length=150, blank=True, null=True)
-
-    # # Meeting
     contact_guests = models.ManyToManyField(Contact, related_name="contact_guests")
     lead_guests = models.ManyToManyField(Lead, related_name="lead_guests")
     deal_guests = models.ManyToManyField(Deal, related_name="deal_guests")
 
     # # Lunch/Meal
-    # meal_organizer = models.CharField(max_length=150, blank=True, null=True)
-    # mead_title = models.CharField(max_length=150, blank=True, null=True)    
-    # meal_location = models.CharField(max_length=150, blank=True, null=True)    
-    # meal_attendees = models.JSONField(blank=True, null=True, default=list)
-    # meal_menu = models.JSONField(blank=True, null=True, default=list)
-    # meal_purpose = models.CharField(max_length=150, blank=True, null=True)    
-    # meal_special_requirements = models.TextField(blank=True, null=True)
+    additional_information = models.TextField(blank=True, null=True)
 
     # # Flagged
     # Title = models.CharField(max_length=150, blank=True, null=True)    
@@ -54,6 +46,18 @@ class Activity(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    @property
+    def starting_datetime(self):
+        if self.starting_date and self.starting_time:
+            return f"{self.starting_date.strftime("%d-%b-%Y")} {self.starting_time.strftime("%H:%M %p")}"
+        return None
+    
+    @property
+    def ending_datetime(self):
+        if self.ending_date and self.ending_time:
+            return f"{self.ending_date.strftime("%d-%b-%Y")} {self.ending_time.strftime("%H:%M %p")}"
+        return None
 
     @property
     def guest(self):
@@ -86,26 +90,35 @@ class Activity(models.Model):
     def guests_team_email(self):
         if self.guests:
             guests = self.guests
-            if guests.count() > 1:
-                email =  f"{guests[0].email} + {guests.count() - 1} more"
-            else:
-                email = guests[0].email
-            return email
+            not_none_list = []
+            if guests.count() > 0:
+                for guest in guests:
+                    if guest.email is not None:
+                        not_none_list.append(guest)
+                    else:
+                        continue
+            list_length = len(not_none_list)
+            if list_length > 1:
+                return f"{not_none_list[0].email} + {list_length - 1} more"
+            elif list_length > 0:
+                return not_none_list[0].email
         return None
     
     @property
     def guests_team_phone(self):
         if self.guests:
             guests = self.guests
-            phone = None
-            if guests.count() > 1:
-                for i in range(guests.count()):
-                    if guests[i] is not None:
-                        phone =  f"{guests[i].phone} + {guests.count() - 1} more"
-                        break
-            else:
-                if guests[0].phone is not None:
-                    phone = guests[0].phone                    
-            return phone
+            not_none_list = []
+            if guests.count() > 0:
+                for guest in guests:
+                    if guest.phone is not None:
+                        not_none_list.append(guest)
+                    else:
+                        continue
+            list_length = len(not_none_list)
+            if list_length > 1:
+                return f"{not_none_list[0].phone} + {list_length - 1} more"
+            elif list_length > 0:
+                return not_none_list[0].phone
         return None
 

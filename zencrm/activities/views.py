@@ -6,8 +6,12 @@ from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.http import Http404, JsonResponse, HttpResponse
 from django.urls import reverse_lazy
-from datetime import datetime
+import datetime
+import types
+from datetime import datetime as dt
+from django.core.serializers import serialize
 import traceback
+from django.forms.models import model_to_dict
 
 from crm_admin.models import Customer
 from .models import Activity
@@ -83,7 +87,7 @@ class CreateActivityView(BaseActivityView, CreateView):
         
         return data
 
-    def manage_meeting(self, request, guest_type, data):
+    def manage_meeting_and_meal(self, request, guest_type, data):
         title = request.POST.get('title')
         purpose = request.POST.get('purpose')
         location = request.POST.get('location')
@@ -94,6 +98,7 @@ class CreateActivityView(BaseActivityView, CreateView):
             "location": location
         })
 
+        guests = None
         if guest_type == "Contact":
             contact_guest = request.POST.get('contact')
             contact_guests = request.POST.getlist('contacts')
@@ -147,14 +152,15 @@ class CreateActivityView(BaseActivityView, CreateView):
             
         else:
             return HttpResponse("Guest is not provided")
-        
-        if guests:
-            print(f"Manage Print: {guests}")
 
         return data, guests or None
+    
+    def manage_meal(self, request, data):
+        additional_information =request.POST.get("additional_information")
+        data["additional_information"] = additional_information
+        return data
 
     def set_many_to_many(self, activity_object, guest_type, *guests):
-        print(f"mym entering: {guests}")
         if guest_type == "Contact":
             try:
                 activity_object.contact_guests.set(*guests)
@@ -197,8 +203,8 @@ class CreateActivityView(BaseActivityView, CreateView):
         starting_date = request.POST.get("starting_date")
         ending_date = request.POST.get("ending_date")
 
-        starting_date = datetime.strptime(starting_date, "%d/%m/%Y")
-        ending_date = datetime.strptime(ending_date, "%d/%m/%Y")
+        starting_date = dt.strptime(starting_date, "%d/%m/%Y")
+        ending_date = dt.strptime(ending_date, "%d/%m/%Y")
 
         data = {
             "activity": activity, 
@@ -216,8 +222,9 @@ class CreateActivityView(BaseActivityView, CreateView):
             self.manage_call(request, guest_type, data)
         
         elif activity == "Meeting" or activity == "Meal":
-            data, guests = self.manage_meeting(request, guest_type, data)
-            print(guests)
+            data, guests = self.manage_meeting_and_meal(request, guest_type, data)
+            if activity == "Meal":
+                data = self.manage_meal(request, data)
         
         try:
             activity_object = Activity.objects.create(**data)
@@ -261,3 +268,42 @@ class FetchGuestView(BaseActivityView, View):
             return JsonResponse({'guest_data': list(guest_data.values())}, safe=True)
         else:
             return JsonResponse({'message': 'No data found.'})
+        
+
+class ActivityDetailView(BaseActivityView, DetailView):
+    model = Activity
+
+    def render_to_response(self, context):
+        activity = context['object']
+
+        serialized_data = {}
+
+        for field in activity._meta.fields:
+            field_name = field.name
+            field_value = getattr(activity, field_name)
+
+            if field_value:
+                print(f"First {field_name} {field_value} {type(field_value)}")
+                if field_name in "user_responsible":
+                    serialized_data[field_name] = field_value.full_name
+                    pass
+
+                elif field_name in "contact_guest":
+                    serialized_data['guest'] = field_value.full_name
+                
+                elif isinstance(field_value, datetime.datetime) or isinstance(field_value, datetime.time):
+                    pass
+
+                else:
+                    print(f"{field_name} {field_value} {type(field_value)}")                    
+                    serialized_data[field_name] = field_value
+            
+        serialized_data['starting_datetime'] = activity.starting_datetime
+
+        serialized_data['ending_datetime'] = activity.ending_datetime
+
+        print(serialized_data)
+
+
+        return JsonResponse(serialized_data, safe=False)
+

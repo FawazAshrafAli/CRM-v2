@@ -79,7 +79,7 @@
                                               <span class="checkmark"></span>
                                         </label>
                                     </td>
-                                    <td><a href="#" data-bs-toggle="modal" data-bs-target="#add_activity">Call</a></td>
+                                    <td><a href="#" data-bs-toggle="modal" data-bs-target="#activity-modal">Call</a></td>
                                     <td><a href="#" data-bs-toggle="modal" data-bs-target="#company-details">Ansanio tech</a></td>
                                     <td>Cravo Ansanio</td>
                                     <td>anson@gmail.com</td>
@@ -105,14 +105,14 @@
                                             <span class="checkmark"></span>
                                       </label>
                                   </td>
-                                  <td><a href="#" data-bs-toggle="modal" data-bs-target="#add_activity">{{activity.activity}}</a></td>
+                                  <td><a href="#" data-bs-toggle="modal" data-bs-target="#activity-modal" data-activity-id="{{activity.pk}}" onclick="loadActivityDetails({{activity.pk}}); return false;">{{activity.activity}}</a></td>
                                   <td style="max-width: 150px; text-overflow: ellipsis; overflow-x: hidden;">
                                     {% if activity.guest %}
                                     <a href="#" data-bs-toggle="modal" data-bs-target="#company-details">
                                     {{activity.guest.full_name}}
                                     </a>
                                     {% elif activity.guests_team %}
-                                    <a href="#" data-bs-toggle="modal" data-bs-target="#company-details">                                  
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="#company-details" title="{% for guest in activity.guests %} {{guest.full_name}},  {% endfor %}">
                                     {{activity.guests_team}}                                    
                                     </a>
                                     {% else %}
@@ -166,6 +166,765 @@
 {% endblock page_content %}
 
 {% block modals %}
+<!-- Activity Modal Start -->
+<div class="modal right fade" id="activity-modal" tabindex="-1" role="dialog" aria-modal="true">
+  <div class="modal-dialog" role="document">
+    <button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close"> </button>
+    <div class="modal-content">
+
+      <div class="modal-header">
+       
+        <div class="row w-100">
+          <div class="col-md-7 account d-flex">
+              <div class="company_img">
+                  <img src="{% static 'assets/img/system-user.png' %}" alt="User" class="user-image img-fluid contact-image" />
+              </div>
+              <div>
+                  <p class="mb-0">Activity</p>
+                  <span class="modal-title contact-full-name"></span>
+                <span class="rating-star"><i class="fa fa-star" aria-hidden="true"></i></span>
+                <span class="lock"><i class="fa fa-lock" aria-hidden="true"></i></span>
+              </div>
+
+          </div>
+          <div class="col-md-5 text-end">
+            <ul class="list-unstyled list-style-none">
+                <li class="dropdown list-inline-item"><br />
+                    <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Actions </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#">Edit This Contact</a>
+                          <a class="dropdown-item" href="#">Change Contact Image</a>
+                          <a class="dropdown-item" href="#">Delete This Contact</a>
+                          <a class="dropdown-item" href="#">Clone This Contact</a>
+                          <a class="dropdown-item" href="#">Change Record Owner</a>
+                          <a class="dropdown-item" href="#">Generate Merge Document</a>
+                          <a class="dropdown-item" href="#">Change Contact To Lead</a>
+                          <a class="dropdown-item" href="#">Print This Contact</a>
+                          <a class="dropdown-item" href="#">Email This Contact</a>
+                          <a class="dropdown-item" href="#">Add New Task For Contact</a>
+                          <a class="dropdown-item" href="#">Add New Event For Contact</a>
+                          <a class="dropdown-item" href="#">Add Activity Set To Contact</a>
+                          <a class="dropdown-item" href="#">Add New Deal For Contact</a>
+                          <a class="dropdown-item" href="#">Add New Project For Contact</a>
+                    </div>
+                </li>
+              
+            </ul>
+            
+          </div>
+        </div>
+        <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="card due-dates">
+          <div class="card-body">
+            <div class="row">
+              <div class="col">
+                <span>Title</span>
+                <p class="contact-title"></p>
+              </div>
+              <div class="col">
+                <span>Companies</span>
+                <p class="contact-organization"></p>
+              </div>
+              <div class="col">
+                <span>Phone</span>
+                <p class="contact-phone"></p>
+              </div>
+              <div class="col">
+                <span>Email</span>
+                <p class="contact-email"></p>
+              </div>
+              <div class="col">
+                <span>Contact owner</span>
+                <p class="contact-owner"></p>
+              </div>
+            </div>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div class="task-infos">
+            <ul class="nav nav-tabs nav-tabs-solid nav-tabs-rounded nav-justified">
+                <li class="nav-item"><a class="nav-link active" href="#task-details" data-bs-toggle="tab">Details</a></li>
+                <li class="nav-item"><a class="nav-link" href="#task-related" data-bs-toggle="tab">Related</a></li>
+                <li class="nav-item"><a class="nav-link" href="#task-activity" data-bs-toggle="tab">Activity</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane show active" id="task-details">
+                    <div class="crms-tasks">
+                      <div class="tasks__item crms-task-item active">
+                        <div class="accordion-header js-accordion-header">Host &amp; Guest</div> 
+                          <div class="accordion-body js-accordion-body">
+                            <div class="accordion-body__contents">
+                              <table class="table">
+                                    <tbody id="host-guest">
+                                      <tr>
+                                        <td class="border-0">Record ID</td>
+                                        <td class="border-0 activity-id"></td>
+                                      </tr>
+                                      <tr>
+                                        <td class="border-0">Host</td>
+                                        <td class="border-0 host"></td>
+                                      </tr>
+                                      <tr>
+                                        <td>Guest</td>
+                                        <td class="guest"></td>
+                                      </tr>                                     
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                  </div>
+                  <div class="tasks__item crms-task-item active">
+                    <div class="accordion-header js-accordion-header">Date Information</div> 
+                      <div class="accordion-body js-accordion-body">
+                        <div class="accordion-body__contents">
+                              <table class="table" id="date-information">
+                                <tbody>
+                                  <tr>
+                                    <td class="border-0">Starting Date &amp; Time</td>
+                                    <td class="border-0 starting-datetime"></td>
+                                  </tr>                                
+                                  <tr>
+                                    <td class="border-0">Ending Date &amp; Time</td>
+                                    <td class="border-0 ending-datetime"></td>
+                                  </tr>                                                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                  </div>
+                  <div class="tasks__item crms-task-item active">
+                    <div class="accordion-header js-accordion-header">Additional Information</div> 
+                      <div class="accordion-body js-accordion-body">
+                        <div class="accordion-body__contents">
+                          <table class="table">
+                            <tbody>
+                              <tr>
+                                <td class="border-0">Mailling Address</td>
+                                <td class="border-0 contact-full-mailing-address"></td>
+                              </tr>
+                              <tr>
+                                <td>Other Address</td>
+                                <td class="contact-full-other-address"></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                        
+                    </div>
+                  </div>
+                  <div class="tasks__item crms-task-item active">
+                    <div class="accordion-header js-accordion-header">Dates To Remember</div> 
+                      <div class="accordion-body js-accordion-body">
+                        <div class="accordion-body__contents">
+                          <table class="table">
+                                <tbody>
+                                  <tr>
+                                    <td class="border-0">Dates to Remember</td>
+                                    <td class="border-0 contact-due-date"></td>
+                                  </tr>
+                                  <tr>
+                                    <td>Date of Birth</td>
+                                    <td class="contact-date-of-birth"></td>
+                                  </tr>
+                                  
+                                </tbody>
+                              </table>
+                        </div>
+                        
+                    </div>
+                  </div>
+                  <div class="tasks__item crms-task-item active">
+                    <div class="accordion-header js-accordion-header">Additional Information</div> 
+                      <div class="accordion-body js-accordion-body">
+                        <div class="accordion-body__contents">
+                              <table class="table">
+                                <tbody>
+                                      <tr>
+                                        <td class="border-0">Date of Next Activity</td>
+                                        <td class="border-0"></td>
+                                      </tr>
+                                      <tr>
+                                        <td>Date of Last Activity</td>
+                                        <td class="contact-updated"></td>
+                                      </tr>
+                                      <tr>
+                                        <td>Contact Owner</td>
+                                        <td class="contact-owner"></td>
+                                      </tr>
+                                      <tr>
+                                        <td>Contact Created</td>
+                                        <td class="contact-created"></td>
+                                      </tr>
+                                  
+                                    </tbody>
+                                  </table>
+                        </div>
+                        
+                    </div>
+                  </div>
+                  <div class="tasks__item crms-task-item active">
+                    <div class="accordion-header js-accordion-header">Description Information</div> 
+                      <div class="accordion-body js-accordion-body">
+                        <div class="accordion-body__contents">
+                          <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td class="border-0">Description</td>
+                                        <td class="border-0 contact-description"></td>
+                                    </tr>
+                                </tbody>
+                              </table>
+                        </div>
+                    </div>
+                  </div>
+                  <div class="tasks__item crms-task-item active">
+                    <div class="accordion-header js-accordion-header">Tag List</div> 
+                      <div class="accordion-body js-accordion-body">
+                        <div class="accordion-body__contents">
+                          <table class="table">
+                                <tbody>
+                                  <tr>
+                                    <td class="border-0">Tag List</td>
+                                    <td class="border-0 contact-tag-list"></td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                        </div>
+                        
+                    </div>
+                  </div>
+                </div>
+                </div>
+                    
+                <div class="tab-pane task-related" id="task-related">
+                    <div class="row pt-2">
+                        <div class="col-md-4">
+                          <div class="card bg-gradient-danger card-img-holder text-white h-100">
+                            <div class="card-body">
+                              <img src="{% static 'assets/img/circle.png' %}" class="card-img-absolute" alt="circle-image">
+                              <h4 class="font-weight-normal mb-3">Companies</h4>
+                              <span>{{organizations|length}}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="card bg-gradient-info card-img-holder text-white h-100">
+                            <div class="card-body">
+                              <img src="{% static 'assets/img/circle.png' %}" class="card-img-absolute" alt="circle-image">
+                              <h4 class="font-weight-normal mb-3">Deals</h4>
+                              <span>{{deals|length}}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="card bg-gradient-success card-img-holder text-white h-100">
+                            <div class="card-body">
+                              <img src="{% static 'assets/img/circle.png' %}" class="card-img-absolute" alt="circle-image">
+                              <h4 class="font-weight-normal mb-3">Projects</h4>
+                              <span>{{projects|length}}</span>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                    <div class="row pt-3">
+                        <div class="col-md-4">
+                          <div class="card bg-gradient-success card-img-holder text-white h-100">
+                            <div class="card-body">
+                              <img src="{% static 'assets/img/circle.png' %}" class="card-img-absolute" alt="circle-image">
+                              <h4 class="font-weight-normal mb-3">Contacts</h4>
+                              <span>{{related_contacts|length}}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="card bg-gradient-danger card-img-holder text-white h-100">
+                            <div class="card-body">
+                              <img src="{% static 'assets/img/circle.png' %}" class="card-img-absolute" alt="circle-image">
+                              <h4 class="font-weight-normal mb-3">Notes</h4>
+                              <span>2</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="card bg-gradient-info card-img-holder text-white h-100">
+                            <div class="card-body">
+                              <img src="{% static 'assets/img/circle.png' %}" class="card-img-absolute" alt="circle-image">
+                              <h4 class="font-weight-normal mb-3">Files</h4>
+                              <span>2</span>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="crms-tasks  p-2">
+                            <div class="tasks__item crms-task-item active">
+                                <div class="accordion-header js-accordion-header">Companies</div> 
+                                  <div class="accordion-body js-accordion-body">
+                                    <div class="accordion-body__contents">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Company Name</th>
+                                                        <th>Phone</th>
+                                                        <th>Billing Country</th>
+                                                        <th class="text-end">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for organization in organizations %}
+                                                    <tr>
+                                                        <td>
+                                                            <a href="#" class="avatar"><img alt="" src="{% static 'assets/img/c-logo2.png' %}"></a>
+                                                            <a href="#" data-bs-toggle="modal" data-bs-target="#company-details">{{organization.name}}</a>
+                                                        </td>
+                                                        <td>{{organization.phone}}</td>
+                                                        <td>{{organization.billing_country}}</td>
+                                                        <td class="text-center">
+                                                            <div class="dropdown dropdown-action">
+                                                                <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                                <div class="dropdown-menu dropdown-menu-right">
+                                                                    <a class="dropdown-item" href="#">Edit Link</a>
+                                                                    <a class="dropdown-item" href="#">Delete Link</a>
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}																
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tasks__item crms-task-item">
+                                <div class="accordion-header js-accordion-header">Deals</div> 
+                                  <div class="accordion-body js-accordion-body">
+                                    <div class="accordion-body__contents">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Deal Name</th>
+                                                        <th>Company</th>
+                                                        <th>User Responsible</th>
+                                                        <th>Deal Value</th>
+                                                        <th></th>
+                                                        <th class="text-end">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for deal in deals %}
+                                                    <tr>
+                                                        
+                                                        <td>
+                                                            {% if deal.last_name %} {{deal.first_name}} {{deal.last_name}} {% else %} {{deal.first_name}} {% endif %}
+                                                        </td>
+                                                        <td>{{deal.company.name}}</td>
+                                                        <td>{{deal.user_responsible.name}}</td>
+                                                        <td>{{deal.deal_value}}‎{{deal.bid_amount}}</td>
+                                                        <td><i class="fa fa-star" aria-hidden="true"></i></td>
+                                                        
+                                                        <td class="text-center">
+                                                            <div class="dropdown dropdown-action">
+                                                                <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                                <div class="dropdown-menu dropdown-menu-right">
+                                                                    <a class="dropdown-item" href="#">Edit Link</a>
+                                                                    <a class="dropdown-item" href="#">Delete Link</a>
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}																
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tasks__item crms-task-item">
+                                <div class="accordion-header js-accordion-header">Projects</div> 
+                                  <div class="accordion-body js-accordion-body">
+                                    <div class="accordion-body__contents">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Project Name</th>
+                                                        <th>Status</th>
+                                                        <th>User Responsible</th>
+                                                        <th>Date Created</th>
+                                                        <th class="text-end">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for project in projects %}
+                                                    <tr>
+                                                        <td>
+                                                            {{project.name}}
+                                                        </td>
+                                                        <td>{{project.status}}</td>
+                                                        <td>{{project.user_responsible.name}}</td>																	
+                                                        <td>{{project.created|date:"d-m-y h:i A"}}</td>
+                                                        <td class="text-center">
+                                                            <div class="dropdown dropdown-action">
+                                                                <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                                <div class="dropdown-menu dropdown-menu-right">
+                                                                    <a class="dropdown-item" href="#">Edit Link</a>
+                                                                    <a class="dropdown-item" href="#">Delete Link</a>
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tasks__item crms-task-item">
+                                <div class="accordion-header js-accordion-header">Contacts </div> 
+                                  <div class="accordion-body js-accordion-body">
+                                    <div class="accordion-body__contents">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Title</th>
+                                                        <th>phone</th>
+                                                        <th>Email</th>
+                                                        <th class="text-end">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for contact in related_contacts %}
+                                                    <tr>
+                                                        
+                                                        <td>
+                                                            {{contact.first_name}} {{contact.last_name}}
+                                                        </td>
+                                                        <td>{{contact.title}}</td>
+                                                        <td>{{contact.phone}}</td>
+                                                        <td>{{contact.email}}</td>
+                                                        <td class="text-center">
+                                                            <div class="dropdown dropdown-action">
+                                                                <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                                <div class="dropdown-menu dropdown-menu-right">
+                                                                    <a class="dropdown-item" href="#">Edit Link</a>
+                                                                    <a class="dropdown-item" href="#">Delete Link</a>
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}																
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tasks__item crms-task-item">
+                                <div class="accordion-header js-accordion-header">Notes </div> 
+                                  <div class="accordion-body js-accordion-body">
+                                    <div class="accordion-body__contents">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Size</th>
+                                                        <th>Category</th>
+                                                        <th>Date Added</th>
+                                                        <th>Added by</th>
+                                                        <th class="text-end">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        
+                                                        <td>
+                                                            Document
+                                                        </td>
+                                                        <td>50KB</td>
+                                                        <td>Phone call</td>
+                                                        <td>13-Jul-20 11:37 PM</td>
+                                                        <td>John Doe</td>
+                                                        <td class="text-center">
+                                                            <div class="dropdown dropdown-action">
+                                                                <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                                <div class="dropdown-menu dropdown-menu-right">
+                                                                    <a class="dropdown-item" href="#">Edit Link</a>
+                                                                    <a class="dropdown-item" href="#">Delete Link</a>
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        
+                                                        <td>
+                                                            Finance
+                                                        </td>
+                                                        <td>100KB</td>
+                                                        <td>Enquiry</td>
+                                                        <td>13-Jul-20 11:37 PM</td>
+                                                        <td>Smith</td>
+                                                        <td class="text-center">
+                                                            <div class="dropdown dropdown-action">
+                                                                <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                                <div class="dropdown-menu dropdown-menu-right">
+                                                                    <a class="dropdown-item" href="#">Edit Link</a>
+                                                                    <a class="dropdown-item" href="#">Delete Link</a>
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tasks__item crms-task-item">
+                                <div class="accordion-header js-accordion-header">Files </div> 
+                                  <div class="accordion-body js-accordion-body">
+                                    <div class="accordion-body__contents">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Size</th>
+                                                        <th>Category</th>
+                                                        <th>Date Added</th>
+                                                        <th>Added by</th>
+                                                        <th class="text-end">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        
+                                                        <td>
+                                                            Document
+                                                        </td>
+                                                        <td>50KB</td>
+                                                        <td>Phone Call</td>
+                                                        <td>13-Jul-20 11:37 PM</td>
+                                                        <td>John Doe</td>
+                                                        <td class="text-center">
+                                                            <div class="dropdown dropdown-action">
+                                                                <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                                <div class="dropdown-menu dropdown-menu-right">
+                                                                    <a class="dropdown-item" href="#">Edit Link</a>
+                                                                    <a class="dropdown-item" href="#">Delete Link</a>
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        
+                                                        <td>
+                                                            Finance
+                                                        </td>
+                                                        <td>100KB</td>
+                                                        <td>Enquiry</td>
+                                                        <td>13-Jul-20 11:37 PM</td>
+                                                        <td>Smith</td>
+                                                        <td class="text-center">
+                                                            <div class="dropdown dropdown-action">
+                                                                <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                                <div class="dropdown-menu dropdown-menu-right">
+                                                                    <a class="dropdown-item" href="#">Edit Link</a>
+                                                                    <a class="dropdown-item" href="#">Delete Link</a>
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="task-activity">
+                    <div class="row pt-2">
+                        <div class="col-md-4">
+                          <div class="card bg-gradient-danger card-img-holder text-white h-100">
+                            <div class="card-body">
+                              <img src="{% static 'assets/img/circle.png' %}" class="card-img-absolute" alt="circle-image">
+                              <h4 class="font-weight-normal mb-3">Total Activities</h4>
+                              <span>2</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="card bg-gradient-info card-img-holder text-white h-100">
+                            <div class="card-body">
+                              <img src="{% static 'assets/img/circle.png' %}" class="card-img-absolute" alt="circle-image">
+                              <h4 class="font-weight-normal mb-3">Last Activity</h4>
+                              <span>1</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="row">
+                        <div class="crms-tasks  p-2">
+                            <div class="tasks__item crms-task-item active">
+                                <div class="accordion-header js-accordion-header">Upcoming Activity </div> 
+                                  <div class="accordion-body js-accordion-body">
+                                    <div class="accordion-body__contents">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Type</th>
+                                                        <th>Activity Name</th>
+                                                        <th>Assigned To</th>
+                                                        <th>Due Date</th>
+                                                        <th>Status</th>
+                                                        <th class="text-end">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        
+                                                        <td>
+                                                            Meeting
+                                                        </td>
+                                                        <td>Call Enquiry</td>
+                                                        <td>John Doe</td>
+                                                        <td>13-Jul-20 11:37 PM</td>
+                                                        <td>
+                                                            <label class="container-checkbox">
+                                                                  <input type="checkbox" checked>
+                                                                  <span class="checkmark"></span>
+                                                            </label>
+                                                        </td>
+
+                                                        <td class="text-center">
+                                                            <div class="dropdown dropdown-action">
+                                                                <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                                <div class="dropdown-menu dropdown-menu-right">
+                                                                    <a class="dropdown-item" href="#">Add New Task</a>
+                                                                    <a class="dropdown-item" href="#">Add New Event</a>
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        
+                                                        <td>
+                                                            Meeting
+                                                        </td>
+                                                        <td>Phone Enquiry</td>
+                                                        <td>David</td>
+                                                        <td>13-Jul-20 11:37 PM</td>
+                                                        
+                                                        <td>
+                                                            <label class="container-checkbox">
+                                                                  <input type="checkbox" checked>
+                                                                  <span class="checkmark"></span>
+                                                            </label>
+                                                        </td>
+                                                        
+                                                        <td class="text-center">
+                                                            <div class="dropdown dropdown-action">
+                                                                <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                                <div class="dropdown-menu dropdown-menu-right">
+                                                                    <a class="dropdown-item" href="#">Add New Task</a>
+                                                                    <a class="dropdown-item" href="#">Add New Event</a>
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tasks__item crms-task-item">
+                                <div class="accordion-header js-accordion-header">Past Activity </div> 
+                                  <div class="accordion-body js-accordion-body">
+                                    <div class="accordion-body__contents">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-nowrap custom-table mb-0 datatable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Type</th>
+                                                        <th>Activity Name</th>
+                                                        <th>Assigned To</th>
+                                                        <th>Due Date</th>
+                                                        <th>Status</th>
+                                                        <th class="text-end">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        
+                                                        <td>
+                                                            Meeting
+                                                        </td>
+                                                        <td>Call Enquiry</td>
+                                                        <td>John Doe</td>
+                                                        <td>13-Jul-20 11:37 PM</td>
+                                                        <td>
+                                                            <label class="container-checkbox">
+                                                                  <input type="checkbox" checked>
+                                                                  <span class="checkmark"></span>
+                                                            </label>
+                                                        </td>
+
+                                                        <td class="text-center">
+                                                            <div class="dropdown dropdown-action">
+                                                                <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
+                                                                <div class="dropdown-menu dropdown-menu-right">
+                                                                    <a class="dropdown-item" href="#">Add New Task</a>
+                                                                    <a class="dropdown-item" href="#">Add New Event</a>
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+    </div>
+
+    </div><!-- modal-content -->
+  </div><!-- modal-dialog -->
+</div><!-- modal -->
+
+<!-- Activity Modal End -->
+
 <!--system users Modal -->
 <div class="modal right fade" id="company-details" tabindex="-1" role="dialog" aria-modal="true">
     <div class="modal-dialog" role="document">
@@ -1113,18 +1872,12 @@
                      </select>
                   </div>
                 </div>
-                <!-- <div class="col-sm-12">
-                  <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Deal or Lead">
-                    
-                  </div>
-                </div> -->
                 
-                <!-- <div class="col-sm-12">
+                <div class="col-sm-12">
                   <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Organization">
+                    <textarea type="text" class="form-control" name="additional_information" id="additional-information" placeholder="Additional Information" style="display: none;"></textarea>
                   </div>
-                </div> -->
+                </div>
                 
               </div>
               
@@ -2677,12 +3430,15 @@
 <script>
   const addAdvanceOptions = document.getElementById('add-advance-options');
   const guest = document.getElementById('guest');
+  const additionalInformation = document.getElementById('additional-information');
+  const advanceOptions = document.getElementById('advanced-options');
+  const meetingTitle = document.getElementById('meeting-title');
 
   var currentActivity = document.getElementById('activity');
   
   function toggleDefault() {
-    // document.getElementById('advanced-options').style.display = 'none';
-    document.getElementById('meeting-title').style.display = 'none';
+    meetingTitle.style.display = 'none';
+    additionalInformation.style.display = 'none';
 
     defaultAdvancedOptions();
   }
@@ -2693,6 +3449,7 @@
     toggleDefault();
     addAdvanceOptions.style.display = 'none';
     guest.style.display = 'block';
+
   };
 
   function toggleMeeting() {      
@@ -2700,8 +3457,8 @@
 
     toggleDefault();
 
-    document.getElementById('advanced-options').style.display = 'block';
-    document.getElementById('meeting-title').style.display = 'block';
+    advanceOptions.style.display = 'block';
+    meetingTitle.style.display = 'block';
   };
 
   function toggleReminder() {      
@@ -2719,7 +3476,8 @@
   function toggleMeal() {      
     currentActivity.value = 'Meal';
 
-    document.getElementById('advanced-options').style.display = 'block';
+    advanceOptions.style.display = 'block';
+    additionalInformation.style.display = 'block';
   };
   
   document.getElementById('toggle-call-btn').addEventListener('click', toggleCall);
@@ -2829,5 +3587,50 @@
   });
 </script>
 
-  
+<script>
+  function loadActivityDetails(activityId) {
+    $.ajax({
+        type: 'GET',
+        url: '/activities/detail/' + activityId,
+        dataType: 'json',
+        success: data => {
+          
+          if (data) {
+            
+            if (data.id) {
+              $('.activity-id').html(data.id);
+            } else {
+              $('.activity-id').html('None');
+            };
+
+            if (data.host) {
+              $('.host').html(data.host);
+            } else {
+              $('.host').html('None');
+            };
+
+            if (data.guest) {
+              $('.guest').html(data.guest);
+            } else {
+              $('.guest').html('None');
+            };
+
+            if (data.starting_datetime) {
+              $('.starting-datetime').html(data.starting_datetime);
+            } else {
+              $('.starting-datetime').html('None');
+            };
+
+            if (data.ending_datetime) {
+              $('.ending-datetime').html(data.ending_datetime);
+            } else {
+              $('.ending-datetime').html('None');
+            };
+
+          };
+        },
+        error: error => console.error('Error', error),
+    });
+  };
+</script>
 {% endblock scripts %}
