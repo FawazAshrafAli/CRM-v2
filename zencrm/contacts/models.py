@@ -61,7 +61,7 @@ class Contact(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-
+    @property
     def full_name(self):
         full_name = self.first_name
         if self.last_name:

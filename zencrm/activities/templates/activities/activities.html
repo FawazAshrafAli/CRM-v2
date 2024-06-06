@@ -106,33 +106,37 @@
                                       </label>
                                   </td>
                                   <td><a href="#" data-bs-toggle="modal" data-bs-target="#add_activity">{{activity.activity}}</a></td>
-                                  <td><a href="#" data-bs-toggle="modal" data-bs-target="#company-details">
-                                    {% if activity.contact_guest %}
-                                    {{activity.contact_guest.full_name}}
-                                    {% elif activity.lead_guest %}
-                                    {{activity.lead_guest.full_name}}
-                                    {% elif activity.deal_guest %}
-                                    {{activity.deal_guest.full_name}}
+                                  <td style="max-width: 150px; text-overflow: ellipsis; overflow-x: hidden;">
+                                    {% if activity.guest %}
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="#company-details">
+                                    {{activity.guest.full_name}}
+                                    </a>
+                                    {% elif activity.guests_team %}
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="#company-details">                                  
+                                    {{activity.guests_team}}                                    
+                                    </a>
+                                    {% else %}
+                                    None
                                     {% endif %}
-                                  </a></td>
+                                </td>
                                   <td>{{activity.host}}</td>
-                                  <td>
-                                    {% if activity.contact_guest %}
-                                    {{activity.contact_guest.email}}
-                                    {% elif activity.lead_guest %}
-                                    {{activity.lead_guest.email}}
-                                    {% elif activity.deal_guest %}
-                                    {{activity.deal_guest.email}}
+                                  <td style="max-width: 150px; text-overflow: ellipsis; overflow-x: hidden;">
+                                    {% if activity.guest %}
+                                    {{activity.guest.email}}
+                                    {% elif activity.guests_team_email %}
+                                    {{ activity.guests_team_email }}, 
+                                    {% else %}
+                                    None
                                     {% endif %}                                  
                                   </td>
                                   <td>
-                                    {% if activity.contact_guest %}
-                                    {{activity.contact_guest.phone}}
-                                    {% elif activity.lead_guest %}
-                                    {{activity.lead_guest.phone}}
-                                    {% elif activity.deal_guest %}
-                                    {{activity.deal_guest.phone}}
-                                    {% endif %}                                    
+                                    {% if activity.guest %}
+                                    {{activity.guest.phone}}
+                                    {% elif activity.guests_team_phone %}
+                                    {{ activity.guests_team_phone }}, 
+                                    {% else %}
+                                    None
+                                    {% endif %}                                       
                                   </td>
                                   {% comment %} <td><a href="#" data-bs-toggle="modal" data-bs-target="#company-details"></a></td> {% endcomment %}
                                   
@@ -1031,7 +1035,7 @@
                 </div>
                 <div class="col-sm-12">
                   <div class="form-group">
-                    <select name="guest_type" id="guest_type" class="form-control" onchange="populateGuest(this.value)">
+                    <select name="guest_type" id="guest_type" class="form-control" oninput="populateGuest(this.value)">
                       <option disabled selected hidden>Select Guest Type</option>
                       <option value="Contact">Contact</option>
                       <option value="Lead">Lead</option>
@@ -1060,24 +1064,23 @@
                 </div>
                 <div class="col-sm-12" id="guest-input-div" style="display: none;">
                   <div class="form-group position-relative">
-                    <select class="form-control" id="guests">
+                    <select class="form-control" id="guests" multiple>
                       <option disabled hidden selected>Select Guests</option>
-                      <option>Guest1</option>
-                      <option>Guest2</option>
                    </select>
-                   <button class="btn btn-close btn-sm position-absolute top-0 end-0 border" id="dismiss-guests-btn"></button>
+                   <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border" id="dismiss-guests-btn"></button>
                   </div>
+                  <p>Select with holding <span class="border p-1 shadow rounded-3">Cntrl</span> button for selecting multiple options.</p>
                 </div>
                 <div class="col-sm-12" id="description-input-div" style="display: none;">
                   <div class="form-group position-relative">
                     <textarea class="form-control" name="meeting_purpose" id="meeting-purpose" placeholder="Meeting Description"></textarea>
-                    <button class="btn btn-close btn-sm position-absolute top-0 end-0 border" id="dismiss-description-btn"></button>
+                    <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border" id="dismiss-description-btn"></button>
                   </div>
                 </div>
                 <div class="col-sm-12" id="location-input-div" style="display: none;">
                   <div class="form-group position-relative">
                     <textarea class="form-control" name="meeting_location" id="meeting-location" placeholder="Meeting Location"></textarea>
-                    <button class="btn btn-close btn-sm position-absolute top-0 end-0 border" id="dismiss-location-btn"></button>
+                    <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border" id="dismiss-location-btn"></button>
                   </div>
                 </div>
                 <!-- <div class="col-sm-12">
@@ -2783,6 +2786,14 @@
   addGuests.addEventListener('click', function() {
     setDivVisibility(addGuests, guestInputDiv);
     guest.style.display = 'none';
+
+    for (var i = 0; i < guest.options.length; i++) {
+      if (i == 0) {
+        guest.options[i].selected = true;
+      } else {
+        guest.options[i].selected = false;
+      };
+    };
   });
 
   // Toggle Location
@@ -2799,6 +2810,12 @@
   document.getElementById('dismiss-guests-btn').addEventListener('click', () => {
     setDivVisibility(guestInputDiv, addGuests);
     guest.style.display = 'block';
+
+    const guests = document.getElementById('guests');
+    for (var i = 0; i < guests.options.length; i++) {
+      guests.options[i].selected = false;
+    };
+
   });
 
   // Close Location Input

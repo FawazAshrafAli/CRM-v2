@@ -24,13 +24,15 @@ class Activity(models.Model):
 
     # meeting_follow_up_action = models.CharField(max_length=150, blank=True, null=True)
 
+    # Meeing & Lunch/Meal
+    title = models.CharField(max_length=150, blank=True, null=True)
+    purpose = models.CharField(max_length=150, blank=True, null=True)
+    location = models.CharField(max_length=150, blank=True, null=True)
+
     # # Meeting
-    meeting_title = models.CharField(max_length=150, blank=True, null=True)
-    meeting_location = models.CharField(max_length=150, blank=True, null=True)
-    meeting_purpose = models.CharField(max_length=150, blank=True, null=True)
-    contact_guest = models.ManyToManyField(Contact)
-    lead_guest = models.ManyToManyField(Lead)
-    deal_guest = models.ManyToManyField(Deal)
+    contact_guests = models.ManyToManyField(Contact, related_name="contact_guests")
+    lead_guests = models.ManyToManyField(Lead, related_name="lead_guests")
+    deal_guests = models.ManyToManyField(Deal, related_name="deal_guests")
 
     # # Lunch/Meal
     # meal_organizer = models.CharField(max_length=150, blank=True, null=True)
@@ -49,4 +51,61 @@ class Activity(models.Model):
     # flagged_user = models.CharField(max_length=150, blank=True, null=True)    
     # due_date = models.DateField(null=True, blank=True)
     # Status = models.CharField(max_length=150, blank=True, null=True)     # open/completed/dismissed
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    @property
+    def guest(self):
+        guests = [self.contact_guest, self.lead_guest, self.deal_guest]
+        for guest in guests:
+            if guest:
+                return guest
+        return None
+    
+    @property
+    def guests(self):
+        guests_list = [self.contact_guests, self.lead_guests, self.deal_guests]
+        for guests in guests_list:
+            if guests.all().count() > 0:
+                return guests.all()
+        return None
+    
+    @property
+    def guests_team(self):
+        if self.guests:
+            guests = self.guests
+            if guests.count() > 1:
+                team =  f"{guests[0].full_name} + {guests.count() - 1} more"
+            else:
+                team = guests[0].full_name
+            return team
+        return None
+    
+    @property
+    def guests_team_email(self):
+        if self.guests:
+            guests = self.guests
+            if guests.count() > 1:
+                email =  f"{guests[0].email} + {guests.count() - 1} more"
+            else:
+                email = guests[0].email
+            return email
+        return None
+    
+    @property
+    def guests_team_phone(self):
+        if self.guests:
+            guests = self.guests
+            phone = None
+            if guests.count() > 1:
+                for i in range(guests.count()):
+                    if guests[i] is not None:
+                        phone =  f"{guests[i].phone} + {guests.count() - 1} more"
+                        break
+            else:
+                if guests[0].phone is not None:
+                    phone = guests[0].phone                    
+            return phone
+        return None
 

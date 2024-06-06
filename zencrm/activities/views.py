@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.http import Http404, JsonResponse, HttpResponse
 from django.urls import reverse_lazy
 from datetime import datetime
+import traceback
 
 from crm_admin.models import Customer
 from .models import Activity
@@ -54,6 +55,129 @@ class CreateActivityView(BaseActivityView, CreateView):
     fields = "__all__"
     success_url = reverse_lazy('activities:list')
 
+    def manage_call(self, request, guest_type, data):
+        if guest_type == "Contact":
+            contact_guest = request.POST.get('contact')
+            try:
+                print(contact_guest)
+                contact_guest = get_object_or_404(Contact, pk = contact_guest)
+                data['contact_guest'] = contact_guest
+            except:
+                return HttpResponse("Invalid contact")
+        elif guest_type == "Lead":
+            lead_guest = request.POST.get('lead')
+            try:
+                lead_guest = get_object_or_404(Lead, pk = lead_guest)
+                data['lead_guest'] = lead_guest
+            except:
+                return HttpResponse("Invalid lead")
+        elif guest_type == "Deal":
+            deal_guest = request.POST.get('deal')
+            try:
+                deal_guest = get_object_or_404(Deal, pk = deal_guest)
+                data['deal_guest'] = deal_guest
+            except:
+                return HttpResponse("Invalid deal")
+        else:
+            return HttpResponse("Guest is not provided")
+        
+        return data
+
+    def manage_meeting(self, request, guest_type, data):
+        title = request.POST.get('title')
+        purpose = request.POST.get('purpose')
+        location = request.POST.get('location')
+
+        data.update({
+            "title": title,
+            "purpose": purpose,
+            "location": location
+        })
+
+        if guest_type == "Contact":
+            contact_guest = request.POST.get('contact')
+            contact_guests = request.POST.getlist('contacts')
+
+            if contact_guest:
+                try:
+                    contact_guest = get_object_or_404(Contact, pk = contact_guest)
+                    data['contact_guest'] = contact_guest
+                except:
+                    return HttpResponse("Invalid contact")
+                
+            elif contact_guests:
+                guests = contact_guests
+            
+            else:
+                return HttpResponse("No contact guest selected")
+            
+        elif guest_type == "Lead":
+            lead_guest = request.POST.get('lead')
+            lead_guests = request.POST.getlist('leads')
+
+            if lead_guest:
+                try:
+                    lead_guest = get_object_or_404(Lead, pk = lead_guest)
+                    data['lead_guest'] = lead_guest
+                except:
+                    return HttpResponse("Invalid lead")
+                
+            elif lead_guests:
+                guests =  lead_guests
+            
+            else:
+                return HttpResponse("No lead guest selected")
+            
+        elif guest_type == "Deal":
+            deal_guest = request.POST.get('deal')
+            deal_guests = request.POST.getlist('deals')
+
+            if deal_guest:
+                try:
+                    deal_guest = get_object_or_404(Deal, pk = deal_guest)
+                    data['deal_guest'] = deal_guest
+                except:
+                    return HttpResponse("Invalid deal")
+                
+            elif deal_guests:
+                guests =  deal_guests
+            
+            else:
+                return HttpResponse("No deal guest selected")
+            
+        else:
+            return HttpResponse("Guest is not provided")
+        
+        if guests:
+            print(f"Manage Print: {guests}")
+
+        return data, guests or None
+
+    def set_many_to_many(self, activity_object, guest_type, *guests):
+        print(f"mym entering: {guests}")
+        if guest_type == "Contact":
+            try:
+                activity_object.contact_guests.set(*guests)
+                activity_object.save()
+            except Exception as e:
+                print(f"Exception: {e}")
+        
+        elif guest_type == "Lead":
+            try:
+                activity_object.lead_guests.set(*guests)
+                activity_object.save()
+            except Exception as e:
+                print(f"Exception: {e}")
+
+        elif guest_type == "Deal":
+            try:
+                activity_object.deal_guests.set(*guests)
+                activity_object.save()
+            except Exception as e:
+                print(f"Exception: {e}")
+
+        pass
+
     def post(self, request, *args, **kwargs):
         data = {}
 
@@ -89,41 +213,23 @@ class CreateActivityView(BaseActivityView, CreateView):
         }
 
         if activity == "Call":
-            contact_guest = request.POST.get('contact')
-            lead_guest = request.POST.get('lead')
-            deal_guest = request.POST.get('deal')
-
-            if contact_guest:
-                try:
-                    print(contact_guest)
-                    contact_guest = get_object_or_404(Contact, pk = contact_guest)
-                    data['contact_guest'] = contact_guest
-                except:
-                    return HttpResponse("Invalid contact")
-            elif lead_guest:
-                try:
-                    lead_guest = get_object_or_404(Lead, pk = lead_guest)
-                    data['lead_guest'] = lead_guest
-                except:
-                    return HttpResponse("Invalid lead")
-            elif deal_guest:
-                try:
-                    deal_guest = get_object_or_404(Deal, pk = deal_guest)
-                    data['deal_guest'] = deal_guest
-                except:
-                    return HttpResponse("Invalid deal")
-            else:
-                return HttpResponse("Guest is not provided")
+            self.manage_call(request, guest_type, data)
         
-        elif activity == "Meeting":
-            pass
+        elif activity == "Meeting" or activity == "Meal":
+            data, guests = self.manage_meeting(request, guest_type, data)
+            print(guests)
         
         try:
-            Activity.objects.create(**data)
+            activity_object = Activity.objects.create(**data)
+
+            if activity == "Meeting" or activity == "Meal" and guests is not None:
+                self.set_many_to_many(activity_object, guest_type, guests)
+
             messages.success(self.request, "Activity creation successfull.")
             return redirect(self.success_url)
         except Exception as e:
-            print(e)
+            print("Exception occurred:", e)
+            traceback.print_exc()
             return redirect(self.error500)
 
     def form_valid(self, form):
