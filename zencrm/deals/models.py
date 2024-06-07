@@ -63,6 +63,7 @@ class Deal(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated  = models.DateTimeField(auto_now=True)
 
+    @property
     def full_name(self):
         full_name = self.first_name
         if self.last_name:
@@ -70,4 +71,4 @@ class Deal(models.Model):
         return full_name
 
     def __str__(self):
-        return self.name
+        return self.full_name

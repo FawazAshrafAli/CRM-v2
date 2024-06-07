@@ -19,7 +19,7 @@ class Lead(models.Model):
     lead_rating = models.IntegerField(blank=True, null=True)
 
     # managing
-    lead_owner = models.ForeignKey(User, on_delete=models.PROTECT, related_name="lead_owner", blank=True, null=True)
+    record_owner = models.ForeignKey(User, on_delete=models.PROTECT, related_name="lead_owner", blank=True, null=True)
 
     # Additional Information
     email = models.EmailField(max_length=254, blank=False, null=False)
@@ -53,6 +53,7 @@ class Lead(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    @property
     def full_name(self):
         full_name = self.first_name
         if self.last_name:

@@ -258,23 +258,19 @@ class DetailLeadView(BaseLeadView, DetailView):
             "updated" : lead.updated.strftime("%d/%m/%Y")
         }
 
-        if lead.organization:
+        if lead.company:
             serialized_data.update({
-                "organization" : lead.organization.id,
-                "organization_name" : lead.organization.name
+                "organization" : lead.company.id,
+                "organization_name" : lead.company.name
             })
 
         if lead.lead_status:
             serialized_data["lead_status"] = lead.lead_status,
 
-        if lead.lead_owner:
-            if lead.lead_owner.user.last_name:
-                lead_owner_name = f"{lead.lead_owner.user.first_name} {lead.lead_owner.user.last_name}"
-            else:
-                lead_owner_name = lead.lead_owner.user.first_name
+        if lead.record_owner:
             serialized_data.update({
-                "lead_owner": lead.lead_owner.pk,
-                "lead_owner_name": lead_owner_name
+                "lead_owner": lead.record_owner.pk,
+                "lead_owner_name": lead.record_owner.full_name
                 })
 
         if lead.image:
@@ -285,15 +281,10 @@ class DetailLeadView(BaseLeadView, DetailView):
         elif lead.first_name:
             serialized_data["full_name"] = lead.first_name
 
-        if lead.user_responsible:
-            if lead.user_responsible.user.last_name:
-                user_responsible_name = f"{lead.user_responsible.user.first_name} {lead.user_responsible.user.last_name}"
-            else:
-                user_responsible_name = lead.user_responsible.user.first_name
-
+        if lead.user_responsible:            
             serialized_data.update({
                 "user_responsible" : lead.user_responsible.id,
-                "user_responsible_name" : user_responsible_name
+                "user_responsible_name" : lead.user_responsible.full_name
                 })
 
         if lead.mailing_address and lead.mailing_city and lead.mailing_state and lead.mailing_postal_code and lead.mailing_country:

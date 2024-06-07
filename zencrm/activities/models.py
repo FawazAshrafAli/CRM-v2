@@ -11,7 +11,7 @@ class Activity(models.Model):
     ending_date = models.DateField()
     ending_time = models.TimeField()
 
-    availability = models.CharField(max_length=150, blank=True, null=True, default="Busy")
+    # availability = models.CharField(max_length=150, blank=True, null=True, default="Busy")
     notes = models.TextField(blank=True, null=True)
 
     user_responsible = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -20,7 +20,7 @@ class Activity(models.Model):
     contact_guest = models.ForeignKey(Contact, on_delete=models.CASCADE, null=True, blank=True)
     lead_guest = models.ForeignKey(Lead, on_delete=models.CASCADE, null=True, blank=True)
     deal_guest = models.ForeignKey(Deal, on_delete=models.CASCADE, null=True, blank=True)
-    organization = models.CharField(max_length=150, blank=True, null=True)
+    # organization = models.CharField(max_length=150, blank=True, null=True)
 
     # meeting_follow_up_action = models.CharField(max_length=150, blank=True, null=True)
 
@@ -50,13 +50,13 @@ class Activity(models.Model):
     @property
     def starting_datetime(self):
         if self.starting_date and self.starting_time:
-            return f"{self.starting_date.strftime("%d-%b-%Y")} {self.starting_time.strftime("%H:%M %p")}"
+            return f"{self.starting_date.strftime("%d-%b-%Y")} {self.starting_time.strftime("%I:%M %p")}"
         return None
     
     @property
     def ending_datetime(self):
         if self.ending_date and self.ending_time:
-            return f"{self.ending_date.strftime("%d-%b-%Y")} {self.ending_time.strftime("%H:%M %p")}"
+            return f"{self.ending_date.strftime("%d-%b-%Y")} {self.ending_time.strftime("%I:%M %p")}"
         return None
 
     @property
@@ -121,4 +121,16 @@ class Activity(models.Model):
             elif list_length > 0:
                 return not_none_list[0].phone
         return None
+    
+    @property
+    def target_modal(self):
+        if self.guest_type:
+            return f"#{self.guest_type.lower()}-modal"
+        return "#"
+    
+    @property
+    def js_function(self):
+        if self.guest_type:
+            return f"load{self.guest_type}Details({self.guest.id})"
+        return ""
 

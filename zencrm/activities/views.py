@@ -284,26 +284,46 @@ class ActivityDetailView(BaseActivityView, DetailView):
 
             if field_value:
                 print(f"First {field_name} {field_value} {type(field_value)}")
-                if field_name in "user_responsible":
-                    serialized_data[field_name] = field_value.full_name
-                    pass
+                if field_name == "user_responsible":
+                    serialized_data[field_name] = field_value.full_name                    
 
-                elif field_name in "contact_guest":
+                elif field_name in ["contact_guest", "lead_guest", "deal_guest"]:        
                     serialized_data['guest'] = field_value.full_name
+                    serialized_data['email'] = field_value.email
+                    serialized_data['phone'] = field_value.phone
+                    if field_value.record_owner:
+                        serialized_data['owner'] = field_value.record_owner.full_name
+
+                # elif field_name in ["contact_guests", "lead_guests", "deal_guests"]:
+                    # print("Multiple guests spotted")
+                    # if field_value.guests:
+                    #     guests_list = []
+                    #     for guest in field_value.guests:
+                    #         guests_list.append(guest.full_name)
+                    #     serialized_data['guests'] = guests_list
                 
                 elif isinstance(field_value, datetime.datetime) or isinstance(field_value, datetime.time):
                     pass
 
                 else:
-                    print(f"{field_name} {field_value} {type(field_value)}")                    
+                    # print(f"{field_name} {field_value} {type(field_value)}")                    
                     serialized_data[field_name] = field_value
             
         serialized_data['starting_datetime'] = activity.starting_datetime
 
         serialized_data['ending_datetime'] = activity.ending_datetime
 
-        print(serialized_data)
-
+        if activity.guests:
+            if len(activity.guests) > 1:
+                guests_list = []
+                for guest in activity.guests:
+                    guests_list.append(guest.full_name)
+                serialized_data['guests'] = guests_list
+            else:
+                serialized_data['guest'] = activity.guests[0].full_name
+                
+            serialized_data['phone'] = activity.guests_team_phone
+            serialized_data['email'] = activity.guests_team_email
 
         return JsonResponse(serialized_data, safe=False)
 
