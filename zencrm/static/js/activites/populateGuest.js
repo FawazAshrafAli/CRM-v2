@@ -14,14 +14,14 @@ function populateGuest(guestType) {
 
             if ($('#guests')) {
                 $('#guests').prop('name', name + "s");
-                $('#guests').html('<option disabled selected hidden>Select Guests</option>');
+                $('#guests').html('<option value="" disabled selected hidden>Select Guests</option>');
             };
 
             if (data.guest_data != null && Array.isArray(data.guest_data)) {
                 data.guest_data.forEach((guest) => {
                     console.log(guest.id)
                     html = `
-                    <option disabled selected hidden>Select ${guestType}</option>
+                    <option value="" disabled selected hidden>Select ${guestType}</option>
                     <option value="${guest.id}">${guest.first_name} ${guest.last_name}</option>
                     `
                     $('#guest').append(html);

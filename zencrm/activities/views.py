@@ -7,11 +7,8 @@ from django.contrib import messages
 from django.http import Http404, JsonResponse, HttpResponse
 from django.urls import reverse_lazy
 import datetime
-import types
 from datetime import datetime as dt
-from django.core.serializers import serialize
 import traceback
-from django.forms.models import model_to_dict
 
 from crm_admin.models import Customer
 from .models import Activity
@@ -63,7 +60,6 @@ class CreateActivityView(BaseActivityView, CreateView):
         if guest_type == "Contact":
             contact_guest = request.POST.get('contact')
             try:
-                print(contact_guest)
                 contact_guest = get_object_or_404(Contact, pk = contact_guest)
                 data['contact_guest'] = contact_guest
             except:
@@ -87,7 +83,8 @@ class CreateActivityView(BaseActivityView, CreateView):
         
         return data
 
-    def manage_meeting_and_meal(self, request, guest_type, data):
+    def manage_meeting_and_meal(self, request, guest_type, data):        
+
         title = request.POST.get('title')
         purpose = request.POST.get('purpose')
         location = request.POST.get('location')
@@ -113,9 +110,6 @@ class CreateActivityView(BaseActivityView, CreateView):
             elif contact_guests:
                 guests = contact_guests
             
-            else:
-                return HttpResponse("No contact guest selected")
-            
         elif guest_type == "Lead":
             lead_guest = request.POST.get('lead')
             lead_guests = request.POST.getlist('leads')
@@ -128,10 +122,7 @@ class CreateActivityView(BaseActivityView, CreateView):
                     return HttpResponse("Invalid lead")
                 
             elif lead_guests:
-                guests =  lead_guests
-            
-            else:
-                return HttpResponse("No lead guest selected")
+                guests =  lead_guests                    
             
         elif guest_type == "Deal":
             deal_guest = request.POST.get('deal')
@@ -145,13 +136,11 @@ class CreateActivityView(BaseActivityView, CreateView):
                     return HttpResponse("Invalid deal")
                 
             elif deal_guests:
-                guests =  deal_guests
-            
-            else:
-                return HttpResponse("No deal guest selected")
+                guests =  deal_guests            
             
         else:
-            return HttpResponse("Guest is not provided")
+            messages.warning(request, "Cannot create activity without providing atleast a single guest.")
+            return redirect(reverse_lazy('activities:list'))
 
         return data, guests or None
     
@@ -161,28 +150,55 @@ class CreateActivityView(BaseActivityView, CreateView):
         return data
 
     def set_many_to_many(self, activity_object, guest_type, *guests):
-        if guest_type == "Contact":
-            try:
-                activity_object.contact_guests.set(*guests)
-                activity_object.save()
-            except Exception as e:
-                print(f"Exception: {e}")
-        
-        elif guest_type == "Lead":
-            try:
-                activity_object.lead_guests.set(*guests)
-                activity_object.save()
-            except Exception as e:
-                print(f"Exception: {e}")
+        guest_count = len(*guests)
+        guests_list = list(*guests)
+        if guest_count > 0:
+            if guest_type == "Contact":
+                try:
+                    if guest_count > 1:
+                        activity_object.contact_guests.set(*guests)                        
+                    else:
+                        try:
+                            contact = get_object_or_404(Contact, pk = guests_list[0])
+                            activity_object.contact_guest = contact
+                        except Http404:
+                            pass
 
-        elif guest_type == "Deal":
-            try:
-                activity_object.deal_guests.set(*guests)
-                activity_object.save()
-            except Exception as e:
-                print(f"Exception: {e}")
+                    activity_object.save()
+                except Exception as e:
+                    print(f"Exception: {e}")
+            
+            elif guest_type == "Lead":
+                try:
+                    if guest_count > 1:
+                        activity_object.lead_guests.set(*guests)
+                    else:
+                        try:
+                            lead = get_object_or_404(Lead, pk = guests_list[0])
+                            activity_object.lead_guest = lead
+                        except Http404:
+                            pass
 
-        pass
+                    activity_object.save()
+                except Exception as e:
+                    print(f"Exception: {e}")
+
+            elif guest_type == "Deal":
+                try:
+                    if guest_count > 1:
+                        activity_object.deal_guests.set(*guests)
+                    else:
+                        try:
+                            deal = get_object_or_404(Deal, pk = guests_list[0])
+                            activity_object.deal_guest = deal
+                        except Http404:
+                            pass
+
+                    activity_object.save()
+                except Exception as e:
+                    print(f"Exception: {e}")
+        else:
+            pass
 
     def post(self, request, *args, **kwargs):
         data = {}
@@ -198,7 +214,8 @@ class CreateActivityView(BaseActivityView, CreateView):
         try:
             user_responsible = get_object_or_404(User, pk = user_responsible)
         except Http404:
-            return HttpResponse("Invalid user responsible")
+            messages.error(request, "Please provide user responsible and try again.")
+            return redirect(reverse_lazy('activities:list'))
 
         starting_date = request.POST.get("starting_date")
         ending_date = request.POST.get("ending_date")
@@ -221,7 +238,7 @@ class CreateActivityView(BaseActivityView, CreateView):
         if activity == "Call":
             self.manage_call(request, guest_type, data)
         
-        elif activity == "Meeting" or activity == "Meal":
+        elif activity == "Meeting" or activity == "Meal":            
             data, guests = self.manage_meeting_and_meal(request, guest_type, data)
             if activity == "Meal":
                 data = self.manage_meal(request, data)
@@ -229,9 +246,14 @@ class CreateActivityView(BaseActivityView, CreateView):
         try:
             activity_object = Activity.objects.create(**data)
 
-            if activity == "Meeting" or activity == "Meal" and guests is not None:
+            if guests and activity == "Meeting" or activity == "Meal":                
                 self.set_many_to_many(activity_object, guest_type, guests)
-
+            
+            if activity_object.guest is None and activity_object.guests is None:
+                activity_object.delete()
+                messages.warning(self.request, "Cannot create activity without providing atleast a single guest.")
+                return redirect(reverse_lazy('activities:list'))
+            
             messages.success(self.request, "Activity creation successfull.")
             return redirect(self.success_url)
         except Exception as e:
@@ -283,7 +305,6 @@ class ActivityDetailView(BaseActivityView, DetailView):
             field_value = getattr(activity, field_name)
 
             if field_value:
-                print(f"First {field_name} {field_value} {type(field_value)}")
                 if field_name == "user_responsible":
                     serialized_data[field_name] = field_value.full_name                    
 
@@ -292,21 +313,12 @@ class ActivityDetailView(BaseActivityView, DetailView):
                     serialized_data['email'] = field_value.email
                     serialized_data['phone'] = field_value.phone
                     if field_value.record_owner:
-                        serialized_data['owner'] = field_value.record_owner.full_name
-
-                # elif field_name in ["contact_guests", "lead_guests", "deal_guests"]:
-                    # print("Multiple guests spotted")
-                    # if field_value.guests:
-                    #     guests_list = []
-                    #     for guest in field_value.guests:
-                    #         guests_list.append(guest.full_name)
-                    #     serialized_data['guests'] = guests_list
+                        serialized_data['owner'] = field_value.record_owner.full_name                
                 
                 elif isinstance(field_value, datetime.datetime) or isinstance(field_value, datetime.time):
                     pass
 
                 else:
-                    # print(f"{field_name} {field_value} {type(field_value)}")                    
                     serialized_data[field_name] = field_value
             
         serialized_data['starting_datetime'] = activity.starting_datetime

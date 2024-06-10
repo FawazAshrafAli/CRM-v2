@@ -65,13 +65,17 @@ class Activity(models.Model):
         for guest in guests:
             if guest:
                 return guest
+        guests_list = [self.contact_guests, self.lead_guests, self.deal_guests]
+        for guests in guests_list:
+            if guests.all().count() == 1:
+                return guests.all().first()
         return None
     
     @property
     def guests(self):
         guests_list = [self.contact_guests, self.lead_guests, self.deal_guests]
         for guests in guests_list:
-            if guests.all().count() > 0:
+            if guests.all().count() > 1:
                 return guests.all()
         return None
     
@@ -131,6 +135,13 @@ class Activity(models.Model):
     @property
     def js_function(self):
         if self.guest_type:
-            return f"load{self.guest_type}Details({self.guest.id})"
+            return f"load{self.guest_type}Details"
         return ""
 
+    def __str__(self):
+        if self.guest:
+            return f"{self.activity} - {self.guest}"
+        elif self.guests_team:
+            return f"{self.activity} - {self.guests_team}"
+        else:
+            return self.activity

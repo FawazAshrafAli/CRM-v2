@@ -26,8 +26,9 @@ class BaseOrganizationView(CrmLoginRequiredMixin):
     login_url = 'authentication:login'
 
     def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         try:
-            context = {"customer": get_object_or_404(Customer, organization_id = self.request.user.organization_id)}    
+            context["customer"] = get_object_or_404(Customer, organization_id = self.request.user.organization_id)
         except Http404:
             pass
         return context

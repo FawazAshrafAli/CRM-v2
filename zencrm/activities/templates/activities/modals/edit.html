@@ -1,0 +1,157 @@
+<!-- Edit Activity Start -->
+<!-- Modal -->
+<div class="modal right fade" id="edit-activity-modal" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <button type="button" class="close md-close" data-bs-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">×</span>
+      </button>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Edit Activity</h4>
+          <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form class="forms-sampme" method="POST" action="{% url 'activities:create' %}">
+            {% csrf_token %}
+            <div class="row">
+              
+              <div class="col-sm-12">
+                <div class="form-group">
+                  <input class="form-control" type="text" name="activity" id="activity" value="Call" readonly>
+                </div>
+                <div class="btn-group mb-3">
+                  <button type="button" class="btn btn-light" title="Call" id="toggle-call-btn"><i class="fa fa-phone" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-light" title="Meeting" id="toggle-meeting-btn"><i class="fa fa-users" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-light" title="Reminder / Task" id="toggle-reminder-btn"><i class="fa fa-clock-o" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-light" title="Flagged" id="toggle-flagged-btn"><i class="fa fa-flag" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-light" title="Email" id="toggle-email-btn"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-light" title="Lunch / Meal" id="toggle-meal-btn"><i class="fa fa-cutlery" aria-hidden="true"></i></button>
+                </div>
+              </div>
+
+              <div class="col-sm-12">
+                <div class="form-group">
+                  <div class="row">
+                  <div class="col-md-3">
+                    <label class="form-label">Starting Date</label>
+                     <div class="cal-icon"><input class="form-control datetimepicker" type="text" placeholder="DD/MM/YY" name="starting_date" required></div>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Starting Time</label>                       
+                    <input class="form-control" type="time" name="starting_time" required>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Ending Time</label>
+                    <input class="form-control" type="time" name="ending_time" required>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Ending Date</label>
+                     <div class="cal-icon"><input class="form-control datetimepicker" type="text" placeholder="DD/MM/YY" name="ending_date" required></div>
+                  </div>
+                </div>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="form-group">
+                  <input class="form-control" type="text" id="host" name="host" placeholder="Host" required>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="form-group">
+                  <input class="form-control" type="text" id="meeting-title" name="title" placeholder="Meeting Title" style="display: none;">
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="form-group">
+                  <select name="guest_type" id="guest_type" class="form-control" required oninput="populateGuest(this.value);" onload="populateGuest(this.value);">
+                    <option value="" disabled selected hidden>Select Guest Type</option>
+                    <option value="Contact">Contact</option>
+                    <option value="Lead">Lead</option>
+                    <option value="Deal">Deal</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="form-group">
+                  <select class="form-control" name="guest" id="guest">
+                    <option value="" disabled selected hidden>Select Guest</option>
+                  </select>
+                </div>
+              </div>                        
+              <div class="col-sm-12">
+                <div class="form-group">
+                  <div class="row m-0" id='advanced-options' style="display: none;">
+                    <p id="add-advance-options">Add <span id="add-guests"><a href="#">Guests</a>,</span> <span id="add-location"><a href="#">Location</a></span><span id="add-desciption">, <a href="#">Description</a></span></p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-12" id="guest-input-div" style="display: none;">
+                <div class="form-group position-relative">
+                  <select class="form-control" id="guests" multiple>
+                    <option value="" disabled hidden selected>Select Guests</option>
+                 </select>
+                 <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border" id="dismiss-guests-btn"></button>
+                </div>
+                <p>Select with holding <span class="border p-1 shadow rounded-3">Cntrl</span> button for selecting multiple options.</p>
+              </div>
+              <div class="col-sm-12" id="description-input-div" style="display: none;">
+                <div class="form-group position-relative">
+                  <textarea class="form-control" name="purpose" id="purpose" placeholder="Meeting Description"></textarea>
+                  <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border" id="dismiss-description-btn"></button>
+                </div>
+              </div>
+              <div class="col-sm-12" id="location-input-div" style="display: none;">
+                <div class="form-group position-relative">
+                  <textarea class="form-control" name="location" id="location" placeholder="Meeting Location"></textarea>
+                  <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border" id="dismiss-location-btn"></button>
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="form-group">
+                  <textarea class="form-control mb-2" rows="3" name="notes" placeholder="Notes"></textarea>                    
+                  <span class="pt-2">Notes are private and visible only within your Pipedrive account</span>                    
+                </div>
+              </div>
+              <div class="col-sm-12">
+                <div class="form-group">
+                  <select class="form-control" name="user_responsible" required>
+                      <option value="" disabled selected hidden>Select User Responsible</option>
+                      {% for user in users %}                      
+                      <option value="{{user.pk}}">
+                        {% if user.last_name %}
+                        {{user.first_name}} {{user.last_name}}
+                        {% else %}
+                        {{user.first_name}}
+                        {% endif %}
+                      </option>
+                      {% endfor %}
+                   </select>
+                </div>
+              </div>
+              
+              <div class="col-sm-12">
+                <div class="form-group">
+                  <textarea type="text" class="form-control" name="additional_information" id="additional-information" placeholder="Additional Information" style="display: none;"></textarea>
+                </div>
+              </div>
+              
+            </div>
+            
+            <div class="submit-section mt-0">
+              <div class="form-check mb-4">
+                <input type="checkbox" id="mark-as-done">
+                <label for="mark-as-done">Mark as Done</label>
+                </div>
+               
+            </div>
+            <div class="text-center">
+                <button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Create</button>&nbsp;&nbsp;
+                <button type="button" class="btn btn-secondary btn-rounded">Cancel</button>
+            </div>
+          </form>
+        </div>	
+      </div>
+    </div>
+</div>
+<!-- modal -->
+ <!-- Edit Activity End -->

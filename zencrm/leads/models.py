@@ -59,3 +59,6 @@ class Lead(models.Model):
         if self.last_name:
             full_name += f" {self.last_name}"
         return full_name
+    
+    def __str__(self):
+        return self.full_name

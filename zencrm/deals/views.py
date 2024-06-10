@@ -205,7 +205,7 @@ class DetailDealView(BaseDealView, DetailView):
             'pipeline' : deal.pipeline,
             'stages' :  [deal_stage.stage for deal_stage in deal.stage.all()],
             'stages_id' :  [deal_stage.id for deal_stage in deal.stage.all()],
-            'deal_state' : deal.stage.last().stage,
+            
             'visibility' : deal.visibility,                       
             'created' : deal.created,
             'updated' : deal.updated
@@ -230,15 +230,14 @@ class DetailDealView(BaseDealView, DetailView):
         if deal.user_responsible:
             serialized_data.update({
                 'user_responsible_id': deal.user_responsible.id,
+                'user_responsible': f"{deal.user_responsible.full_name}"
                 })
-            if deal.user_responsible.user.last_name:
-                serialized_data['user_responsible'] = f"{deal.user_responsible.user.first_name} {deal.user_responsible.user.last_name}"
-            else:
-                serialized_data['user_responsible'] = deal.user_responsible.user.firs_name,
-                
             
         if deal.record_owner:
             serialized_data['record_owner_id'] = deal.record_owner.id
+
+        if len(deal.stage.all()) > 0:
+            serialized_data['deal_state'] = deal.stage.last().stage,
 
         return JsonResponse(serialized_data)
 
