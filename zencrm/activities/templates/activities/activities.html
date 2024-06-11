@@ -145,7 +145,7 @@
                                       <div class="dropdown dropdown-action">
                                           <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
                                           <div class="dropdown-menu dropdown-menu-right h-100">
-                                              <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edit-activity-modal">Edit</a>
+                                              <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edit-activity-modal" data-activity-id="activity.pk" onclick="editActivity({{activity.pk}}); return false">Edit</a>
                                              
                                           </div>
                                       </div>
@@ -183,7 +183,7 @@
               </div>
               <div>
                   <p class="mb-0">Activity</p>
-                  <span class="modal-title activity"></span>
+                  <span class="modal-title activity-type"></span>
                 <span class="rating-star"><i class="fa fa-star" aria-hidden="true"></i></span>
                 <span class="lock"><i class="fa fa-lock" aria-hidden="true"></i></span>
               </div>
@@ -223,7 +223,7 @@
             <div class="row">
               <div class="col">
                 <span>Title</span>
-                <p class="activity"></p>
+                <p class="activity-type"></p>
               </div>
               <div class="col">
                 <span class="guest-title">Guest</span>
@@ -1702,15 +1702,15 @@
                 
                 <div class="col-sm-12">
                   <div class="form-group">
-                    <input class="form-control" type="text" name="activity" id="activity" value="Call" readonly>
+                    <input class="form-control activity" type="text" name="activity" id="activity" value="Call" readonly>
                   </div>
                   <div class="btn-group mb-3">
-                    <button type="button" class="btn btn-light" title="Call" id="toggle-call-btn"><i class="fa fa-phone" aria-hidden="true"></i></button>
-                    <button type="button" class="btn btn-light" title="Meeting" id="toggle-meeting-btn"><i class="fa fa-users" aria-hidden="true"></i></button>
-                    <button type="button" class="btn btn-light" title="Reminder / Task" id="toggle-reminder-btn"><i class="fa fa-clock-o" aria-hidden="true"></i></button>
-                    <button type="button" class="btn btn-light" title="Flagged" id="toggle-flagged-btn"><i class="fa fa-flag" aria-hidden="true"></i></button>
-                    <button type="button" class="btn btn-light" title="Email" id="toggle-email-btn"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
-                    <button type="button" class="btn btn-light" title="Lunch / Meal" id="toggle-meal-btn"><i class="fa fa-cutlery" aria-hidden="true"></i></button>
+                    <button type="button" class="btn btn-light toggle-call-btn" title="Call"><i class="fa fa-phone" aria-hidden="true"></i></button>
+                    <button type="button" class="btn btn-light toggle-meeting-btn" title="Meeting"><i class="fa fa-users" aria-hidden="true"></i></button>
+                    <button type="button" class="btn btn-light toggle-reminder-btn" title="Reminder / Task"><i class="fa fa-clock-o" aria-hidden="true"></i></button>
+                    <button type="button" class="btn btn-light toggle-flagged-btn" title="Flagged"><i class="fa fa-flag" aria-hidden="true"></i></button>
+                    <button type="button" class="btn btn-light toggle-email-btn" title="Email"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+                    <button type="button" class="btn btn-light toggle-meal-btn" title="Lunch / Meal"><i class="fa fa-cutlery" aria-hidden="true"></i></button>
                   </div>
                 </div>
 
@@ -1743,7 +1743,7 @@
                 </div>
                 <div class="col-sm-12">
                   <div class="form-group">
-                    <input class="form-control" type="text" id="meeting-title" name="title" placeholder="Meeting Title" style="display: none;">
+                    <input class="form-control meeting-title" type="text" id="meeting-title" name="title" placeholder="Meeting Title" style="display: none;">
                   </div>
                 </div>
                 <div class="col-sm-12">
@@ -1758,37 +1758,37 @@
                 </div>
                 <div class="col-sm-12">
                   <div class="form-group">
-                    <select class="form-control" name="guest" id="guest">
+                    <select class="form-control guest-dropdown" name="guest">
                       <option value="" disabled selected hidden>Select Guest</option>
                     </select>
                   </div>
                 </div>                        
                 <div class="col-sm-12">
                   <div class="form-group">
-                    <div class="row m-0" id='advanced-options' style="display: none;">
-                      <p id="add-advance-options">Add <span id="add-guests"><a href="#">Guests</a>,</span> <span id="add-location"><a href="#">Location</a></span><span id="add-desciption">, <a href="#">Description</a></span></p>
+                    <div class="row m-0 advanced-options" id='advanced-options' style="display: none;">
+                      <p class="add-advance-options">Add <span class="add-guests"><a href="#">Guests</a>,</span> <span class="add-location"><a href="#">Location</a></span><span class="add-desciption">, <a href="#">Description</a></span></p>
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-12" id="guest-input-div" style="display: none;">
+                <div class="col-sm-12 guest-input-div" style="display: none;">
                   <div class="form-group position-relative">
                     <select class="form-control" id="guests" multiple>
                       <option value="" disabled hidden selected>Select Guests</option>
                    </select>
-                   <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border" id="dismiss-guests-btn"></button>
+                   <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border dismiss-guests-btn"></button>
                   </div>
                   <p>Select with holding <span class="border p-1 shadow rounded-3">Cntrl</span> button for selecting multiple options.</p>
                 </div>
-                <div class="col-sm-12" id="description-input-div" style="display: none;">
+                <div class="col-sm-12 description-input-div" style="display: none;">
                   <div class="form-group position-relative">
                     <textarea class="form-control" name="purpose" id="purpose" placeholder="Meeting Description"></textarea>
-                    <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border" id="dismiss-description-btn"></button>
+                    <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border dismiss-description-btn"></button>
                   </div>
                 </div>
-                <div class="col-sm-12" id="location-input-div" style="display: none;">
+                <div class="col-sm-12 location-input-div" style="display: none;">
                   <div class="form-group position-relative">
                     <textarea class="form-control" name="location" id="location" placeholder="Meeting Location"></textarea>
-                    <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border" id="dismiss-location-btn"></button>
+                    <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border dismiss-location-btn"></button>
                   </div>
                 </div>
                 <div class="col-sm-12">
@@ -1816,7 +1816,7 @@
                 
                 <div class="col-sm-12">
                   <div class="form-group">
-                    <textarea type="text" class="form-control" name="additional_information" id="additional-information" placeholder="Additional Information" style="display: none;"></textarea>
+                    <textarea type="text" class="form-control additional-info" name="additional_information" placeholder="Additional Information" style="display: none;"></textarea>
                   </div>
                 </div>
                 
@@ -3387,94 +3387,126 @@
 <!-- W3 -->
 <!-- Load Contact Details -->
 <script src="{% static 'js/contacts/loadContactDetails.js' %}"></script>
+
+<!-- Load Lead Details -->
 <script src="{% static 'js/leads/loadLeadDetails.js' %}"></script>
+
+<!-- Load Deal Details -->
 <script src="{% static 'js/deals/loadDealDetails.js' %}"></script>
 
-<script>
-  const addAdvanceOptions = document.getElementById('add-advance-options');
-  const guest = document.getElementById('guest');
-  const additionalInformation = document.getElementById('additional-information');
-  const advanceOptions = document.getElementById('advanced-options');
-  const meetingTitle = document.getElementById('meeting-title');
+<!-- Load Activity Details -->
+<script src="{% static 'js/activites/loadActivityDetails.js' %}"></script>
 
-  var currentActivity = document.getElementById('activity');
-  
+<!-- Activity type toggling and visibility -->
+<script src="{% static 'js/activites/activityTypeToggling.js' %}"></script>
+
+<script>
   function toggleDefault() {
-    meetingTitle.style.display = 'none';
-    additionalInformation.style.display = 'none';
+    $('.meeting-title').each(() => $(this).hide());
+
+    $('.additional-info').each(function () {
+      $(this).hide();
+    });
 
     defaultAdvancedOptions();
   }
 
   function toggleCall() {
-    currentActivity.value = 'Call';
+    $('.activity').each(function () {
+      $(this).val('Call');
+    });
 
     toggleDefault();
-    addAdvanceOptions.style.display = 'none';
-    guest.style.display = 'block';
+    $('.add-advance-options').each(function () {
+      $(this).hide();
+    });
+
+    $('.guest-dropdown').each(function () {
+      $(this).show();
+    });
 
   };
 
-  function toggleMeeting() {      
-    currentActivity.value = 'Meeting';
+  function toggleMeeting() {    
+    $('.activity').each(function () {
+      $(this).val('Meeting');
+    });
 
     toggleDefault();
 
-    advanceOptions.style.display = 'block';
-    meetingTitle.style.display = 'block';
+    $('.advanced-options').each(function () {
+      $(this).show();
+    });
+    $('.meeting-title').each(() => $(this).show());
   };
 
-  function toggleReminder() {      
-    currentActivity.value = 'Reminder';
-  };
+  // function toggleReminder() {      
+  //   currentActivity.value = 'Reminder';
+  // };
 
-  function toggleFlagged() {      
-    currentActivity.value = 'Flagged';
-  };
+  // function toggleFlagged() {      
+  //   currentActivity.value = 'Flagged';
+  // };
 
-  function toggleEmail() {      
-    currentActivity.value = 'Email';
-  };
+  // function toggleEmail() {      
+  //   currentActivity.value = 'Email';
+  // };
 
   function toggleMeal() {      
-    currentActivity.value = 'Meal';
+    $('.activity').each(function () {
+      $(this).val('Meal');
+    });
 
-    advanceOptions.style.display = 'block';
-    additionalInformation.style.display = 'block';
+    $('.advanced-options').each(function () {
+      $(this).show();
+    });
+
+    $('.additional-info').each(function () {
+      $(this).show();
+    });
   };
   
-  document.getElementById('toggle-call-btn').addEventListener('click', toggleCall);
-  document.getElementById('toggle-meeting-btn').addEventListener('click', toggleMeeting);
-  document.getElementById('toggle-reminder-btn').addEventListener('click', toggleReminder);
-  document.getElementById('toggle-flagged-btn').addEventListener('click', toggleFlagged);
-  document.getElementById('toggle-email-btn').addEventListener('click', toggleEmail);
-  document.getElementById('toggle-meal-btn').addEventListener('click', toggleMeal);
+  $('.toggle-call-btn').on('click', toggleCall);
+  $('.toggle-meeting-btn').on('click', toggleMeeting);
 
-</script>
+  // document.getElementById('toggle-reminder-btn').addEventListener('click', toggleReminder);
+  // document.getElementById('toggle-flagged-btn').addEventListener('click', toggleFlagged);
+  // document.getElementById('toggle-email-btn').addEventListener('click', toggleEmail);
+  $('.toggle-meal-btn').on('click', toggleMeal);
 
-<script>
-  // const addAdvanceOptions = document.getElementById('add-advance-options');
 
-  // Decleration
-  const addGuests = document.getElementById('add-guests');
-  const addLocation = document.getElementById('add-location');
-  const addDescription = document.getElementById('add-desciption');
-  
-  const guestInputDiv = document.getElementById('guest-input-div');
-  const locationInputDiv = document.getElementById('location-input-div');
-  const descriptionInputDiv = document.getElementById('description-input-div');
 
   // Default Behavior of Advance Options
   function defaultAdvancedOptions() {
-    addAdvanceOptions.style.display = 'block';
 
-    addGuests.style.display = 'inline';
-    addLocation.style.display = 'inline';
-    addDescription.style.display = 'inline';
+    $('.add-advance-options').each(function () {
+      $(this).show();
+    });
 
-    guestInputDiv.style.display = 'none';
-    locationInputDiv.style.display = 'none';
-    descriptionInputDiv.style.display = 'none';
+    $('.add-guests').each(function () {
+      $(this).show()
+    });
+    
+    $('.add-location').each(function () {
+      $(this).show();
+    });
+    
+    $('.add-desciption').each(function () {
+      $(this).show();
+    });
+
+    $('.guest-input-div').each(function () {
+      $(this).hide();
+    });
+
+    $('.location-input-div').each(function () {
+      $(this).hide();
+    });
+    
+    $('.description-input-div').each(function () {
+      $(this).hide();
+    });
+    
   };
 
   // Hide Advance Options
@@ -3488,49 +3520,77 @@
         hiddenCount++;
       };
       if (hiddenCount == links.length) {
-        addAdvanceOptions.style.display = 'none';
+        $('.add-advance-options').each(function () {
+          $(this).hide();
+        });
       } else {
-        addAdvanceOptions.style.display = 'block';
+        $('.add-advance-options').each(function () {
+          $(this).show();
+        });
       }
     });
   };
 
   // Set Div Visibility
   function setDivVisibility(hidingDivId, showingDivId) {
-    hidingDivId.style.display = 'none';
-    showingDivId.style.display = 'inline';
+    hidingDivId.each(function () {
+      $(this).hide();
+    });
+
+    showingDivId.each(function () {
+      $(this).show();
+    });
     hideAdvanceOptions();
   }
 
 
   // Toggle Guests
-  addGuests.addEventListener('click', function() {
-    setDivVisibility(addGuests, guestInputDiv);
-    guest.style.display = 'none';
+  $('.add-guests').on('click', function() {
+    setDivVisibility($('.add-guests'), $('.guest-input-div'));
 
-    for (var i = 0; i < guest.options.length; i++) {
-      if (i == 0) {
-        guest.options[i].selected = true;
-      } else {
-        guest.options[i].selected = false;
-      };
-    };
+    $('.guest-dropdown').each(function () {
+      $(this).hide()
+    });
+
+    // $('.guest-dropdown').each(function () {
+    //   for (var i = 0; i < $(this).options.length; i++) {
+    //     if (i == 0) {
+    //       $(this).options[i].selected = true;
+    //     } else {
+    //       $(this).options[i].selected = false;
+    //     };
+    //   };
+    // });
+
+    $('.guest-dropdown').each(function() {
+            var $dropdown = $(this);
+            $dropdown.find('option').each(function(index) {
+                if (index === 0) {
+                    $(this).prop('selected', true);
+                } else {
+                    $(this).prop('selected', false);
+                }
+            });
+        });
   });
 
   // Toggle Location
-  addLocation.addEventListener('click', function () {
-    setDivVisibility(addLocation, locationInputDiv);
+  $('.add-location').on('click', function () {
+    setDivVisibility($('.add-location'), $('.location-input-div'));
   });
 
   // Toggle Description
-  addDescription.addEventListener('click', function () {
-    setDivVisibility(addDescription, descriptionInputDiv);
+  $('.add-desciption').on('click', function () {
+    setDivVisibility($('.add-desciption'), $('.description-input-div'));
   });
 
   // Close Guests Input
-  document.getElementById('dismiss-guests-btn').addEventListener('click', () => {
-    setDivVisibility(guestInputDiv, addGuests);
-    guest.style.display = 'block';
+  $('.dismiss-guests-btn').on('click', () => {
+    setDivVisibility($('.guest-input-div'), $('.add-guests'));
+
+    $('.guest-dropdown').each(function () {
+      $(this).show()
+    });
 
     const guests = document.getElementById('guests');
     for (var i = 0; i < guests.options.length; i++) {
@@ -3540,18 +3600,19 @@
   });
 
   // Close Location Input
-  document.getElementById('dismiss-location-btn').addEventListener('click', () => {
-    setDivVisibility(locationInputDiv, addLocation);
+  $('.dismiss-location-btn').on('click', () => {
+    setDivVisibility($('.location-input-div'), $('.add-location'));
   });
 
   // Close Description Input
-  document.getElementById('dismiss-description-btn').addEventListener('click', () => {
-    setDivVisibility(descriptionInputDiv, addDescription);
+  $('.dismiss-description-btn').on('click', () => {
+    setDivVisibility($('.description-input-div'), $('.add-desciption'));
   });
 </script>
 
+
 <script>
-  function loadActivityDetails(activityId) {
+  function editActivity(activityId) {
     $.ajax({
         type: 'GET',
         url: '/activities/detail/' + activityId,
@@ -3560,127 +3621,110 @@
           
           if (data) {
             if (data.activity) {
-              $('.activity').html(data.activity);
+              $('#edit-activity-input').val(data.activity);
             } else {
-              $('.activity').html('None');
+              $('#edit-activity-input').val('');
             };
-
-            if (data.id) {
-              $('.activity-id').html(data.id);
-            } else {
-              $('.activity-id').html('None');
-            };
-
+  
             if (data.host) {
-              $('.host').html(data.host);
+              $('#edit-host-input').val(data.host);            
             } else {
-              $('.host').html('None');
+              $('#edit-host-input').val('');
             };
-
-            if (data.guest_type) {
-              $('.guest-type').html(data.guest_type);
-            } else {
-              $('.guest-type').html('None');
-            };
+  
+            const editGuestType = document.getElementById('edit-guest-type-dropdown');
             
-            $('.guest-title').html('Guest');
-            if (data.guest) {
-              $('.guest').html(data.guest);
-            } else if (data.guests && Array.isArray(data.guests)) {
-              $('.guest-title').html('Guests');
-              let guest_data = '';              
-              for (var i = 0; i < data.guests.length; i++) {
-                if (i != data.guests.length - 1) {
-                  guest_data += `${data.guests[i]}, `;
+            for (var i = 0; i < editGuestType.options.length; i++) {
+                if (data.guest_type) {
+                    if (editGuestType.options[i].value === data.guest_type) {
+                        editGuestType.options[i].selected = true;
+                    } else {
+                        editGuestType.options[i].selected = false;
+                    };
                 } else {
-                  guest_data += `${data.guests[i]}`;
+                    editGuestType.options[i].selected = false;
                 };
-              };              
-              $('.guest').html(guest_data);              
-            } else {
-              $('.guest').html('None');
-            };
-
-            if (data.phone) {
-              $('.phone').html(data.phone);
-            } else {
-              $('.phone').html('None');
-            };
-
-            if (data.email) {
-              $('.email').html(data.email);
-            } else {
-              $('.email').html('None');
-            };
-
-            if (data.owner) {
-              $('.owner').html(data.owner);
-            } else {
-              $('.owner').html('None');
-            };
-
-            if (data.starting_datetime) {
-              $('.starting-datetime').html(data.starting_datetime);
-            } else {
-              $('.starting-datetime').html('None');
-            };
-
-            if (data.ending_datetime) {
-              $('.ending-datetime').html(data.ending_datetime);
-            } else {
-              $('.ending-datetime').html('None');
             };
             
-            if (data.user_responsible) {
-                $('.user-responsible').html(data.user_responsible);
-              } else {
-                $('.user-responsible').html('None');
-              };
+            if (data.guest_type) {
+                populateGuest(data.guest_type);
+            };
+            
+            const editGuestDropdown = document.getElementById('edit-guest-dropdown');
+            
+            for (var i = 0; i < editGuestDropdown.options.lenght; i++) {
 
-            if (data.activity == "Meeting" || data.activity == "Meal") {
+                if (data.guest) {
+                    if (editGuestDropdown.options[i].value == data.guest) {
+                        editGuestDropdown.options[i].selected = true;
+                    } else {
+                        editGuestDropdown.options[i].selected = false;
+                    };
+                } else {
+                    editGuestDropdown.options[i].selected = false;                
+                };
+            };
+
+
+            const editGuestsDropdown = document.getElementById('edit-guests-dropdown');
+
+            for (var i = 0; i < editGuestsDropdown.options.lenght; i++) {
+                if (data.guests && Array.isArray(data.guests)) {
+                    for (var guest in data.guests) {
+                        if (editGuestsDropdown.options[i].value === guest) {
+                            editGuestsDropdown.options[i].selected = true;
+                        } else {
+                            editGuestsDropdown.options[i].selected = false;
+                        };
+                    };
+                } else {
+                    editGuestsDropdown.options[i].selected = false;
+                };
+            };
+  
+            if (data.starting_date) {
+              $('#edit-starting-date-input').val(data.starting_date);
+            } else {
+              $('#edit-starting-date-input').val('');
+            };
+
+            if (data.starting_time) {
+              $('#edit-starting-time-input').val(data.starting_time);
+            } else {
+              $('#edit-starting-time-input').val('');
+            };
+  
+            if (data.ending_date) {
+              $('#edit-ending-date-input').val(data.ending_date);
+            } else {
+              $('#edit-ending-date-input').val('');
+            };
+
+            if (data.ending_time) {
+              $('#edit-ending-time-input').val(data.ending_time);
+            } else {
+              $('#edit-ending-time-input').val('');
+            };
+            
+            // if (data.user_responsible) {
+
+            //     var editUserResponsibleDropdown = $('#edit-user-responsible-dropdown');
+
+            //     for (var i = 0; i < editUserResponsibleDropdown.options.length; i++) {
+            //         if (editUserResponsibleDropdown.options[i].value === data.user_responsible) {
+            //             editUserResponsibleDropdown.options[i].selected = true;
+            //         } else {
+            //             editUserResponsibleDropdown.options[i].selected = false;
+            //         };
+            //     };
+                
+            // };
               
-              $('#title-div').show();
-              $('#purpose-div').show();
-              $('#location-div').show();
-
-              if (data.title) {
-                $('.title').html(data.title);
-              } else {
-                $('.title').html('None');
-              };
-
-              if (data.purpose) {
-                $('.purpose').html(data.purpose);
-              } else {
-                $('.purpose').html('None');
-              };              
-
-              if (data.location) {
-                $('.location').html(data.location);
-              } else {
-                $('.location').html('None');
-              };
-
-            } else {
-              $('#title-div').hide();
-              $('#purpose-div').hide();
-              $('#location-div').hide();
-            };
-
-            if (data.activity == "Meal") {
-              $('#additional-information-div').show();
-              if (data.additional_information) {
-                $('.additional-information').html(data.additional_information);
-              } else {
-                $('.additional-information').html('None');
-              };
-            } else {
-              $('#additional-information-div').hide();
-            };
           };
         },
         error: error => console.error('Error', error),
     });
   };
 </script>
+
 {% endblock scripts %}

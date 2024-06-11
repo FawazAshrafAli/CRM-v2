@@ -11,21 +11,21 @@
           <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form class="forms-sampme" method="POST" action="{% url 'activities:create' %}">
+          <form class="forms-sample" method="POST" action="{% url 'activities:create' %}">
             {% csrf_token %}
             <div class="row">
               
               <div class="col-sm-12">
                 <div class="form-group">
-                  <input class="form-control" type="text" name="activity" id="activity" value="Call" readonly>
+                  <input class="form-control activity" type="text" name="activity" id="edit-activity-input" value="Call" readonly>
                 </div>
                 <div class="btn-group mb-3">
-                  <button type="button" class="btn btn-light" title="Call" id="toggle-call-btn"><i class="fa fa-phone" aria-hidden="true"></i></button>
-                  <button type="button" class="btn btn-light" title="Meeting" id="toggle-meeting-btn"><i class="fa fa-users" aria-hidden="true"></i></button>
-                  <button type="button" class="btn btn-light" title="Reminder / Task" id="toggle-reminder-btn"><i class="fa fa-clock-o" aria-hidden="true"></i></button>
-                  <button type="button" class="btn btn-light" title="Flagged" id="toggle-flagged-btn"><i class="fa fa-flag" aria-hidden="true"></i></button>
-                  <button type="button" class="btn btn-light" title="Email" id="toggle-email-btn"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
-                  <button type="button" class="btn btn-light" title="Lunch / Meal" id="toggle-meal-btn"><i class="fa fa-cutlery" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-light toggle-call-btn" title="Call"><i class="fa fa-phone" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-light toggle-meeting-btn" title="Meeting"><i class="fa fa-users" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-light toggle-reminder-btn" title="Reminder / Task"><i class="fa fa-clock-o" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-light toggle-flagged-btn" title="Flagged"><i class="fa fa-flag" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-light toggle-email-btn" title="Email"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-light toggle-meal-btn" title="Lunch / Meal"><i class="fa fa-cutlery" aria-hidden="true"></i></button>
                 </div>
               </div>
 
@@ -34,36 +34,36 @@
                   <div class="row">
                   <div class="col-md-3">
                     <label class="form-label">Starting Date</label>
-                     <div class="cal-icon"><input class="form-control datetimepicker" type="text" placeholder="DD/MM/YY" name="starting_date" required></div>
+                     <div class="cal-icon"><input class="form-control datetimepicker" type="text" placeholder="DD/MM/YY" name="starting_date" id="edit-starting-date-input" required></div>
                   </div>
                   <div class="col-md-3">
                     <label class="form-label">Starting Time</label>                       
-                    <input class="form-control" type="time" name="starting_time" required>
+                    <input class="form-control" type="time" name="starting_time" id="edit-starting-time-input" required>
                   </div>
                   <div class="col-md-3">
                     <label class="form-label">Ending Time</label>
-                    <input class="form-control" type="time" name="ending_time" required>
+                    <input class="form-control" type="time" name="ending_time" id="edit-ending-time-input" required>
                   </div>
                   <div class="col-md-3">
                     <label class="form-label">Ending Date</label>
-                     <div class="cal-icon"><input class="form-control datetimepicker" type="text" placeholder="DD/MM/YY" name="ending_date" required></div>
+                     <div class="cal-icon"><input class="form-control datetimepicker" type="text" placeholder="DD/MM/YY" name="ending_date" id="edit-ending-date-input" required></div>
                   </div>
                 </div>
                 </div>
               </div>
               <div class="col-sm-12">
                 <div class="form-group">
-                  <input class="form-control" type="text" id="host" name="host" placeholder="Host" required>
+                  <input class="form-control" type="text" id="edit-host-input" name="host" placeholder="Host" required>
                 </div>
               </div>
               <div class="col-sm-12">
                 <div class="form-group">
-                  <input class="form-control" type="text" id="meeting-title" name="title" placeholder="Meeting Title" style="display: none;">
+                  <input class="form-control meeting-title" type="text" id="edit-title-input" name="title" placeholder="Title" style="display: none;">
                 </div>
               </div>
               <div class="col-sm-12">
                 <div class="form-group">
-                  <select name="guest_type" id="guest_type" class="form-control" required oninput="populateGuest(this.value);" onload="populateGuest(this.value);">
+                  <select name="guest_type" id="edit-guest-type-dropdown" class="form-control" required oninput="populateGuest(this.value);">
                     <option value="" disabled selected hidden>Select Guest Type</option>
                     <option value="Contact">Contact</option>
                     <option value="Lead">Lead</option>
@@ -73,48 +73,48 @@
               </div>
               <div class="col-sm-12">
                 <div class="form-group">
-                  <select class="form-control" name="guest" id="guest">
+                  <select class="form-control guest-dropdown" name="guest">
                     <option value="" disabled selected hidden>Select Guest</option>
                   </select>
                 </div>
               </div>                        
               <div class="col-sm-12">
                 <div class="form-group">
-                  <div class="row m-0" id='advanced-options' style="display: none;">
-                    <p id="add-advance-options">Add <span id="add-guests"><a href="#">Guests</a>,</span> <span id="add-location"><a href="#">Location</a></span><span id="add-desciption">, <a href="#">Description</a></span></p>
+                  <div class="row m-0 advanced-options" style="display: none;">
+                    <p class="add-advance-options">Add <span class="add-guests"><a href="#">Guests</a>,</span> <span class="add-location"><a href="#">Location</a></span><span class="add-desciption">, <a href="#">Description</a></span></p>
                   </div>
                 </div>
               </div>
-              <div class="col-sm-12" id="guest-input-div" style="display: none;">
+              <div class="col-sm-12 guest-input-div" style="display: none;">
                 <div class="form-group position-relative">
-                  <select class="form-control" id="guests" multiple>
+                  <select class="form-control" name="guests" id="edit-guests-dropdown" multiple>
                     <option value="" disabled hidden selected>Select Guests</option>
                  </select>
-                 <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border" id="dismiss-guests-btn"></button>
+                 <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border dismiss-guests-btn"></button>
                 </div>
                 <p>Select with holding <span class="border p-1 shadow rounded-3">Cntrl</span> button for selecting multiple options.</p>
               </div>
-              <div class="col-sm-12" id="description-input-div" style="display: none;">
+              <div class="col-sm-12 description-input-div" style="display: none;">
                 <div class="form-group position-relative">
-                  <textarea class="form-control" name="purpose" id="purpose" placeholder="Meeting Description"></textarea>
-                  <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border" id="dismiss-description-btn"></button>
+                  <textarea class="form-control" name="purpose" id="edit-purpose-input" placeholder="Meeting Description"></textarea>
+                  <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border dismiss-description-btn"></button>
                 </div>
               </div>
-              <div class="col-sm-12" id="location-input-div" style="display: none;">
+              <div class="col-sm-12 location-input-div" style="display: none;">
                 <div class="form-group position-relative">
-                  <textarea class="form-control" name="location" id="location" placeholder="Meeting Location"></textarea>
-                  <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border" id="dismiss-location-btn"></button>
+                  <textarea class="form-control" name="location" id="edit-location-input" placeholder="Meeting Location"></textarea>
+                  <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border dismiss-location-btn"></button>
                 </div>
               </div>
               <div class="col-sm-12">
                 <div class="form-group">
-                  <textarea class="form-control mb-2" rows="3" name="notes" placeholder="Notes"></textarea>                    
+                  <textarea class="form-control mb-2" rows="3" name="notes" id="edit-notes-input" placeholder="Notes"></textarea>                    
                   <span class="pt-2">Notes are private and visible only within your Pipedrive account</span>                    
                 </div>
               </div>
               <div class="col-sm-12">
                 <div class="form-group">
-                  <select class="form-control" name="user_responsible" required>
+                  <select class="form-control" name="user_responsible" id="edit-user-responsible-dropdown" required>
                       <option value="" disabled selected hidden>Select User Responsible</option>
                       {% for user in users %}                      
                       <option value="{{user.pk}}">
@@ -131,7 +131,7 @@
               
               <div class="col-sm-12">
                 <div class="form-group">
-                  <textarea type="text" class="form-control" name="additional_information" id="additional-information" placeholder="Additional Information" style="display: none;"></textarea>
+                  <textarea type="text" class="form-control additional-info" name="additional_information" placeholder="Additional Information" style="display: none;"></textarea>
                 </div>
               </div>
               

@@ -321,8 +321,12 @@ class ActivityDetailView(BaseActivityView, DetailView):
                 else:
                     serialized_data[field_name] = field_value
             
+        serialized_data['starting_date'] = activity.starting_date.strftime("%d/%m/%y")
+        serialized_data['starting_time'] = activity.starting_time
         serialized_data['starting_datetime'] = activity.starting_datetime
 
+        serialized_data['ending_date'] = activity.ending_date.strftime("%d/%m/%y")
+        serialized_data['ending_time'] = activity.ending_time
         serialized_data['ending_datetime'] = activity.ending_datetime
 
         if activity.guests:
