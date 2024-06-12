@@ -11,7 +11,7 @@
           <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form class="forms-sample" method="POST" action="{% url 'activities:create' %}">
+          <form class="forms-sample" method="POST">
             {% csrf_token %}
             <div class="row">
               
@@ -20,12 +20,12 @@
                   <input class="form-control activity" type="text" name="activity" id="edit-activity-input" value="Call" readonly>
                 </div>
                 <div class="btn-group mb-3">
-                  <button type="button" class="btn btn-light toggle-call-btn" title="Call"><i class="fa fa-phone" aria-hidden="true"></i></button>
-                  <button type="button" class="btn btn-light toggle-meeting-btn" title="Meeting"><i class="fa fa-users" aria-hidden="true"></i></button>
-                  <button type="button" class="btn btn-light toggle-reminder-btn" title="Reminder / Task"><i class="fa fa-clock-o" aria-hidden="true"></i></button>
-                  <button type="button" class="btn btn-light toggle-flagged-btn" title="Flagged"><i class="fa fa-flag" aria-hidden="true"></i></button>
-                  <button type="button" class="btn btn-light toggle-email-btn" title="Email"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
-                  <button type="button" class="btn btn-light toggle-meal-btn" title="Lunch / Meal"><i class="fa fa-cutlery" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-light toggle-call-btn" id="edit-toggle-call-btn" title="Call"><i class="fa fa-phone" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-light toggle-meeting-btn" id="edit-toggle-meeting-btn" title="Meeting"><i class="fa fa-users" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-light toggle-reminder-btn" id="edit-toggle-reminder-btn" title="Reminder / Task"><i class="fa fa-clock-o" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-light toggle-flagged-btn" id="edit-toggle-flagged-btn" title="Flagged"><i class="fa fa-flag" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-light toggle-email-btn" id="edit-toggle-email-btn" title="Email"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-light toggle-meal-btn" id="edit-toggle-meal-btn" title="Lunch / Meal"><i class="fa fa-cutlery" aria-hidden="true"></i></button>
                 </div>
               </div>
 
@@ -53,16 +53,19 @@
               </div>
               <div class="col-sm-12">
                 <div class="form-group">
+                  <label class="form-label" for="host">Host</label>
                   <input class="form-control" type="text" id="edit-host-input" name="host" placeholder="Host" required>
                 </div>
               </div>
-              <div class="col-sm-12">
+              <div class="col-sm-12 title-div" style="display: none;">
                 <div class="form-group">
-                  <input class="form-control meeting-title" type="text" id="edit-title-input" name="title" placeholder="Title" style="display: none;">
+                  <label class="form-label" for="title">Title</label>
+                  <input class="form-control" type="text" id="edit-title-input" name="title" placeholder="Title">
                 </div>
               </div>
               <div class="col-sm-12">
                 <div class="form-group">
+                  <label class="form-label" for="guest_type">Guest Type</label>
                   <select name="guest_type" id="edit-guest-type-dropdown" class="form-control" required oninput="populateGuest(this.value);">
                     <option value="" disabled selected hidden>Select Guest Type</option>
                     <option value="Contact">Contact</option>
@@ -71,9 +74,10 @@
                   </select>
                 </div>
               </div>
-              <div class="col-sm-12">
+              <div class="col-sm-12 guest-div">
                 <div class="form-group">
-                  <select class="form-control guest-dropdown" name="guest">
+                  <label class="form-label" for="guest">Guest</label>
+                  <select class="form-control guest-dropdown" name="guest" id="edit-guest-dropdown">
                     <option value="" disabled selected hidden>Select Guest</option>
                   </select>
                 </div>
@@ -81,39 +85,44 @@
               <div class="col-sm-12">
                 <div class="form-group">
                   <div class="row m-0 advanced-options" style="display: none;">
-                    <p class="add-advance-options">Add <span class="add-guests"><a href="#">Guests</a>,</span> <span class="add-location"><a href="#">Location</a></span><span class="add-desciption">, <a href="#">Description</a></span></p>
+                    <p class="add-advance-options">Add <span class="add-guests" id="edit-add-guests"><a href="#">Guests</a>,</span> <span class="add-location" id="edit-add-location"><a href="#">Location</a></span><span class="add-desciption" id="edit-add-description">, <a href="#">Purpose</a></span></p>
                   </div>
                 </div>
               </div>
               <div class="col-sm-12 guest-input-div" style="display: none;">
                 <div class="form-group position-relative">
+                  <label class="form-label" for="guests">Guests</label>
                   <select class="form-control" name="guests" id="edit-guests-dropdown" multiple>
                     <option value="" disabled hidden selected>Select Guests</option>
                  </select>
                  <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border dismiss-guests-btn"></button>
                 </div>
-                <p>Select with holding <span class="border p-1 shadow rounded-3">Cntrl</span> button for selecting multiple options.</p>
+                <p>Select with holding <span class="border p-1 px-2 rounded-3">Ctrl</span> button for selecting multiple options.</p>
               </div>
               <div class="col-sm-12 description-input-div" style="display: none;">
                 <div class="form-group position-relative">
-                  <textarea class="form-control" name="purpose" id="edit-purpose-input" placeholder="Meeting Description"></textarea>
+                  <label class="form-label" for="purpose">Purpose</label>
+                  <textarea class="form-control" name="purpose" id="edit-purpose-input" placeholder="Purpose"></textarea>
                   <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border dismiss-description-btn"></button>
                 </div>
               </div>
               <div class="col-sm-12 location-input-div" style="display: none;">
                 <div class="form-group position-relative">
+                  <label class="form-label" for="location">Location</label>
                   <textarea class="form-control" name="location" id="edit-location-input" placeholder="Meeting Location"></textarea>
                   <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border dismiss-location-btn"></button>
                 </div>
               </div>
               <div class="col-sm-12">
                 <div class="form-group">
+                  <label class="form-label" for="notes">Notes</label>
                   <textarea class="form-control mb-2" rows="3" name="notes" id="edit-notes-input" placeholder="Notes"></textarea>                    
                   <span class="pt-2">Notes are private and visible only within your Pipedrive account</span>                    
                 </div>
               </div>
               <div class="col-sm-12">
                 <div class="form-group">
+                  <label class="form-label" for="user_responsible">User Responsible</label>
                   <select class="form-control" name="user_responsible" id="edit-user-responsible-dropdown" required>
                       <option value="" disabled selected hidden>Select User Responsible</option>
                       {% for user in users %}                      
@@ -131,7 +140,8 @@
               
               <div class="col-sm-12">
                 <div class="form-group">
-                  <textarea type="text" class="form-control additional-info" name="additional_information" placeholder="Additional Information" style="display: none;"></textarea>
+                  <label class="form-label" for="additional_information">Additional Information</label>
+                  <textarea type="text" class="form-control additional-info" name="additional_information" id="edit-additional-info" placeholder="Additional Information" style="display: none;"></textarea>
                 </div>
               </div>
               

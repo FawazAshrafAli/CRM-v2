@@ -43,7 +43,7 @@
                 <ul class="list-inline-item ps-0">
                     
                     <li class="list-inline-item">
-                        <button class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" id="add-task" data-bs-toggle="modal" data-bs-target="#add_activity">Add Activity</button>
+                        <button class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" id="add-task" data-bs-toggle="modal" data-bs-target="#add_activity" onclick="toggleCall();">Add Activity</button>
                     </li>
                 </ul>
             </div>
@@ -1741,14 +1741,14 @@
                     <input class="form-control" type="text" id="host" name="host" placeholder="Host" required>
                   </div>
                 </div>
-                <div class="col-sm-12">
+                <div class="col-sm-12 title-div" style="display: none;">
                   <div class="form-group">
-                    <input class="form-control meeting-title" type="text" id="meeting-title" name="title" placeholder="Meeting Title" style="display: none;">
+                    <input class="form-control" type="text" id="title" name="title" placeholder="Title">
                   </div>
                 </div>
                 <div class="col-sm-12">
                   <div class="form-group">
-                    <select name="guest_type" id="guest_type" class="form-control" required oninput="populateGuest(this.value);" onload="populateGuest(this.value);">
+                    <select name="guest_type" id="guest_type" class="form-control" required oninput="populateGuest(this.value);">
                       <option value="" disabled selected hidden>Select Guest Type</option>
                       <option value="Contact">Contact</option>
                       <option value="Lead">Lead</option>
@@ -1756,9 +1756,9 @@
                     </select>
                   </div>
                 </div>
-                <div class="col-sm-12">
+                <div class="col-sm-12 guest-div">
                   <div class="form-group">
-                    <select class="form-control guest-dropdown" name="guest">
+                    <select class="form-control guest-dropdown guest" name="guest">
                       <option value="" disabled selected hidden>Select Guest</option>
                     </select>
                   </div>
@@ -1766,7 +1766,7 @@
                 <div class="col-sm-12">
                   <div class="form-group">
                     <div class="row m-0 advanced-options" id='advanced-options' style="display: none;">
-                      <p class="add-advance-options">Add <span class="add-guests"><a href="#">Guests</a>,</span> <span class="add-location"><a href="#">Location</a></span><span class="add-desciption">, <a href="#">Description</a></span></p>
+                      <p class="add-advance-options">Add <span class="add-guests"><a href="#">Guests</a>,</span> <span class="add-location"><a href="#">Location</a></span><span class="add-desciption">, <a href="#">Purpose</a></span></p>
                     </div>
                   </div>
                 </div>
@@ -1777,11 +1777,11 @@
                    </select>
                    <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border dismiss-guests-btn"></button>
                   </div>
-                  <p>Select with holding <span class="border p-1 shadow rounded-3">Cntrl</span> button for selecting multiple options.</p>
+                  <p>Select with holding <span class="border p-1 px-2 rounded-3">Ctrl</span> button for selecting multiple options.</p>
                 </div>
                 <div class="col-sm-12 description-input-div" style="display: none;">
                   <div class="form-group position-relative">
-                    <textarea class="form-control" name="purpose" id="purpose" placeholder="Meeting Description"></textarea>
+                    <textarea class="form-control" name="purpose" id="purpose" placeholder="Purpose"></textarea>
                     <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border dismiss-description-btn"></button>
                   </div>
                 </div>
@@ -3402,7 +3402,9 @@
 
 <script>
   function toggleDefault() {
-    $('.meeting-title').each(() => $(this).hide());
+    $('.title-div').each(function () {
+      $(this).hide();
+    });
 
     $('.additional-info').each(function () {
       $(this).hide();
@@ -3421,10 +3423,9 @@
       $(this).hide();
     });
 
-    $('.guest-dropdown').each(function () {
+    $('.guest-div').each(function () {
       $(this).show();
     });
-
   };
 
   function toggleMeeting() {    
@@ -3437,7 +3438,10 @@
     $('.advanced-options').each(function () {
       $(this).show();
     });
-    $('.meeting-title').each(() => $(this).show());
+
+    $('.title-div').each(function () {
+      $(this).show();
+    });
   };
 
   // function toggleReminder() {      
@@ -3457,7 +3461,13 @@
       $(this).val('Meal');
     });
 
+    toggleDefault();
+
     $('.advanced-options').each(function () {
+      $(this).show();
+    });
+
+    $('.title-div').each(function () {
       $(this).show();
     });
 
@@ -3511,7 +3521,7 @@
 
   // Hide Advance Options
   function hideAdvanceOptions() {
-    const links = document.querySelectorAll('#add-advance-options span');
+    const links = document.querySelectorAll('.add-advance-options span');
 
     let hiddenCount = 0;
 
@@ -3548,19 +3558,9 @@
   $('.add-guests').on('click', function() {
     setDivVisibility($('.add-guests'), $('.guest-input-div'));
 
-    $('.guest-dropdown').each(function () {
+    $('.guest-div').each(function () {
       $(this).hide()
     });
-
-    // $('.guest-dropdown').each(function () {
-    //   for (var i = 0; i < $(this).options.length; i++) {
-    //     if (i == 0) {
-    //       $(this).options[i].selected = true;
-    //     } else {
-    //       $(this).options[i].selected = false;
-    //     };
-    //   };
-    // });
 
     $('.guest-dropdown').each(function() {
             var $dropdown = $(this);
@@ -3588,7 +3588,7 @@
   $('.dismiss-guests-btn').on('click', () => {
     setDivVisibility($('.guest-input-div'), $('.add-guests'));
 
-    $('.guest-dropdown').each(function () {
+    $('.guest-div').each(function () {
       $(this).show()
     });
 
@@ -3612,74 +3612,91 @@
 
 
 <script>
-  function editActivity(activityId) {
+  async function editActivity(activityId) {
     $.ajax({
         type: 'GET',
         url: '/activities/detail/' + activityId,
         dataType: 'json',
-        success: data => {
+        success: async(data) => {
           
           if (data) {
             if (data.activity) {
+              $(`#edit-toggle-${data.activity.toLowerCase()}-btn`).click();
               $('#edit-activity-input').val(data.activity);
             } else {
               $('#edit-activity-input').val('');
             };
-  
+            
+            if (data.guests) {
+              $('#edit-add-guests').click();
+            } else {
+              $('.dismiss-guest-btn').click();
+            };
+
+            if (data.purpose) {
+              $('#edit-add-description').click();
+            } else {
+              $('.dismiss-description-btn').click();
+            };
+            
+            if (data.location) {
+              $('#edit-add-location').click();
+            } else {
+              $('.dismiss-location-btn').click();
+            }
+            
             if (data.host) {
               $('#edit-host-input').val(data.host);            
             } else {
               $('#edit-host-input').val('');
             };
+
   
             const editGuestType = document.getElementById('edit-guest-type-dropdown');
             
             for (var i = 0; i < editGuestType.options.length; i++) {
-                if (data.guest_type) {
-                    if (editGuestType.options[i].value === data.guest_type) {
-                        editGuestType.options[i].selected = true;
-                    } else {
-                        editGuestType.options[i].selected = false;
-                    };
+              if (data.guest_type) {
+                if (editGuestType.options[i].value === data.guest_type) {
+                  editGuestType.options[i].selected = true;
                 } else {
-                    editGuestType.options[i].selected = false;
+                  editGuestType.options[i].selected = false;
                 };
+              } else {
+                editGuestType.options[i].selected = false;
+              };
             };
             
             if (data.guest_type) {
-                populateGuest(data.guest_type);
+              await populateGuest(data.guest_type);
             };
             
             const editGuestDropdown = document.getElementById('edit-guest-dropdown');
-            
-            for (var i = 0; i < editGuestDropdown.options.lenght; i++) {
 
-                if (data.guest) {
-                    if (editGuestDropdown.options[i].value == data.guest) {
-                        editGuestDropdown.options[i].selected = true;
-                    } else {
-                        editGuestDropdown.options[i].selected = false;
-                    };
+            for (let i = 0; i < editGuestDropdown.options.length; i++) {
+              if (data.guest_id) {
+                if (editGuestDropdown.options[i].value == data.guest_id) {
+                    editGuestDropdown.options[i].selected = true;
                 } else {
-                    editGuestDropdown.options[i].selected = false;                
+                    editGuestDropdown.options[i].selected = false;
                 };
+              } else {
+                  editGuestDropdown.options[i].selected = false;                
+              };
             };
 
 
             const editGuestsDropdown = document.getElementById('edit-guests-dropdown');
 
-            for (var i = 0; i < editGuestsDropdown.options.lenght; i++) {
-                if (data.guests && Array.isArray(data.guests)) {
-                    for (var guest in data.guests) {
-                        if (editGuestsDropdown.options[i].value === guest) {
-                            editGuestsDropdown.options[i].selected = true;
-                        } else {
-                            editGuestsDropdown.options[i].selected = false;
-                        };
-                    };
-                } else {
-                    editGuestsDropdown.options[i].selected = false;
+            for (let i = 0; i < editGuestsDropdown.options.length; i++) {
+              if (data.guests_id && Array.isArray(data.guests_id)) {
+                for (let j = 0; j < data.guests_id.length; j++) {
+                  if (editGuestsDropdown.options[i].value == data.guests_id[j]) {
+                      editGuestsDropdown.options[i].selected = true;
+                  };                    
                 };
+              } else {
+                editGuestsDropdown.options[i].selected = false;
+              };
             };
   
             if (data.starting_date) {
@@ -3719,7 +3736,25 @@
             //     };
                 
             // };
-              
+
+            if (data.notes) {
+              $('#edit-notes-input').val(data.notes);
+            } else {
+              $('#edit-notes-input').val('');
+            };
+
+            if (data.location) {
+              $('#edit-location-input').val(data.location);
+            } else {
+              $('#edit-location-input').val('');
+            };
+
+            if (data.additional_information) {
+              console.log("Its Here")
+              $('#edit-additional-info').val(data.additional_information);
+            } else {
+              $('#edit-additional-info').val('');
+            };
           };
         },
         error: error => console.error('Error', error),

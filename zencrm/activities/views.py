@@ -56,6 +56,43 @@ class CreateActivityView(BaseActivityView, CreateView):
     fields = "__all__"
     success_url = reverse_lazy('activities:list')
 
+    # For fetching common data from form.
+    def manage_basic(self, request, data):
+        activity = request.POST.get("activity")
+        starting_time = request.POST.get("starting_time")
+        ending_time = request.POST.get("ending_time")
+        notes = request.POST.get("notes")
+        host = request.POST.get("host")
+        guest_type = request.POST.get("guest_type")
+        user_responsible = request.POST.get("user_responsible")
+
+        try:
+            user_responsible = get_object_or_404(User, pk = user_responsible)
+        except Http404:
+            messages.error(request, "Please provide user responsible and try again.")
+            return redirect(reverse_lazy('activities:list'))
+
+        starting_date = request.POST.get("starting_date")
+        ending_date = request.POST.get("ending_date")
+
+        starting_date = dt.strptime(starting_date, "%d/%m/%Y")
+        ending_date = dt.strptime(ending_date, "%d/%m/%Y")
+
+        data.update({
+            "activity": activity, 
+            "starting_date": starting_date, 
+            "starting_time": starting_time,
+            "ending_date": ending_date, 
+            "ending_time": ending_time, 
+            "notes": notes, 
+            "guest_type": guest_type,
+            "host": host, 
+            "user_responsible": user_responsible
+        })
+
+        return data
+
+    # For fetching data related to call activity from form.
     def manage_call(self, request, guest_type, data):
         if guest_type == "Contact":
             contact_guest = request.POST.get('contact')
@@ -83,6 +120,7 @@ class CreateActivityView(BaseActivityView, CreateView):
         
         return data
 
+    # For fetching data exclusively common to meeting and meal activity from form.
     def manage_meeting_and_meal(self, request, guest_type, data):        
 
         title = request.POST.get('title')
@@ -144,11 +182,13 @@ class CreateActivityView(BaseActivityView, CreateView):
 
         return data, guests or None
     
+    # For fetching data exclusive to meal activity from form.
     def manage_meal(self, request, data):
         additional_information =request.POST.get("additional_information")
         data["additional_information"] = additional_information
         return data
 
+    # For 
     def set_many_to_many(self, activity_object, guest_type, *guests):
         guest_count = len(*guests)
         guests_list = list(*guests)
@@ -203,51 +243,21 @@ class CreateActivityView(BaseActivityView, CreateView):
     def post(self, request, *args, **kwargs):
         data = {}
 
-        activity = request.POST.get("activity")
-        starting_time = request.POST.get("starting_time")
-        ending_time = request.POST.get("ending_time")
-        notes = request.POST.get("notes")
-        host = request.POST.get("host")
-        guest_type = request.POST.get("guest_type")
-        user_responsible = request.POST.get("user_responsible")
+        data = self.manage_basic(request, data)
 
-        try:
-            user_responsible = get_object_or_404(User, pk = user_responsible)
-        except Http404:
-            messages.error(request, "Please provide user responsible and try again.")
-            return redirect(reverse_lazy('activities:list'))
-
-        starting_date = request.POST.get("starting_date")
-        ending_date = request.POST.get("ending_date")
-
-        starting_date = dt.strptime(starting_date, "%d/%m/%Y")
-        ending_date = dt.strptime(ending_date, "%d/%m/%Y")
-
-        data = {
-            "activity": activity, 
-            "starting_date": starting_date, 
-            "starting_time": starting_time,
-            "ending_date": ending_date, 
-            "ending_time": ending_time, 
-            "notes": notes, 
-            "guest_type": guest_type,
-            "host": host, 
-            "user_responsible": user_responsible
-        }
-
-        if activity == "Call":
-            self.manage_call(request, guest_type, data)
+        if data['activity'] == "Call":
+            data = self.manage_call(request, data['guest_type'], data)
         
-        elif activity == "Meeting" or activity == "Meal":            
-            data, guests = self.manage_meeting_and_meal(request, guest_type, data)
-            if activity == "Meal":
+        elif data['activity'] == "Meeting" or data['activity'] == "Meal":            
+            data, guests = self.manage_meeting_and_meal(request, data['guest_type'], data)
+            if data['activity'] == "Meal":
                 data = self.manage_meal(request, data)
         
         try:
             activity_object = Activity.objects.create(**data)
 
-            if guests and activity == "Meeting" or activity == "Meal":                
-                self.set_many_to_many(activity_object, guest_type, guests)
+            if guests and data['activity'] == "Meeting" or data['activity'] == "Meal":                
+                self.set_many_to_many(activity_object, data['guest_type'], guests)
             
             if activity_object.guest is None and activity_object.guests is None:
                 activity_object.delete()
@@ -332,14 +342,88 @@ class ActivityDetailView(BaseActivityView, DetailView):
         if activity.guests:
             if len(activity.guests) > 1:
                 guests_list = []
+                guests_id_list = []
                 for guest in activity.guests:
                     guests_list.append(guest.full_name)
+                    guests_id_list.append(guest.pk)
                 serialized_data['guests'] = guests_list
+                serialized_data['guests_id'] = guests_id_list
             else:
                 serialized_data['guest'] = activity.guests[0].full_name
+                serialized_data['guest_id'] = activity.guests[0].pk
                 
             serialized_data['phone'] = activity.guests_team_phone
             serialized_data['email'] = activity.guests_team_email
 
+        elif activity.guest:
+            serialized_data['guest'] = activity.guest.full_name
+            serialized_data['guest_id'] = activity.guest.pk
+
         return JsonResponse(serialized_data, safe=False)
 
+class UpdateActivityView(BaseActivityView, UpdateView):
+    model = Activity
+    fields = "__all__"
+    success_url = reverse_lazy('activities:list')
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()  
+        data = {}
+
+        common_fields = [
+            "id", "activity", "starting_date", "starting_time", 
+            "ending_date", "ending_time", "notes", "user_responsible", 
+            "guest_type", "host", "contact_guest", "lead_guest", 
+            "deal_guest" 
+            ]
+
+        data = CreateActivityView().manage_basic(request, data)
+
+        if data['activity'] == "Call":
+            data = CreateActivityView().manage_call(request, data['guest_type'], data) 
+
+            ###########################################################
+            # Data unrelated to the call function would be removed here
+            # Codes will be added later
+            ###########################################################
+
+
+        elif data['activity'] == "Meeting" or data['activity'] == "Meal":            
+            data, guests = CreateActivityView().manage_meeting_and_meal(request, data['guest_type'], data)
+            if data['activity'] == "Meal":
+                data = CreateActivityView().manage_meal(request, data)
+
+                ###############################################
+                #  Data unrelated to meal would be removed here.
+                # Those code will be added later.
+                ###############################################
+
+        try:
+            for field in self.object._meta.fields:
+                field_name = field.name
+                # The following data will update all the fields of activity whose data is available in dict data.
+                try:
+                    if data[field_name]:
+                        self.object.field_name = data[field_name]
+                except Exception as e:
+                    print(e)
+                # self.object.save()
+
+            if guests and data['activity'] == "Meeting" or data['activity'] == "Meal":
+                self.object.contact_guests.clear()
+                self.object.lead_guests.clear()
+                self.object.deal_guests.clear()
+                CreateActivityView().set_many_to_many(self.object, data['guest_type'], guests)
+
+            if self.object.guest is None and self.object.guests is None:            
+                messages.warning(self.request, "Activity updation Failed. You have to provide atleast one guest.")
+                return redirect(reverse_lazy('activities:list'))            
+            else:
+                self.object.save()
+                messages.success(self.request, "Activity updation successfull.")
+                return redirect(self.success_url)
+
+        except Exception as e:
+            print("Exception occurred:", e)
+            traceback.print_exc()
+            return redirect(self.error500)
