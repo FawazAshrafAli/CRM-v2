@@ -8,31 +8,40 @@ async function populateGuest(guestType) {
                 'guest_type': guestType
             },
             success: function (data) {
+                console.log(guestType);
+
                 var name = guestType.toLowerCase();
 
-                // $('#guest').prop('name', name);
-                $('.guest').each(function () {
-                    $(this).prop('name', name);
-                });
-                // $('#guest').html('<option disabled selected hidden>Select Guest</option>');
-                $('.guest').each(function () {
-                    $(this).html('<option disabled selected hidden>Select Guest</option>')
+                $('.guest-dropdown').each(function () {
+                    $(this).prop('name', name).html('<option value="" disabled selected hidden>Select Guests</option>');
+                    // $(this).html('< disabled selected hidden>Select Guest</option>')
                 });
 
-                if ($('#edit-guest-input')) {
-                $('#edit-guest-dropdown').prop('name', name);            
-                $('#edit-guest-dropdown').html('<option disabled selected hidden>Select Guest</option>');
-                }
+                $('.guests-dropdown').each(function () {
+                    $(this).prop('name', name).html('<option value="" disabled selected hidden>Select Guests</option>');
+                    // $(this).html('< disabled selected hidden>Select Guest</option>')
+                });
 
-                if ($('#guests')) {
-                    $('#guests').prop('name', name + "s");
-                    $('#guests').html('<option value="" disabled selected hidden>Select Guests</option>');
-                };
+                // if ($('#edit-guest-dropdown')) {
+                // $('#edit-guest-dropdown').prop('name', name);
+                // $('#edit-guest-dropdown').html('<option disabled selected hidden>Select Guest</option>');
+                // }
 
-                if ($('#edit-guests-dropdown')) {
-                    $('#edit-guests-dropdown').prop('name', name + "s");
-                    $('#edit-guests-dropdown').html('<option value="" disabled selected hidden>Select Guests</option>');
-                };
+                // if ($('.edit-guest-input')) {
+                //     $('.edit-guest-input').each(function () {
+                //         $(this).prop('name', name);
+                //     });
+                // }
+
+                // if ($('#guests')) {
+                    // $('#guests').prop('name', name + "s").html('<option value="" disabled selected hidden>Select Guests</option>');
+                    // $('#guests').html('<option value="" disabled selected hidden>Select Guests</option>');
+                // };
+
+                // if ($('#edit-guests-dropdown')) {
+                //     $('#edit-guests-dropdown').prop('name', name + "s");
+                //     $('#edit-guests-dropdown').html('<option value="" disabled selected hidden>Select Guests</option>');
+                // };
 
                 if (data.guest_data != null && Array.isArray(data.guest_data)) {
                     data.guest_data.forEach((guest) => {
@@ -40,22 +49,28 @@ async function populateGuest(guestType) {
                         <option value="" disabled selected hidden>Select ${guestType}</option>
                         <option value="${guest.id}">${guest.first_name} ${guest.last_name}</option>
                         `
-                        // $('#guest').append(html);
-                        $('.guest').each(function () {
+
+                        $('.guest-dropdown').each(function () {
                             $(this).append(html);
                         });
 
-                        if ($('#edit-guest-dropdown')) {
-                        $('#edit-guest-dropdown').append(html);
+                        if ($('.guests-dropdown')) {
+                            $('.guests-dropdown').each(function () {
+                                $(this).append(html);
+                            });
                         };
 
-                        if ($('#guests')) {
-                            $('#guests').append(html);
-                        };
+                        // if ($('#edit-guest-dropdown')) {
+                        // $('#edit-guest-dropdown').append(html);
+                        // };
 
-                        if ($('#edit-guests-dropdown')) {
-                        $('#edit-guests-dropdown').append(html);
-                        };
+                        // if ($('#guests')) {
+                        //     $('#guests').append(html);
+                        // };
+
+                        // if ($('#edit-guests-dropdown')) {
+                        //     $('#edit-guests-dropdown').append(html);
+                        // };
                     });
                 };
                 resolve();

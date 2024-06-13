@@ -11,7 +11,7 @@
           <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form class="forms-sample" method="POST">
+          <form class="forms-sample" method="POST" action="#" id="activity-updation-form">
             {% csrf_token %}
             <div class="row">
               
@@ -66,7 +66,7 @@
               <div class="col-sm-12">
                 <div class="form-group">
                   <label class="form-label" for="guest_type">Guest Type</label>
-                  <select name="guest_type" id="edit-guest-type-dropdown" class="form-control" required oninput="populateGuest(this.value);">
+                  <select name="guest_type" id="edit-guest-type-dropdown" class="form-control guest-type-dropdown" required oninput="populateGuest(this.value);">
                     <option value="" disabled selected hidden>Select Guest Type</option>
                     <option value="Contact">Contact</option>
                     <option value="Lead">Lead</option>
@@ -92,7 +92,7 @@
               <div class="col-sm-12 guest-input-div" style="display: none;">
                 <div class="form-group position-relative">
                   <label class="form-label" for="guests">Guests</label>
-                  <select class="form-control" name="guests" id="edit-guests-dropdown" multiple>
+                  <select class="form-control guests-dropdown" name="guests" id="edit-guests-dropdown" multiple>
                     <option value="" disabled hidden selected>Select Guests</option>
                  </select>
                  <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border dismiss-guests-btn"></button>
@@ -155,7 +155,7 @@
                
             </div>
             <div class="text-center">
-                <button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Create</button>&nbsp;&nbsp;
+                <button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Update</button>&nbsp;&nbsp;
                 <button type="button" class="btn btn-secondary btn-rounded">Cancel</button>
             </div>
           </form>

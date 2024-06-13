@@ -1,4 +1,4 @@
-from django.shortcuts import redirect, get_object_or_404, get_list_or_404
+from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, View
 from common.mixins import CrmLoginRequiredMixin
 from django.views.decorators.cache import never_cache
@@ -75,8 +75,8 @@ class CreateActivityView(BaseActivityView, CreateView):
         starting_date = request.POST.get("starting_date")
         ending_date = request.POST.get("ending_date")
 
-        starting_date = dt.strptime(starting_date, "%d/%m/%Y")
-        ending_date = dt.strptime(ending_date, "%d/%m/%Y")
+        starting_date = dt.strptime(starting_date, "%d/%m/%y")
+        ending_date = dt.strptime(ending_date, "%d/%m/%y")
 
         data.update({
             "activity": activity, 
@@ -122,6 +122,7 @@ class CreateActivityView(BaseActivityView, CreateView):
 
     # For fetching data exclusively common to meeting and meal activity from form.
     def manage_meeting_and_meal(self, request, guest_type, data):        
+
 
         title = request.POST.get('title')
         purpose = request.POST.get('purpose')
@@ -178,7 +179,7 @@ class CreateActivityView(BaseActivityView, CreateView):
             
         else:
             messages.warning(request, "Cannot create activity without providing atleast a single guest.")
-            return redirect(reverse_lazy('activities:list'))
+            return redirect(reverse_lazy('activities:list'))     
 
         return data, guests or None
     
@@ -370,11 +371,11 @@ class UpdateActivityView(BaseActivityView, UpdateView):
         self.object = self.get_object()  
         data = {}
 
-        common_fields = [
+        required_fields = [
             "id", "activity", "starting_date", "starting_time", 
             "ending_date", "ending_time", "notes", "user_responsible", 
             "guest_type", "host", "contact_guest", "lead_guest", 
-            "deal_guest" 
+            "deal_guest", "created", "updated"
             ]
 
         data = CreateActivityView().manage_basic(request, data)
@@ -382,23 +383,28 @@ class UpdateActivityView(BaseActivityView, UpdateView):
         if data['activity'] == "Call":
             data = CreateActivityView().manage_call(request, data['guest_type'], data) 
 
-            ###########################################################
-            # Data unrelated to the call function would be removed here
-            # Codes will be added later
-            ###########################################################
-
-
         elif data['activity'] == "Meeting" or data['activity'] == "Meal":            
             data, guests = CreateActivityView().manage_meeting_and_meal(request, data['guest_type'], data)
+
+            required_fields += ["title", "purpose", "location", "contact_guests", "lead_guests", "deal_guests"]
+            
             if data['activity'] == "Meal":
+                required_fields.append("additional_information")
                 data = CreateActivityView().manage_meal(request, data)
 
-                ###############################################
-                #  Data unrelated to meal would be removed here.
-                # Those code will be added later.
-                ###############################################
+        try:            
+            self.object.contact_guest = None
+            self.object.lead_guest = None
+            self.object.deal_guest = None
 
-        try:
+            self.object.contact_guests.clear()
+            self.object.lead_guests.clear()
+            self.object.deal_guests.clear()
+
+            # query_guest = f"{self.object.activity}_guest"
+            # if data[query_guest]:
+
+
             for field in self.object._meta.fields:
                 field_name = field.name
                 # The following data will update all the fields of activity whose data is available in dict data.
@@ -407,18 +413,21 @@ class UpdateActivityView(BaseActivityView, UpdateView):
                         self.object.field_name = data[field_name]
                 except Exception as e:
                     print(e)
-                # self.object.save()
 
-            if guests and data['activity'] == "Meeting" or data['activity'] == "Meal":
-                self.object.contact_guests.clear()
-                self.object.lead_guests.clear()
-                self.object.deal_guests.clear()
+            if data['activity'] == "Meeting" or data['activity'] == "Meal" and guests is not None:
                 CreateActivityView().set_many_to_many(self.object, data['guest_type'], guests)
 
-            if self.object.guest is None and self.object.guests is None:            
+            if data["contact_guest"] is None and data["lead_guest"] is None and data["deal_guest"] is None and guests is None:
                 messages.warning(self.request, "Activity updation Failed. You have to provide atleast one guest.")
                 return redirect(reverse_lazy('activities:list'))            
             else:
+
+                # For removing fields unrelated to the current activity.
+                data_keys = list(data.keys())
+                for key in data_keys:
+                    if key not in required_fields:
+                        data.pop(key)
+                        
                 self.object.save()
                 messages.success(self.request, "Activity updation successfull.")
                 return redirect(self.success_url)

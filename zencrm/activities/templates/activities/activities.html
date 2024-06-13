@@ -3563,15 +3563,15 @@
     });
 
     $('.guest-dropdown').each(function() {
-            var $dropdown = $(this);
-            $dropdown.find('option').each(function(index) {
-                if (index === 0) {
-                    $(this).prop('selected', true);
-                } else {
-                    $(this).prop('selected', false);
-                }
-            });
-        });
+      var $dropdown = $(this);
+      $dropdown.find('option').each(function(index) {
+        if (index === 0) {
+          $(this).prop('selected', true);
+        } else {
+          $(this).prop('selected', false);
+        }
+      });
+    });
   });
 
   // Toggle Location
@@ -3620,13 +3620,64 @@
         success: async(data) => {
           
           if (data) {
+            $('#activity-updation-form').prop('action', `/activities/update/${activityId}`);
+
             if (data.activity) {
               $(`#edit-toggle-${data.activity.toLowerCase()}-btn`).click();
               $('#edit-activity-input').val(data.activity);
             } else {
               $('#edit-activity-input').val('');
             };
+
+            if (data.guest_type) {
+              await populateGuest(data.guest_type);
+            };            
+
+            // Fetching Selected Guest Type
+            const editGuestTypeDropdown = document.getElementById('edit-guest-type-dropdown');           
+
+            for (let i = 0; i < editGuestTypeDropdown.options.length; i++) {
+              if (data.guest_type) {
+                if (editGuestTypeDropdown.options[i].value == data.guest_type) {
+                    editGuestTypeDropdown.options[i].selected = true;
+                } else {
+                    editGuestTypeDropdown.options[i].selected = false;
+                };
+              } else {
+                  editGuestTypeDropdown.options[i].selected = false;                
+              };
+            };
             
+            // Fetching Selected Guest
+            const editGuestDropdown = document.getElementById('edit-guest-dropdown');
+
+            for (let i = 0; i < editGuestDropdown.options.length; i++) {
+              if (data.guest_id) {
+                if (editGuestDropdown.options[i].value == data.guest_id) {
+                    editGuestDropdown.options[i].selected = true;
+                } else {
+                    editGuestDropdown.options[i].selected = false;
+                };
+              } else {
+                  editGuestDropdown.options[0].selected = true;                
+              };
+            };
+
+            // Fetching Selected Guest(S)
+            const editGuestsDropdown = document.getElementById('edit-guests-dropdown');
+
+            for (let i = 0; i < editGuestsDropdown.options.length; i++) {
+              if (data.guests_id && Array.isArray(data.guests_id)) {
+                for (let j = 0; j < data.guests_id.length; j++) {
+                  if (editGuestsDropdown.options[i].value == data.guests_id[j]) {
+                      editGuestsDropdown.options[i].selected = true;
+                  };
+                };
+              } else {
+                editGuestsDropdown.options[i].selected = false;
+                };
+              };
+
             if (data.guests) {
               $('#edit-add-guests').click();
             } else {
@@ -3649,55 +3700,7 @@
               $('#edit-host-input').val(data.host);            
             } else {
               $('#edit-host-input').val('');
-            };
-
-  
-            const editGuestType = document.getElementById('edit-guest-type-dropdown');
-            
-            for (var i = 0; i < editGuestType.options.length; i++) {
-              if (data.guest_type) {
-                if (editGuestType.options[i].value === data.guest_type) {
-                  editGuestType.options[i].selected = true;
-                } else {
-                  editGuestType.options[i].selected = false;
-                };
-              } else {
-                editGuestType.options[i].selected = false;
-              };
-            };
-            
-            if (data.guest_type) {
-              await populateGuest(data.guest_type);
-            };
-            
-            const editGuestDropdown = document.getElementById('edit-guest-dropdown');
-
-            for (let i = 0; i < editGuestDropdown.options.length; i++) {
-              if (data.guest_id) {
-                if (editGuestDropdown.options[i].value == data.guest_id) {
-                    editGuestDropdown.options[i].selected = true;
-                } else {
-                    editGuestDropdown.options[i].selected = false;
-                };
-              } else {
-                  editGuestDropdown.options[i].selected = false;                
-              };
-            };
-
-
-            const editGuestsDropdown = document.getElementById('edit-guests-dropdown');
-
-            for (let i = 0; i < editGuestsDropdown.options.length; i++) {
-              if (data.guests_id && Array.isArray(data.guests_id)) {
-                for (let j = 0; j < data.guests_id.length; j++) {
-                  if (editGuestsDropdown.options[i].value == data.guests_id[j]) {
-                      editGuestsDropdown.options[i].selected = true;
-                  };                    
-                };
-              } else {
-                editGuestsDropdown.options[i].selected = false;
-              };
-            };
+            };            
   
             if (data.starting_date) {
               $('#edit-starting-date-input').val(data.starting_date);
@@ -3723,19 +3726,19 @@
               $('#edit-ending-time-input').val('');
             };
             
-            // if (data.user_responsible) {
-
-            //     var editUserResponsibleDropdown = $('#edit-user-responsible-dropdown');
-
-            //     for (var i = 0; i < editUserResponsibleDropdown.options.length; i++) {
-            //         if (editUserResponsibleDropdown.options[i].value === data.user_responsible) {
-            //             editUserResponsibleDropdown.options[i].selected = true;
-            //         } else {
-            //             editUserResponsibleDropdown.options[i].selected = false;
-            //         };
-            //     };
-                
-            // };
+            const editUserResponsibleDropdown = document.getElementById('edit-user-responsible-dropdown');
+            
+            for (let i = 0; i < editUserResponsibleDropdown.options.length; i++) {            
+              if (data.user_responsible) {
+                if (editUserResponsibleDropdown.options[i].value == data.user_responsible) {
+                    editUserResponsibleDropdown.options[i].selected = true;
+                } else {
+                    editUserResponsibleDropdown.options[i].selected = false;
+                };
+              } else {
+                editUserResponsibleDropdown.options[i].selected = false;
+              };              
+            };
 
             if (data.notes) {
               $('#edit-notes-input').val(data.notes);
@@ -3750,7 +3753,6 @@
             };
 
             if (data.additional_information) {
-              console.log("Its Here")
               $('#edit-additional-info').val(data.additional_information);
             } else {
               $('#edit-additional-info').val('');
