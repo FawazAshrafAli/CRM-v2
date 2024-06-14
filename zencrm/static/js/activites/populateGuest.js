@@ -18,7 +18,7 @@ async function populateGuest(guestType) {
                 });
 
                 $('.guests-dropdown').each(function () {
-                    $(this).prop('name', name).html('<option value="" disabled selected hidden>Select Guests</option>');
+                    $(this).prop('name', name+'s').html('<option value="" disabled selected hidden>Select Guests</option>');
                     // $(this).html('< disabled selected hidden>Select Guest</option>')
                 });
 

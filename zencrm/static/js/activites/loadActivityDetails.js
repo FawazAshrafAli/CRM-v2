@@ -7,9 +7,9 @@ function loadActivityDetails(activityId) {
         
         if (data) {
           if (data.activity) {
-            $('.activity').html(data.activity);  
+            $('.activity-type').html(data.activity);  
           } else {
-            $('.activity').html('None');
+            $('.activity-type').html('None');
           };
 
           if (data.id) {
@@ -124,6 +124,15 @@ function loadActivityDetails(activityId) {
           } else {
             $('#additional-information-div').hide();
           };
+
+          $('.notes').each(function () {
+            if (data.notes) {
+              $(this).html(data.notes);
+            } else {
+              $(this).html('None');
+            };
+          })
+
         };
       },
       error: error => console.error('Error', error),

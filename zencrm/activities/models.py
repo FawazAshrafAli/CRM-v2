@@ -81,13 +81,28 @@ class Activity(models.Model):
     
     @property
     def guests_team(self):
+        # if self.guests:
+        #     guests = self.guests
+        #     if guests.count() > 1:
+        #         team =  f"{guests[0].full_name} + {guests.count() - 1} more"
+        #     else:
+        #         team = guests[0].full_name
+        #     return team
+        # return None
         if self.guests:
             guests = self.guests
-            if guests.count() > 1:
-                team =  f"{guests[0].full_name} + {guests.count() - 1} more"
-            else:
-                team = guests[0].full_name
-            return team
+            not_none_list = []
+            if guests.count() > 0:
+                for guest in guests:
+                    if guest.full_name is not None:
+                        not_none_list.append(guest)
+                    else:
+                        continue
+            list_length = len(not_none_list)
+            if list_length > 1:
+                return f"{not_none_list[0].full_name} + {list_length - 1} more"
+            elif list_length > 0:
+                return not_none_list[0].full_name
         return None
     
     @property

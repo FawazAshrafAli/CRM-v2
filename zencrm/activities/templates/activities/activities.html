@@ -323,6 +323,10 @@
                                 <td class="border-0">User Responsible</td>
                                 <td class="border-0 user-responsible"></td>
                               </tr>
+                              <tr>
+                                <td class="border-0">Notes</td>
+                                <td class="border-0 notes"></td>
+                              </tr>
                             </tbody>
                           </table>
                         </div>
@@ -3401,12 +3405,45 @@
 <script src="{% static 'js/activites/activityTypeToggling.js' %}"></script>
 
 <script>
+  // Default Behavior of Advance Options
+  function defaultAdvancedOptions() {
+
+    $('.add-advance-options').each(function () {
+      $(this).show();
+    });
+
+    $('.add-guests').each(function () {
+      $(this).show()
+    });
+
+    $('.add-location').each(function () {
+      $(this).show();
+    });
+
+    $('.add-desciption').each(function () {
+      $(this).show();
+    });
+
+    $('.guest-input-div').each(function () {
+      $(this).hide();
+    });
+
+    $('.location-input-div').each(function () {
+      $(this).hide();
+    });
+
+    $('.description-input-div').each(function () {
+      $(this).hide();
+    });
+
+  };
+
   function toggleDefault() {
     $('.title-div').each(function () {
       $(this).hide();
     });
 
-    $('.additional-info').each(function () {
+    $('.additional-info-div').each(function () {
       $(this).hide();
     });
 
@@ -3419,7 +3456,7 @@
     });
 
     toggleDefault();
-    $('.add-advance-options').each(function () {
+    $('.advanced-options').each(function () {
       $(this).hide();
     });
 
@@ -3471,7 +3508,7 @@
       $(this).show();
     });
 
-    $('.additional-info').each(function () {
+    $('.additional-info-div').each(function () {
       $(this).show();
     });
   };
@@ -3483,41 +3520,6 @@
   // document.getElementById('toggle-flagged-btn').addEventListener('click', toggleFlagged);
   // document.getElementById('toggle-email-btn').addEventListener('click', toggleEmail);
   $('.toggle-meal-btn').on('click', toggleMeal);
-
-
-
-  // Default Behavior of Advance Options
-  function defaultAdvancedOptions() {
-
-    $('.add-advance-options').each(function () {
-      $(this).show();
-    });
-
-    $('.add-guests').each(function () {
-      $(this).show()
-    });
-    
-    $('.add-location').each(function () {
-      $(this).show();
-    });
-    
-    $('.add-desciption').each(function () {
-      $(this).show();
-    });
-
-    $('.guest-input-div').each(function () {
-      $(this).hide();
-    });
-
-    $('.location-input-div').each(function () {
-      $(this).hide();
-    });
-    
-    $('.description-input-div').each(function () {
-      $(this).hide();
-    });
-    
-  };
 
   // Hide Advance Options
   function hideAdvanceOptions() {
@@ -3700,7 +3702,19 @@
               $('#edit-host-input').val(data.host);            
             } else {
               $('#edit-host-input').val('');
-            };            
+            };
+
+            if (data.title) {
+              $('#edit-title-input').val(data.title);            
+            } else {
+              $('#edit-title-input').val('');
+            };
+
+            if (data.purpose) {
+              $('#edit-purpose-input').val(data.purpose);            
+            } else {
+              $('#edit-purpose-input').val('');
+            };
   
             if (data.starting_date) {
               $('#edit-starting-date-input').val(data.starting_date);
@@ -3729,8 +3743,8 @@
             const editUserResponsibleDropdown = document.getElementById('edit-user-responsible-dropdown');
             
             for (let i = 0; i < editUserResponsibleDropdown.options.length; i++) {            
-              if (data.user_responsible) {
-                if (editUserResponsibleDropdown.options[i].value == data.user_responsible) {
+              if (data.user_responsible_id) {
+                if (editUserResponsibleDropdown.options[i].value == data.user_responsible_id) {
                     editUserResponsibleDropdown.options[i].selected = true;
                 } else {
                     editUserResponsibleDropdown.options[i].selected = false;
