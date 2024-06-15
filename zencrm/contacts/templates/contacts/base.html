@@ -58,6 +58,20 @@
 				list-style: none;
 			 }
 		 </style>
+		 <style>
+			@keyframes anim {
+			  0% {width: 0;}
+			  50% {width: 100%}
+			  100% {width: 100%;}
+			}
+		  
+			#message-div {
+			  animation: anim 3s ease-in 1;
+			  text-overflow: clip;
+			  text-wrap: nowrap;
+			  overflow-x: hidden;
+			}
+		  </style>
       
     </head>
     <body id="skin-color" class="inter">

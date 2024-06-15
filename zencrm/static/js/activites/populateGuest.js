@@ -8,8 +8,6 @@ async function populateGuest(guestType) {
                 'guest_type': guestType
             },
             success: function (data) {
-                console.log(guestType);
-
                 var name = guestType.toLowerCase();
 
                 $('.guest-dropdown').each(function () {

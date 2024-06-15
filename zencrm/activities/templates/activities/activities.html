@@ -6,6 +6,7 @@
 {% block activity %} class="active" {% endblock activity %}
 
 {% block page_content %}
+
 <!-- Page Content -->
 <div class="content container-fluid">
 
@@ -28,13 +29,13 @@
         <div class="row">
             <div class="col">
                 <div class="dropdown">
-                    <a class="dropdown-toggle recently-viewed" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Propose Times </a>
+                    <a class="dropdown-toggle recently-viewed" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="current-activity-view">{% if opened %} All Open Activity {% elif closed %} All Closed Activity {% else %} Propose Times {% endif %}</a>
                     <div class="dropdown-menu">
                          <a class="dropdown-item" href="#">Recently Viewed</a>
                         <a class="dropdown-item" href="#">Items I'm following</a>
                         <a class="dropdown-item" href="#">All Activity</a>
-                        <a class="dropdown-item" href="#">All Closed Activity</a>
-                        <a class="dropdown-item" href="#">All Open Activity</a>
+                        <a class="dropdown-item" href="{% url 'activities:closed' %}">All Closed Activity</a>
+                        <a class="dropdown-item" href="{% url 'activities:opened' %}">All Open Activity</a>
                         <a class="dropdown-item" href="#">My Activity</a>
                     </div>
                 </div>
@@ -141,12 +142,12 @@
                                     {% endif %}                                       
                                   </td>
                                   
-                                  <td>
+                                  <td class="text-center">
                                       <div class="dropdown dropdown-action">
                                           <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
-                                          <div class="dropdown-menu dropdown-menu-right h-100">
-                                              <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edit-activity-modal" data-activity-id="activity.pk" onclick="editActivity({{activity.pk}}); return false">Edit</a>
-                                             
+                                          <div class="dropdown-menu dropdown-menu-right">
+                                              <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edit-activity-modal" data-activity-id="activity.pk" onclick="editActivity({{activity.pk}}); return false">Edit This Activity</a>
+                                              <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#delete-activity-modal" data-activity-id="activity.pk" onclick="deleteActivity({{activity.pk}}); return false">Delete This Activity</a>                                             
                                           </div>
                                       </div>
                                   </td>
@@ -1711,9 +1712,9 @@
                   <div class="btn-group mb-3">
                     <button type="button" class="btn btn-light toggle-call-btn" title="Call"><i class="fa fa-phone" aria-hidden="true"></i></button>
                     <button type="button" class="btn btn-light toggle-meeting-btn" title="Meeting"><i class="fa fa-users" aria-hidden="true"></i></button>
-                    <button type="button" class="btn btn-light toggle-reminder-btn" title="Reminder / Task"><i class="fa fa-clock-o" aria-hidden="true"></i></button>
-                    <button type="button" class="btn btn-light toggle-flagged-btn" title="Flagged"><i class="fa fa-flag" aria-hidden="true"></i></button>
-                    <button type="button" class="btn btn-light toggle-email-btn" title="Email"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+                    <!-- <button type="button" class="btn btn-light toggle-reminder-btn" title="Reminder / Task"><i class="fa fa-clock-o" aria-hidden="true"></i></button> -->
+                    <!-- <button type="button" class="btn btn-light toggle-flagged-btn" title="Flagged"><i class="fa fa-flag" aria-hidden="true"></i></button> -->
+                    <!-- <button type="button" class="btn btn-light toggle-email-btn" title="Email"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button> -->
                     <button type="button" class="btn btn-light toggle-meal-btn" title="Lunch / Meal"><i class="fa fa-cutlery" aria-hidden="true"></i></button>
                   </div>
                 </div>
@@ -1776,7 +1777,7 @@
                 </div>
                 <div class="col-sm-12 guest-input-div" style="display: none;">
                   <div class="form-group position-relative">
-                    <select class="form-control" id="guests" multiple>
+                    <select class="form-control guests-dropdown" id="guests" multiple>
                       <option value="" disabled hidden selected>Select Guests</option>
                    </select>
                    <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border dismiss-guests-btn"></button>
@@ -1791,7 +1792,7 @@
                 </div>
                 <div class="col-sm-12 location-input-div" style="display: none;">
                   <div class="form-group position-relative">
-                    <textarea class="form-control" name="location" id="location" placeholder="Meeting Location"></textarea>
+                    <textarea class="form-control" name="location" id="location" placeholder="Location"></textarea>
                     <button type="button" class="btn btn-close btn-sm position-absolute top-0 end-0 border dismiss-location-btn"></button>
                   </div>
                 </div>
@@ -3358,21 +3359,20 @@
     </div>
   </div>
 
-  <!-- Contact Modal Start -->
+  <!-- Contact Modal -->
   {% include "contacts/contact_modal.html" %}
-  <!-- Contact Modal End -->
 
-  <!-- Lead Modal Start -->
+  <!-- Lead Modal -->
   {% include "leads/lead_modal.html" %}
-  <!-- Lead Modal End -->
 
-  <!-- Deal Modal Start -->
+  <!-- Deal Modal -->
   {% include "deals/deal_modal.html" %}
-  <!-- Deal Modal End -->
 
-  <!-- Edit Activity Start -->
+  <!-- Edit Activity Modal -->
   {% include "activities/modals/edit.html" %}
-  <!-- Edit Activity End -->
+
+  <!-- Delete Activity Modal -->
+  {% include "activities/modals/delete.html" %}
 
 {% endblock modals %}
 
@@ -3401,381 +3401,10 @@
 <!-- Load Activity Details -->
 <script src="{% static 'js/activites/loadActivityDetails.js' %}"></script>
 
+<!-- Delete Activity -->
+<script src="{% static 'js/activites/deleteActivity.js' %}"></script>
+
 <!-- Activity type toggling and visibility -->
 <script src="{% static 'js/activites/activityTypeToggling.js' %}"></script>
-
-<script>
-  // Default Behavior of Advance Options
-  function defaultAdvancedOptions() {
-
-    $('.add-advance-options').each(function () {
-      $(this).show();
-    });
-
-    $('.add-guests').each(function () {
-      $(this).show()
-    });
-
-    $('.add-location').each(function () {
-      $(this).show();
-    });
-
-    $('.add-desciption').each(function () {
-      $(this).show();
-    });
-
-    $('.guest-input-div').each(function () {
-      $(this).hide();
-    });
-
-    $('.location-input-div').each(function () {
-      $(this).hide();
-    });
-
-    $('.description-input-div').each(function () {
-      $(this).hide();
-    });
-
-  };
-
-  function toggleDefault() {
-    $('.title-div').each(function () {
-      $(this).hide();
-    });
-
-    $('.additional-info-div').each(function () {
-      $(this).hide();
-    });
-
-    defaultAdvancedOptions();
-  }
-
-  function toggleCall() {
-    $('.activity').each(function () {
-      $(this).val('Call');
-    });
-
-    toggleDefault();
-    $('.advanced-options').each(function () {
-      $(this).hide();
-    });
-
-    $('.guest-div').each(function () {
-      $(this).show();
-    });
-  };
-
-  function toggleMeeting() {    
-    $('.activity').each(function () {
-      $(this).val('Meeting');
-    });
-
-    toggleDefault();
-
-    $('.advanced-options').each(function () {
-      $(this).show();
-    });
-
-    $('.title-div').each(function () {
-      $(this).show();
-    });
-  };
-
-  // function toggleReminder() {      
-  //   currentActivity.value = 'Reminder';
-  // };
-
-  // function toggleFlagged() {      
-  //   currentActivity.value = 'Flagged';
-  // };
-
-  // function toggleEmail() {      
-  //   currentActivity.value = 'Email';
-  // };
-
-  function toggleMeal() {      
-    $('.activity').each(function () {
-      $(this).val('Meal');
-    });
-
-    toggleDefault();
-
-    $('.advanced-options').each(function () {
-      $(this).show();
-    });
-
-    $('.title-div').each(function () {
-      $(this).show();
-    });
-
-    $('.additional-info-div').each(function () {
-      $(this).show();
-    });
-  };
-  
-  $('.toggle-call-btn').on('click', toggleCall);
-  $('.toggle-meeting-btn').on('click', toggleMeeting);
-
-  // document.getElementById('toggle-reminder-btn').addEventListener('click', toggleReminder);
-  // document.getElementById('toggle-flagged-btn').addEventListener('click', toggleFlagged);
-  // document.getElementById('toggle-email-btn').addEventListener('click', toggleEmail);
-  $('.toggle-meal-btn').on('click', toggleMeal);
-
-  // Hide Advance Options
-  function hideAdvanceOptions() {
-    const links = document.querySelectorAll('.add-advance-options span');
-
-    let hiddenCount = 0;
-
-    links.forEach(link => {
-      if (getComputedStyle(link).display === 'none') {
-        hiddenCount++;
-      };
-      if (hiddenCount == links.length) {
-        $('.add-advance-options').each(function () {
-          $(this).hide();
-        });
-      } else {
-        $('.add-advance-options').each(function () {
-          $(this).show();
-        });
-      }
-    });
-  };
-
-  // Set Div Visibility
-  function setDivVisibility(hidingDivId, showingDivId) {
-    hidingDivId.each(function () {
-      $(this).hide();
-    });
-
-    showingDivId.each(function () {
-      $(this).show();
-    });
-    hideAdvanceOptions();
-  }
-
-
-  // Toggle Guests
-  $('.add-guests').on('click', function() {
-    setDivVisibility($('.add-guests'), $('.guest-input-div'));
-
-    $('.guest-div').each(function () {
-      $(this).hide()
-    });
-
-    $('.guest-dropdown').each(function() {
-      var $dropdown = $(this);
-      $dropdown.find('option').each(function(index) {
-        if (index === 0) {
-          $(this).prop('selected', true);
-        } else {
-          $(this).prop('selected', false);
-        }
-      });
-    });
-  });
-
-  // Toggle Location
-  $('.add-location').on('click', function () {
-    setDivVisibility($('.add-location'), $('.location-input-div'));
-  });
-
-  // Toggle Description
-  $('.add-desciption').on('click', function () {
-    setDivVisibility($('.add-desciption'), $('.description-input-div'));
-  });
-
-  // Close Guests Input
-  $('.dismiss-guests-btn').on('click', () => {
-    setDivVisibility($('.guest-input-div'), $('.add-guests'));
-
-    $('.guest-div').each(function () {
-      $(this).show()
-    });
-
-    const guests = document.getElementById('guests');
-    for (var i = 0; i < guests.options.length; i++) {
-      guests.options[i].selected = false;
-    };
-
-  });
-
-  // Close Location Input
-  $('.dismiss-location-btn').on('click', () => {
-    setDivVisibility($('.location-input-div'), $('.add-location'));
-  });
-
-  // Close Description Input
-  $('.dismiss-description-btn').on('click', () => {
-    setDivVisibility($('.description-input-div'), $('.add-desciption'));
-  });
-</script>
-
-
-<script>
-  async function editActivity(activityId) {
-    $.ajax({
-        type: 'GET',
-        url: '/activities/detail/' + activityId,
-        dataType: 'json',
-        success: async(data) => {
-          
-          if (data) {
-            $('#activity-updation-form').prop('action', `/activities/update/${activityId}`);
-
-            if (data.activity) {
-              $(`#edit-toggle-${data.activity.toLowerCase()}-btn`).click();
-              $('#edit-activity-input').val(data.activity);
-            } else {
-              $('#edit-activity-input').val('');
-            };
-
-            if (data.guest_type) {
-              await populateGuest(data.guest_type);
-            };            
-
-            // Fetching Selected Guest Type
-            const editGuestTypeDropdown = document.getElementById('edit-guest-type-dropdown');           
-
-            for (let i = 0; i < editGuestTypeDropdown.options.length; i++) {
-              if (data.guest_type) {
-                if (editGuestTypeDropdown.options[i].value == data.guest_type) {
-                    editGuestTypeDropdown.options[i].selected = true;
-                } else {
-                    editGuestTypeDropdown.options[i].selected = false;
-                };
-              } else {
-                  editGuestTypeDropdown.options[i].selected = false;                
-              };
-            };
-            
-            // Fetching Selected Guest
-            const editGuestDropdown = document.getElementById('edit-guest-dropdown');
-
-            for (let i = 0; i < editGuestDropdown.options.length; i++) {
-              if (data.guest_id) {
-                if (editGuestDropdown.options[i].value == data.guest_id) {
-                    editGuestDropdown.options[i].selected = true;
-                } else {
-                    editGuestDropdown.options[i].selected = false;
-                };
-              } else {
-                  editGuestDropdown.options[0].selected = true;                
-              };
-            };
-
-            // Fetching Selected Guest(S)
-            const editGuestsDropdown = document.getElementById('edit-guests-dropdown');
-
-            for (let i = 0; i < editGuestsDropdown.options.length; i++) {
-              if (data.guests_id && Array.isArray(data.guests_id)) {
-                for (let j = 0; j < data.guests_id.length; j++) {
-                  if (editGuestsDropdown.options[i].value == data.guests_id[j]) {
-                      editGuestsDropdown.options[i].selected = true;
-                  };
-                };
-              } else {
-                editGuestsDropdown.options[i].selected = false;
-                };
-              };
-
-            if (data.guests) {
-              $('#edit-add-guests').click();
-            } else {
-              $('.dismiss-guest-btn').click();
-            };
-
-            if (data.purpose) {
-              $('#edit-add-description').click();
-            } else {
-              $('.dismiss-description-btn').click();
-            };
-            
-            if (data.location) {
-              $('#edit-add-location').click();
-            } else {
-              $('.dismiss-location-btn').click();
-            }
-            
-            if (data.host) {
-              $('#edit-host-input').val(data.host);            
-            } else {
-              $('#edit-host-input').val('');
-            };
-
-            if (data.title) {
-              $('#edit-title-input').val(data.title);            
-            } else {
-              $('#edit-title-input').val('');
-            };
-
-            if (data.purpose) {
-              $('#edit-purpose-input').val(data.purpose);            
-            } else {
-              $('#edit-purpose-input').val('');
-            };
-  
-            if (data.starting_date) {
-              $('#edit-starting-date-input').val(data.starting_date);
-            } else {
-              $('#edit-starting-date-input').val('');
-            };
-
-            if (data.starting_time) {
-              $('#edit-starting-time-input').val(data.starting_time);
-            } else {
-              $('#edit-starting-time-input').val('');
-            };
-  
-            if (data.ending_date) {
-              $('#edit-ending-date-input').val(data.ending_date);
-            } else {
-              $('#edit-ending-date-input').val('');
-            };
-
-            if (data.ending_time) {
-              $('#edit-ending-time-input').val(data.ending_time);
-            } else {
-              $('#edit-ending-time-input').val('');
-            };
-            
-            const editUserResponsibleDropdown = document.getElementById('edit-user-responsible-dropdown');
-            
-            for (let i = 0; i < editUserResponsibleDropdown.options.length; i++) {            
-              if (data.user_responsible_id) {
-                if (editUserResponsibleDropdown.options[i].value == data.user_responsible_id) {
-                    editUserResponsibleDropdown.options[i].selected = true;
-                } else {
-                    editUserResponsibleDropdown.options[i].selected = false;
-                };
-              } else {
-                editUserResponsibleDropdown.options[i].selected = false;
-              };              
-            };
-
-            if (data.notes) {
-              $('#edit-notes-input').val(data.notes);
-            } else {
-              $('#edit-notes-input').val('');
-            };
-
-            if (data.location) {
-              $('#edit-location-input').val(data.location);
-            } else {
-              $('#edit-location-input').val('');
-            };
-
-            if (data.additional_information) {
-              $('#edit-additional-info').val(data.additional_information);
-            } else {
-              $('#edit-additional-info').val('');
-            };
-          };
-        },
-        error: error => console.error('Error', error),
-    });
-  };
-</script>
 
 {% endblock scripts %}

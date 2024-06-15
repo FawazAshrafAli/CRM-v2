@@ -44,6 +44,9 @@ class Activity(models.Model):
     # due_date = models.DateField(null=True, blank=True)
     # Status = models.CharField(max_length=150, blank=True, null=True)     # open/completed/dismissed
 
+    closed = models.BooleanField(default=False)
+
+    organization_id = models.CharField(max_length=20, null=False, blank=False)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 

@@ -47,8 +47,57 @@ class BaseActivityView(CrmLoginRequiredMixin):
 
 class ActivityListView(BaseActivityView, ListView):
     model = Activity
-    queryset = Activity.objects.all()
     context_object_name = 'activities'
+
+    def get_queryset(self, **kwargs):
+        queryset = Activity.objects.filter(organization_id = self.request.user.organization_id)
+        return queryset
+    
+
+class ClosedActivityListView(BaseActivityView, ListView):
+    model = "Activity"
+    template_name = 'activities/activities.html'
+    context_object_name = 'activities'
+
+    def get_queryset(self, **kwargs):
+        try:
+            return get_list_or_404(Activity, organization_id = self.request.user.organization_id, closed = True)
+        except Http404:
+            pass
+
+
+class ClosedActivityListView(BaseActivityView, ListView):
+    model = "Activity"
+    template_name = 'activities/activities.html'
+    context_object_name = 'activities'
+
+    def get_queryset(self, **kwargs):
+        try:
+            return get_list_or_404(Activity, organization_id = self.request.user.organization_id, closed = True)
+        except Http404:
+            pass
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['closed'] = True
+        return context
+
+    
+class OpenedActivityListView(BaseActivityView, ListView):
+    model = "Activity"
+    template_name = 'activities/activities.html'
+    context_object_name = 'activities'
+
+    def get_queryset(self, **kwargs):
+        try:
+            return get_list_or_404(Activity, organization_id = self.request.user.organization_id, closed = False)
+        except Http404:
+            pass
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['opened'] = True
+        return context
 
 
 class CreateActivityView(BaseActivityView, CreateView):
@@ -65,6 +114,7 @@ class CreateActivityView(BaseActivityView, CreateView):
         host = request.POST.get("host")
         guest_type = request.POST.get("guest_type")
         user_responsible = request.POST.get("user_responsible")
+        organization_id = request.user.organization_id
 
         try:
             user_responsible = get_object_or_404(User, pk = user_responsible)
@@ -91,7 +141,8 @@ class CreateActivityView(BaseActivityView, CreateView):
             "notes": notes, 
             "guest_type": guest_type,
             "host": host, 
-            "user_responsible": user_responsible
+            "user_responsible": user_responsible,
+            "organization_id": organization_id
         })
 
         return data
@@ -183,7 +234,6 @@ class CreateActivityView(BaseActivityView, CreateView):
             messages.warning(request, "Cannot create activity without providing atleast a single guest.")
             return redirect(reverse_lazy('activities:list'))     
 
-        print(guests)
         return data, guests or None
     
     # For fetching data exclusive to meal activity from form.
@@ -192,9 +242,8 @@ class CreateActivityView(BaseActivityView, CreateView):
         data["additional_information"] = additional_information
         return data
 
-    # For 
+    # For populate many to many fields
     def set_many_to_many(self, activity_object, guest_type, *guests):
-        print("Entered the function")
         try:
             guest_count = len(*guests)
             guests_list = list(*guests)
@@ -383,10 +432,15 @@ class UpdateActivityView(BaseActivityView, UpdateView):
             "id", "activity", "starting_date", "starting_time", 
             "ending_date", "ending_time", "notes", "user_responsible", 
             "guest_type", "host", "contact_guest", "lead_guest", 
-            "deal_guest", "created", "updated"
+            "deal_guest", "created", "updated", "organization_id", "closed"
             ]
 
         data = CreateActivityView().manage_basic(request, data)
+
+        closed = request.POST.get('closed')
+        closed = True if closed == "checked" else False
+        
+        data["closed"] = closed
 
 
         if data['activity'] == "Call":
@@ -418,7 +472,6 @@ class UpdateActivityView(BaseActivityView, UpdateView):
                 for field in self.object._meta.fields:
                     field_name = field.name
                     field_value = getattr(self.object, field_name)
-                    print(f"{field_name}: {field_value}")
                     if field_value and field_name not in required_fields:
                         try:
                             data.pop(field_name)
@@ -437,13 +490,9 @@ class UpdateActivityView(BaseActivityView, UpdateView):
                 # The following code will update all the fields of activity whose data is available in dict data.
                 try:
                     for key, value in data.items():
-                        if value:                            
-                            setattr(self.object, key, value)                    
+                        setattr(self.object, key, value)                    
                 except Exception as e:
-                    print(e)
-
-                print(data)
-                print(guests)
+                    print(e)            
 
                 self.object.save()
                 messages.success(self.request, "Activity updation successfull.")
@@ -452,4 +501,25 @@ class UpdateActivityView(BaseActivityView, UpdateView):
         except Exception as e:
             print("Exception occurred:", e)
             traceback.print_exc()
-            # return redirect(self.error500)
+            return redirect(self.error500)
+        
+
+class DeleteActivityView(BaseActivityView, View):
+    model = Activity
+    success_url = reverse_lazy('activities:list')
+
+    def get_object(self, **kwargs):
+        try:
+            return get_object_or_404(Activity, pk = self.kwargs['pk'])
+        except Http404:
+            pass
+
+    def get(self, request, *args, **kwargs):
+        try:
+            self.object = self.get_object()
+            self.object.delete()
+            messages.success(request, "Activity deletion successfull.")
+            return redirect(self.success_url)
+        except Exception as e:
+            print(e)
+            return redirect(self.error500)

@@ -1,0 +1,30 @@
+<!-- Modal (Delete Activity) -->
+<div class="modal fade" id="delete-activity-modal" tabindex="-1" role="dialog" aria-modal="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                
+                <h4 class="modal-title text-center">Deleting Activity '<span id="deleting-activity-object"></span>'</h4>
+                <button type="button" class="btn-close xs-close" data-bs-dismiss="modal"></button>
+              </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <form method="GET" id="delete-activity-form">
+                            {% csrf_token %}
+                            <h4>Are you sure?</h4>						            	                    
+                            <div class="text-center py-3">
+                                <button type="submit" class="border-0 btn btn-primary btn-gradient-primary btn-rounded">Yes</button>&nbsp;&nbsp;
+                                <button type="button" class="btn btn-secondary btn-rounded" data-bs-dismiss="modal" aria-labe="Close">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+
+        </div><!-- modal-content -->
+    </div><!-- modal-dialog -->
+</div><!-- modal (Delete Activity) -->
