@@ -29,14 +29,13 @@
         <div class="row">
             <div class="col">
                 <div class="dropdown">
-                    <a class="dropdown-toggle recently-viewed" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="current-activity-view">{% if opened %} All Open Activity {% elif closed %} All Closed Activity {% else %} Propose Times {% endif %}</a>
+                    <a class="dropdown-toggle recently-viewed" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="current-activity-view">{% if opened %} All Open Activity {% elif closed %} All Closed Activity {% else %} All Activity {% endif %}</a>
                     <div class="dropdown-menu">
-                         <a class="dropdown-item" href="#">Recently Viewed</a>
-                        <a class="dropdown-item" href="#">Items I'm following</a>
-                        <a class="dropdown-item" href="#">All Activity</a>
+                        <a class="dropdown-item" href="#">Recently Viewed</a>
+                        <a class="dropdown-item" href="{% url 'activities:list' %}">All Activity</a>
                         <a class="dropdown-item" href="{% url 'activities:closed' %}">All Closed Activity</a>
                         <a class="dropdown-item" href="{% url 'activities:opened' %}">All Open Activity</a>
-                        <a class="dropdown-item" href="#">My Activity</a>
+                        <a class="dropdown-item" href="{% url 'activities:my_activity' %}">My Activity</a>
                     </div>
                 </div>
             </div>

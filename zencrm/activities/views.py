@@ -66,6 +66,18 @@ class ClosedActivityListView(BaseActivityView, ListView):
             pass
 
 
+class MyActivityListView(BaseActivityView, ListView):
+    model = "Activity"
+    template_name = 'activities/activities.html'
+    context_object_name = 'activities'
+
+    def get_queryset(self, **kwargs):
+        try:
+            return get_list_or_404(Activity, organization_id = self.request.user.organization_id, user_responsible = self.request.user)
+        except Http404:
+            pass        
+
+
 class ClosedActivityListView(BaseActivityView, ListView):
     model = "Activity"
     template_name = 'activities/activities.html'

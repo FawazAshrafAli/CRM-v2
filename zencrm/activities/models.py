@@ -163,3 +163,11 @@ class Activity(models.Model):
             return f"{self.activity} - {self.guests_team}"
         else:
             return self.activity
+        
+
+class RecentlyViewedActivity(models.Model):
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
