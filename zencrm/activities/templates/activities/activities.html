@@ -29,9 +29,9 @@
         <div class="row">
             <div class="col">
                 <div class="dropdown">
-                    <a class="dropdown-toggle recently-viewed" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="current-activity-view">{% if opened %} All Open Activity {% elif closed %} All Closed Activity {% else %} All Activity {% endif %}</a>
+                    <a class="dropdown-toggle recently-viewed" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="current-activity-view">{% if recently_viewed %} Recently Viewed {% elif opened %} All Open Activity {% elif closed %} All Closed Activity {% else %} All Activity {% endif %}</a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#">Recently Viewed</a>
+                        <a class="dropdown-item" href="{% url 'activities:recently_viewed' %}">Recently Viewed</a>
                         <a class="dropdown-item" href="{% url 'activities:list' %}">All Activity</a>
                         <a class="dropdown-item" href="{% url 'activities:closed' %}">All Closed Activity</a>
                         <a class="dropdown-item" href="{% url 'activities:opened' %}">All Open Activity</a>
@@ -86,16 +86,24 @@
                                             <input type="checkbox">
                                             <span class="checkmark"></span>
                                       </label>
-                                  </td>
-                                  <td><a href="#" data-bs-toggle="modal" data-bs-target="#activity-modal" data-activity-id="{{activity.pk}}" onclick="loadActivityDetails({{activity.pk}}); return false;">{{activity.activity}}</a></td>
+                                  </td>                    
+                                  <td><a href="#" data-bs-toggle="modal" data-bs-target="#activity-modal" data-activity-id="{{activity.pk}}" onclick="loadActivityDetails({{activity.pk}}); handleRecentlyViewedActivity({{activity.pk}}); return false;">{{activity.activity}}</a></td>
                                   <td style="max-width: 150px; text-overflow: ellipsis; overflow-x: hidden;">
                                     {% if activity.guest %}
-                                    <a href="#" data-bs-toggle="modal" data-bs-target="{{activity.target_modal}}" onclick="{{activity.js_function}}({{activity.guest.pk}});">
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="{{activity.target_modal}}" onclick="{{activity.js_function}}({{activity.guest.pk}});">                                                                        
                                     {{activity.guest.full_name}}
+                                    </a>
+                                    {% elif activity.activity.guest %}
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="{{activity.activity.target_modal}}" onclick="{{activity.activity.js_function}}({{activity.activity.guest.pk}});">                                                                        
+                                    {{activity.activity.guest.full_name}}
                                     </a>
                                     {% elif activity.guests_team %}
                                     <a href="#" data-bs-toggle="offcanvas" data-bs-target="#select-guest-modal-{{activity.pk}}" title="{% for guest in activity.guests %} {{guest.full_name}}, {% endfor %}">
                                     {{activity.guests_team}}
+                                    </a>
+                                    {% elif activity.activity.guests_team %}
+                                    <a href="#" data-bs-toggle="offcanvas" data-bs-target="#select-guest-modal-{{activity.activity.pk}}" title="{% for guest in activity.activity.guests %} {{guest.full_name}}, {% endfor %}">
+                                    {{activity.activity.guests_team}}
                                     </a>
                                       <!-- (Off Canvas) Select guest of multi-guest activity start -->
                                       <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="select-guest-modal-{{activity.pk}}" aria-labelledby="offcanvasWithBothOptionsLabel">
@@ -121,12 +129,16 @@
                                     None
                                     {% endif %}
                                 </td>
-                                  <td>{{activity.host}}</td>
+                                  <td>{% if activity.host %} {{activity.host}} {% elif activity.activity.host %} {{activity.activity.host}} {% endif %}</td>
                                   <td style="max-width: 150px; text-overflow: ellipsis; overflow-x: hidden;">
                                     {% if activity.guest %}
                                     {{activity.guest.email}}
+                                    {% elif activity.activity.guest %}
+                                    {{activity.activity.guest.email}}
                                     {% elif activity.guests_team_email %}
                                     {{ activity.guests_team_email }}, 
+                                    {% elif activity.activity.guests_team_email %}
+                                    {{ activity.activity.guests_team_email }}, 
                                     {% else %}
                                     None
                                     {% endif %}                                  
@@ -134,8 +146,12 @@
                                   <td>
                                     {% if activity.guest %}
                                     {{activity.guest.phone}}
+                                    {% elif activity.activity.guest %}
+                                    {{activity.activity.guest.phone}}
                                     {% elif activity.guests_team_phone %}
                                     {{ activity.guests_team_phone }}, 
+                                    {% elif activity.activity.guests_team_phone %}
+                                    {{ activity.activity.guests_team_phone }}, 
                                     {% else %}
                                     None
                                     {% endif %}                                       
@@ -145,8 +161,13 @@
                                       <div class="dropdown dropdown-action">
                                           <a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="material-icons">more_vert</i></a>
                                           <div class="dropdown-menu dropdown-menu-right">
-                                              <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edit-activity-modal" data-activity-id="activity.pk" onclick="editActivity({{activity.pk}}); return false">Edit This Activity</a>
-                                              <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#delete-activity-modal" data-activity-id="activity.pk" onclick="deleteActivity({{activity.pk}}); return false">Delete This Activity</a>                                             
+                                            {% if activity.activity.pk %}
+                                              <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edit-activity-modal" data-activity-id="{{activity.activity.pk}}" onclick="editActivity({{activity.activity.pk}}); return false">Edit This Activity</a>
+                                              <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#delete-activity-modal" data-activity-id="{{activity.activity.pk}}" onclick="deleteActivity({{activity.activity.pk}}); return false">Delete This Activity</a>
+                                            {% else %}
+                                              <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edit-activity-modal" data-activity-id="{{activity.pk}}" onclick="editActivity({{activity.pk}}); return false">Edit This Activity</a>
+                                              <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#delete-activity-modal" data-activity-id="{{activity.pk}}" onclick="deleteActivity({{activity.pk}}); return false">Delete This Activity</a>
+                                            {% endif %}
                                           </div>
                                       </div>
                                   </td>
@@ -3405,5 +3426,8 @@
 
 <!-- Activity type toggling and visibility -->
 <script src="{% static 'js/activites/activityTypeToggling.js' %}"></script>
+
+<!-- Create or Update Recently Viewed Activity -->
+<script src="{% static 'js/activites/handleRecentlyViewedActivity.js' %}"></script>
 
 {% endblock scripts %}

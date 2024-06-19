@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     
     # neccessary apps,
     'corsheaders',
+    'channels',
+
     # 'csp',
     'crispy_forms',
     "crispy_bootstrap5",
@@ -60,6 +62,7 @@ INSTALLED_APPS = [
     'capture_form',
     'landing',
     'crm_admin',
+    'message',
 ]
 
 MIDDLEWARE = [
@@ -202,3 +205,15 @@ EMAIL_PORT = 587  # You can also try using port 465 with SSL/TLS
 EMAIL_USE_TLS = True  # Use TLS (True/False)
 EMAIL_HOST_USER = 'w3digitalpmna@gmail.com'  # Replace with your email
 EMAIL_HOST_PASSWORD = 'kznq nfik tmpc fqlj'  # Replace with your email password
+
+
+ASGI_APPLICATION = 'messaging_project.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}

@@ -34,4 +34,5 @@ urlpatterns = [
     path('form/', include('capture_form.urls', namespace="capture_form")),   # form capture
     path('landing/', include('landing.urls', namespace="landing")),   # landing page
     path('crm_admin/', include('crm_admin.urls', namespace="crm_admin")),   # Admin App
+    path('messages/', include('message.urls', namespace="messages")),   # Message App
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])

@@ -9,9 +9,10 @@ from django.urls import reverse_lazy
 import datetime
 from datetime import datetime as dt
 import traceback
+from django.views.decorators.csrf import csrf_exempt
 
 from crm_admin.models import Customer
-from .models import Activity
+from .models import Activity, RecentlyViewedActivity
 from authentication.models import User
 from contacts.models import Contact
 from leads.models import Lead
@@ -46,48 +47,37 @@ class BaseActivityView(CrmLoginRequiredMixin):
 
 
 class ActivityListView(BaseActivityView, ListView):
-    model = Activity
     context_object_name = 'activities'
 
     def get_queryset(self, **kwargs):
-        queryset = Activity.objects.filter(organization_id = self.request.user.organization_id)
-        return queryset
+        return Activity.objects.filter(organization_id = self.request.user.organization_id)
     
 
-class ClosedActivityListView(BaseActivityView, ListView):
-    model = "Activity"
-    template_name = 'activities/activities.html'
+class RecentlyViewedActivityListView(BaseActivityView, ListView):
     context_object_name = 'activities'
 
     def get_queryset(self, **kwargs):
-        try:
-            return get_list_or_404(Activity, organization_id = self.request.user.organization_id, closed = True)
-        except Http404:
-            pass
+        return RecentlyViewedActivity.objects.filter(activity__organization_id = self.request.user.organization_id, user = self.request.user).order_by('-updated')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['recently_viewed'] = True
+        return context
 
 
-class MyActivityListView(BaseActivityView, ListView):
-    model = "Activity"
-    template_name = 'activities/activities.html'
+class MyActivityListView(BaseActivityView, ListView):        
     context_object_name = 'activities'
 
     def get_queryset(self, **kwargs):
-        try:
-            return get_list_or_404(Activity, organization_id = self.request.user.organization_id, user_responsible = self.request.user)
-        except Http404:
-            pass        
+        return Activity.objects.filter(organization_id = self.request.user.organization_id, user_responsible = self.request.user)
 
 
-class ClosedActivityListView(BaseActivityView, ListView):
-    model = "Activity"
-    template_name = 'activities/activities.html'
+class ClosedActivityListView(BaseActivityView, ListView):        
     context_object_name = 'activities'
 
     def get_queryset(self, **kwargs):
-        try:
-            return get_list_or_404(Activity, organization_id = self.request.user.organization_id, closed = True)
-        except Http404:
-            pass
+        return Activity.objects.filter(organization_id = self.request.user.organization_id, closed = True)
+            
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -95,16 +85,11 @@ class ClosedActivityListView(BaseActivityView, ListView):
         return context
 
     
-class OpenedActivityListView(BaseActivityView, ListView):
-    model = "Activity"
-    template_name = 'activities/activities.html'
+class OpenedActivityListView(BaseActivityView, ListView):        
     context_object_name = 'activities'
 
     def get_queryset(self, **kwargs):
-        try:
-            return get_list_or_404(Activity, organization_id = self.request.user.organization_id, closed = False)
-        except Http404:
-            pass
+        return Activity.objects.filter(organization_id = self.request.user.organization_id, closed = False)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -350,6 +335,32 @@ class CreateActivityView(BaseActivityView, CreateView):
                 print(f"Error on field {field}: {error}")
         return redirect(self.error500)
     
+
+@method_decorator(csrf_exempt, name="dispatch")
+class CreateRecentlyViewedActivityVeiw(BaseActivityView, CreateView):
+
+    def post(self, request, *args, **kwargs):
+        activity_id = request.POST.get('activity_id')
+        try:
+            activity = get_object_or_404(Activity, pk = activity_id)
+        except Http404:
+            activity = None
+
+        if activity:
+            defaults = {
+                "activity": activity,
+                "user": request.user
+            }
+            kwargs = {
+                "activity": activity,
+                "user": request.user
+            }
+            RecentlyViewedActivity.objects.update_or_create(defaults, **kwargs)
+            return JsonResponse({"message":"Success"})
+        
+
+        
+
 
 class FetchGuestView(BaseActivityView, View):
     model = Activity

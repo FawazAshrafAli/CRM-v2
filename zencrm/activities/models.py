@@ -157,12 +157,7 @@ class Activity(models.Model):
         return ""
 
     def __str__(self):
-        if self.guest:
-            return f"{self.activity} - {self.guest}"
-        elif self.guests_team:
-            return f"{self.activity} - {self.guests_team}"
-        else:
-            return self.activity
+        return self.activity
         
 
 class RecentlyViewedActivity(models.Model):
@@ -171,3 +166,7 @@ class RecentlyViewedActivity(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+
+    def __str__(self):
+        return self.activity.activity
