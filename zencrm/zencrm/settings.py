@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    # Daphne
+    'daphne',
+
     'django.contrib.staticfiles',
     
     # neccessary apps,
@@ -207,13 +210,10 @@ EMAIL_HOST_USER = 'w3digitalpmna@gmail.com'  # Replace with your email
 EMAIL_HOST_PASSWORD = 'kznq nfik tmpc fqlj'  # Replace with your email password
 
 
-ASGI_APPLICATION = 'messaging_project.asgi.application'
+ASGI_APPLICATION = 'zencrm.asgi.application'
 
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
-    },
+        'BACKEND': "channels.layers.InMemoryChannelLayer"
+    }
 }

@@ -36,8 +36,8 @@
                         <img class="border border-secondary bg-light rounded-circle" src="https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg" alt="" height="65px" width="65px">
                     </div>
                     <div class="col-9">
-                        <h6><b>Design Team</b></h6>
-                        <p><small>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Vitae distinctio eveniet, quos fugiat officiis omnis sint delectus provident, totam, libero quas! Officiis, necessitatibus eum. Explicabo modi ducimus magni expedita veritatis.</small></p>
+                        <h6><b>{% if text_messages.last.sender != request.user %} {{text_messages.last.sender}} {% else %} {{text_messages.last.receiver}} {% endif %}</b></h6>
+                        <p><small>{% if text_messages.last.sender != request.user %} {{text_messages.last.sender}} {% else %} You {% endif %}: {{text_messages.last.content}}</small></p>
                     </div>
                 </div>
             </div>
@@ -45,50 +45,45 @@
                 <div class="d-flex align-items-center border-bottom border-dark  p-1 mb-2">
                     <h4 class="p-0 m-0">Design Team</h4>
                 </div>
-                <div class="mb-2 w-75">
+                {% for message in text_messages %}
+                
+                {% if message.sender != request.user %}                
+                <div class="mb-2 ms-2" style="width:fit-content">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="p-1 mx-1 mb-1 d-flex justify-content-start align-items-center">                    
                             <img class="border border-dark rounded-circle me-2" src="https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg" alt="" height="25px" width="25px">
-                            <h6 class="p-0 m-0">Design Team</h6>                    
+                            <h6 class="p-0 m-0">{{message.sender}}</h6>                    
                         </div>
                         <div>
-                            <span class="text-secondary"><small>5:36 PM</small></span>
+                            <span class="text-secondary"><small>{{message.timestamp}}</small></span>
                         </div>
                     </div>
                     <div class="rounded-3 text-light shadow px-1" style="background: linear-gradient(to right, #da8cff, #9a55ff);">
-                        <p class="p-0 m-0"><small>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Odio, repellat iusto dicta animi ducimus eveniet.</small></p>
+                        <p class="p-2 m-0"><small>{{message.content}}</small></p>
                     </div>
                 </div>
-                <div class="d-flex flex-column align-items-end">
+                {% else %}
+                <div class="d-flex flex-column align-items-end me-2">
                     <div class="d-flex justify-content-end w-75">
-                        <span class="text-secondary"><small>6:01 PM</small></span>
+                        <span class="text-secondary"><small>{{message.timestamp}}</small></span>
                     </div>
-                    <div class="rounded-3 text-light shadow px-1 mb-2 bg-secondary w-75">
-                        <p class="p-0 m-0"><small>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Odio, repellat iusto dicta animi ducimus eveniet.</small></p>
-                    </div>
-                </div>
-
-                <div class="mb-2 w-75">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="p-1 mx-1 mb-1 d-flex justify-content-start align-items-center">                    
-                            <img class="border border-dark rounded-circle me-2" src="https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg" alt="" height="25px" width="25px">
-                            <h6 class="p-0 m-0">Design Team</h6>                    
-                        </div>
-                        <div>
-                            <span class="text-secondary"><small>6:42 PM</small></span>
-                        </div>
-                    </div>
-                    <div class="rounded-3 text-light shadow px-1" style="background: linear-gradient(to right, #da8cff, #9a55ff);">
-                        <p class="p-0 m-0"><small>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Odio, repellat iusto dicta animi ducimus eveniet.</small></p>
+                    <div class="rounded-3 text-light shadow px-1 mb-2 bg-secondary" style="width:fit-content">
+                        <p class="p-2 m-0"><small>{{message.content}}</small></p>
                     </div>
                 </div>
-                <div class="d-flex flex-column align-items-end">
-                    <div class="d-flex justify-content-end w-75">
-                        <span class="text-secondary"><small>7:13 PM</small></span>
-                    </div>
-                    <div class="rounded-3 text-light shadow px-1 mb-2 bg-secondary w-75">
-                        <p class="p-0 m-0"><small>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Odio, repellat iusto dicta animi ducimus eveniet.</small></p>
-                    </div>
+                {% endif %}
+                <div id="chat-box"></div>
+                {% endfor %}
+                
+                <br>
+                <div class="p-2 bg-dark">
+                    <form>
+                        {% csrf_token %}
+                        <div class="form-group d-flex align-items-center">
+                            <input class="form-control" type="text" name="content" id="text-message" placeholder="Message">
+                            <button type="button" id="send-message-btn" class="btn btn-primary text-light ms-2">Send</button>
+                        </div>
+                    </form>
                 </div>
 
             </div>
@@ -98,3 +93,75 @@
 </div>
 <!-- /Page Content -->
 {% endblock page_content %}
+
+{% block scripts %}
+<script>    
+    // setup chat scoket
+    const chatSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/chat/public_room/'
+    );
+
+    // on socket open
+    chatSocket.onopen = function (e) {
+        console.log('Chat socket successfully connected.');
+    };
+
+    // on socket close
+    chatSocket.onclose = function (e) {
+        console.log('Chat socket closed unexpectedly');
+    };
+
+    // on receiving message on group
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        const message = data.message;
+        
+        setMessage(message);
+    };
+
+    // sending the text message to server
+    document.querySelector('#send-message-btn').onclick = function(e) {            
+            const messageInputDom = document.querySelector('#text-message');
+            const message = messageInputDom.value;
+
+            chatSocket.send(JSON.stringify({
+                'receiver': 'Anonymous',
+                'message': message,
+            }));
+            
+            messageInputDom.value = '';
+    };
+
+    // helper func setting message
+    function setMessage(message){
+        // var div = document.createElement('div');
+        // div.className = 'alert alert-success alert-dismissible fade show';
+        // div.setAttribute('role', 'alert');
+
+        var textMessage = `<div class="d-flex flex-column align-items-end me-2">
+                            <div class="d-flex justify-content-end w-75">
+                                <span class="text-secondary"><small>{{message.timestamp}}</small></span>
+                            </div>
+                            <div class="rounded-3 text-light shadow px-1 mb-2 bg-secondary" style="width:fit-content">
+                                <p class="p-2 m-0"><small>` + message + `</small></p>
+                            </div>
+                            </div>`
+
+        // var message = document.createTextNode(message);
+        // div.appendChild(textMessage);
+         
+        // var closeButton = document.createElement('button');
+        // closeButton.type = 'button';
+        // closeButton.className = 'btn-close';
+        // closeButton.setAttribute('data-bs-dismiss', 'alert');
+        // closeButton.setAttribute('aria-label', 'Close');
+        // div.appendChild(closeButton);
+
+        var container = document.getElementById('chat-box');  
+        $('#chat-box').append(textMessage);
+    }
+
+</script>
+{% endblock scripts %}
