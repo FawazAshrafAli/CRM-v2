@@ -29,15 +29,68 @@
             <div class="col-lg-4">
                 <div class="d-flex justify-content-between align-items-center p-1 mb-2" style="background: linear-gradient(to right, #da8cff, #9a55ff);">
                     <h4 class="p-0 m-0 text-light"><b>All Conversations</b></h4>
-                    <button type="button" class="btn btn-sm btn-dark text-warning">New Message</button>
+                    <button type="button" class="btn btn-sm btn-dark text-warning" data-bs-toggle="modal" data-bs-target="#modalId">New Message</button>
+                    
+                    <!-- Modal Body -->
+                    <!-- if you want to close by clicking outside the modal, delete the last endpoint:data-bs-backdrop and data-bs-keyboard -->
+                    <div
+                        class="modal fade"
+                        id="modalId"
+                        tabindex="-1"
+                        data-bs-backdrop="static"
+                        data-bs-keyboard="false"
+                        
+                        role="dialog"
+                        aria-labelledby="modalTitleId"
+                        aria-hidden="true"
+                    >
+                        <div
+                            class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm"
+                            role="document"
+                        >
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalTitleId">
+                                        Modal title
+                                    </h5>
+                                    <button
+                                        type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                        aria-label="Close"
+                                    ></button>
+                                </div>
+                                <div class="modal-body">Body</div>
+                                <div class="modal-footer">
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal"
+                                    >
+                                        Close
+                                    </button>
+                                    <button type="button" class="btn btn-primary">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Optional: Place to the bottom of scripts -->
+                    <script>
+                        const myModal = new bootstrap.Modal(
+                            document.getElementById("modalId"),
+                            options,
+                        );
+                    </script>
+                    
                 </div>
                 <div class="row bg-white p-1 mx-1 shadow" style="height: 75px; overflow-y: hidden; text-overflow: ellipsis;">
                     <div class="col-3">
                         <img class="border border-secondary bg-light rounded-circle" src="https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg" alt="" height="65px" width="65px">
                     </div>
                     <div class="col-9">
-                        <h6><b>{% if text_messages.last.sender != request.user %} {{text_messages.last.sender}} {% else %} {{text_messages.last.receiver}} {% endif %}</b></h6>
-                        <p><small>{% if text_messages.last.sender != request.user %} {{text_messages.last.sender}} {% else %} You {% endif %}: {{text_messages.last.content}}</small></p>
+                        <h6><b id="message-tile-heading">{% if text_messages.last.sender != request.user %} {{text_messages.last.sender}} {% else %} {{text_messages.last.receiver}} {% endif %}</b></h6>
+                        <p><small id="message-tile-message">{% if text_messages.last.sender != request.user %} {{text_messages.last.sender}} {% else %} You {% endif %}: {{text_messages.last.content}}</small></p>
                     </div>
                 </div>
             </div>
@@ -45,7 +98,7 @@
                 <div class="d-flex align-items-center border-bottom border-dark  p-1 mb-2">
                     <h4 class="p-0 m-0">Design Team</h4>
                 </div>
-                {% for message in text_messages %}
+                {% comment %} {% for message in text_messages %}
                 
                 {% if message.sender != request.user %}                
                 <div class="mb-2 ms-2" style="width:fit-content">
@@ -72,16 +125,16 @@
                     </div>
                 </div>
                 {% endif %}
-                <div id="chat-box"></div>
-                {% endfor %}
+                {% endfor %} {% endcomment %}
+                <div id="chat-box" style="max-height: 360px; overflow-y: auto;"></div>
                 
                 <br>
                 <div class="p-2 bg-dark">
                     <form>
                         {% csrf_token %}
                         <div class="form-group d-flex align-items-center">
-                            <input class="form-control" type="text" name="content" id="text-message" placeholder="Message">
-                            <button type="button" id="send-message-btn" class="btn btn-primary text-light ms-2">Send</button>
+                            <input class="form-control" type="text" name="message" id="chat-input" placeholder="Message">
+                            <button type="button" class="btn btn-primary text-light ms-2" onclick="sendMessage();">Send</button>
                         </div>
                     </form>
                 </div>
@@ -96,11 +149,10 @@
 
 {% block scripts %}
 <script>    
-    // setup chat scoket
+    const sender = 15;
+    const receiver = 16;
     const chatSocket = new WebSocket(
-        'ws://'
-        + window.location.host
-        + '/ws/chat/public_room/'
+        'ws://' + window.location.host + '/ws/chat/' + sender + '/' + receiver + '/'
     );
 
     // on socket open
@@ -113,55 +165,79 @@
         console.log('Chat socket closed unexpectedly');
     };
 
-    // on receiving message on group
+    var currentUserUsername = "{{ request.user.username }}"
+    var currentUserId = "{{ request.user.pk }}"
+
     chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
-        const message = data.message;
-        
-        setMessage(message);
+        if (data.type === 'initial_messages') {
+            $('#message-tile-heading').html(data.messages.at(-1).sender);
+            $('#message-tile-message').html(data.messages.at(-1).message);
+            data.messages.forEach(message => {
+                // document.getElementById('chat-box').innerHTML += `<div>${message.sender}: ${message.message}</div>`;
+                if (message.sender != currentUserUsername) {
+                    document.getElementById('chat-box').innerHTML += `<div class="mb-2 ms-2" style="width:fit-content">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="p-1 mx-1 mb-1 d-flex justify-content-start align-items-center">                    
+                            <img class="border border-dark rounded-circle me-2" src="https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg" alt="" height="25px" width="25px">
+                            <h6 class="p-0 m-0">${message.sender}</h6>                    
+                        </div>
+                        <div>
+                            <span class="text-secondary"><small>${message.timestamp}</small></span>
+                        </div>
+                    </div>
+                    <div class="rounded-3 text-light shadow px-1" style="background: linear-gradient(to right, #da8cff, #9a55ff);">
+                        <p class="p-2 m-0"><small>${message.message}</small></p>
+                    </div>
+                </div>`;
+                } else {
+                    document.getElementById('chat-box').innerHTML += `<div class="d-flex flex-column align-items-end me-2">
+                    <div class="d-flex justify-content-end w-75">
+                        <span class="text-secondary"><small>${message.timestamp}</small></span>
+                    </div>
+                    <div class="rounded-3 text-light shadow px-1 mb-2 bg-secondary" style="width:fit-content">
+                        <p class="p-2 m-0"><small>${message.message}</small></p>
+                    </div>
+                </div>`; 
+                }
+            });
+        } else if (data.type === 'chat_message') {
+            // document.getElementById('chat-box').innerHTML += `<div>${data.sender}: ${data.message}</div>`;
+            if (data.sender != currentUserId) {
+                document.getElementById('chat-box').innerHTML += `<div class="mb-2 ms-2" style="width:fit-content">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="p-1 mx-1 mb-1 d-flex justify-content-start align-items-center">                    
+                        <img class="border border-dark rounded-circle me-2" src="https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg" alt="" height="25px" width="25px">
+                        <h6 class="p-0 m-0">${data.sender}</h6>                    
+                    </div>
+                    <div>
+                        <span class="text-secondary"><small>${data.timestamp}</small></span>
+                    </div>
+                </div>
+                <div class="rounded-3 text-light shadow px-1" style="background: linear-gradient(to right, #da8cff, #9a55ff);">
+                    <p class="p-2 m-0"><small>${data.message}</small></p>
+                </div>
+            </div>`;
+            } else {
+                document.getElementById('chat-box').innerHTML += `<div class="d-flex flex-column align-items-end me-2">
+                <div class="d-flex justify-content-end w-75">
+                    <span class="text-secondary"><small>${message.timestamp}</small></span>
+                </div>
+                <div class="rounded-3 text-light shadow px-1 mb-2 bg-secondary" style="width:fit-content">
+                    <p class="p-2 m-0"><small>${message.content}</small></p>
+                </div>
+            </div>`; 
+            }
+        }
     };
 
-    // sending the text message to server
-    document.querySelector('#send-message-btn').onclick = function(e) {            
-            const messageInputDom = document.querySelector('#text-message');
-            const message = messageInputDom.value;
-
-            chatSocket.send(JSON.stringify({
-                'receiver': 'Anonymous',
-                'message': message,
-            }));
-            
-            messageInputDom.value = '';
-    };
-
-    // helper func setting message
-    function setMessage(message){
-        // var div = document.createElement('div');
-        // div.className = 'alert alert-success alert-dismissible fade show';
-        // div.setAttribute('role', 'alert');
-
-        var textMessage = `<div class="d-flex flex-column align-items-end me-2">
-                            <div class="d-flex justify-content-end w-75">
-                                <span class="text-secondary"><small>{{message.timestamp}}</small></span>
-                            </div>
-                            <div class="rounded-3 text-light shadow px-1 mb-2 bg-secondary" style="width:fit-content">
-                                <p class="p-2 m-0"><small>` + message + `</small></p>
-                            </div>
-                            </div>`
-
-        // var message = document.createTextNode(message);
-        // div.appendChild(textMessage);
-         
-        // var closeButton = document.createElement('button');
-        // closeButton.type = 'button';
-        // closeButton.className = 'btn-close';
-        // closeButton.setAttribute('data-bs-dismiss', 'alert');
-        // closeButton.setAttribute('aria-label', 'Close');
-        // div.appendChild(closeButton);
-
-        var container = document.getElementById('chat-box');  
-        $('#chat-box').append(textMessage);
+    function sendMessage() {
+        const messageInputDom = document.getElementById('chat-input');
+        const message = messageInputDom.value;
+        chatSocket.send(JSON.stringify({
+            'message': message
+        }));
+        messageInputDom.value = '';
     }
-
 </script>
 {% endblock scripts %}
