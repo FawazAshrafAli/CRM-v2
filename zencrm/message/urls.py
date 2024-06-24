@@ -1,10 +1,11 @@
 from django.urls import path
-from .views import MessageListView, index
+from .views import MessageListView, CreateConversationView, ConversationDetailView
 
 app_name = "messages"
 
 urlpatterns = [
     path('', MessageListView.as_view(), name="list"),
-    path('index/', index, name="index"),
+    path('create/', CreateConversationView.as_view(), name="create"),
+    path('chat/<int:pk>', ConversationDetailView.as_view(), name="chat")
 
 ]
