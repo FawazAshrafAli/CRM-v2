@@ -8,6 +8,9 @@ class UserOtp(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        db_table = 'user_otp'
+
 
 class CrmUserFamilyInformation(models.Model):
     crm_user_id = models.CharField(max_length=50)
@@ -15,6 +18,9 @@ class CrmUserFamilyInformation(models.Model):
     relationship = models.CharField(max_length=150)
     date_of_birth = models.CharField(max_length=50)
     phone = models.CharField(max_length=50)
+
+    class Meta:
+        db_table = 'user_family_information'
 
     def __str__(self):
         return self.name
@@ -28,6 +34,9 @@ class CrmUserEducation(models.Model):
     completed_year = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
+        db_table = 'user_education'
+
+    class Meta:
         ordering = ['started_year']
 
 class CrmUserExperience(models.Model):
@@ -36,6 +45,9 @@ class CrmUserExperience(models.Model):
     company = models.CharField(max_length=150)
     started_month_and_year = models.CharField(max_length=50)
     completed_month_and_year = models.CharField(max_length=50, blank=True, null=True)
+
+    class Meta:
+        db_table = 'user_experience_information'
 
 class User(AbstractUser):
     image = models.ImageField(upload_to="crm_user_images/", blank=True, null=True)
@@ -90,6 +102,9 @@ class User(AbstractUser):
     organization_id = models.CharField(max_length=10)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'user'
 
     @property
     def full_name(self):

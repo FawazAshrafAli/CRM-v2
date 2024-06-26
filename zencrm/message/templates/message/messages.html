@@ -61,10 +61,10 @@
             <div class="col-lg-4">
                 <div class="d-flex justify-content-between align-items-center p-1 mb-2" id="all-conversation-header">
                     <h4 class="p-0 m-0 text-light"><b>All Conversations</b></h4>
-                    <button type="button" class="btn btn-sm btn-dark text-warning" data-bs-toggle="modal" data-bs-target="#exampleModal">New Message<i class="fa fa-pencil ps-1"></i></button>
+                    <button type="button" class="btn btn-sm btn-dark text-warning" data-bs-toggle="modal" data-bs-target="#create-conversation-modal">New Message<i class="fa fa-pencil ps-1"></i></button>
                     
                     <!-- Create Conversation Modal Start -->
-                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal fade" id="create-conversation-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                         <div class="modal-header">
@@ -72,7 +72,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form id="start-conversation-form">                                
+                            <form action="#" id="start-conversation-form">                                
                                 <select class="form-control" name="participants" id="recipient-dropdown" multiple required>
                                     {% for user in users %}
                                     <option value="{{ user.id }}">{{ user.username }}</option>
@@ -80,7 +80,7 @@
                                 </select>
                                 
                                 <div class="modal-footer text-center">
-                                    <button type="submit" class="btn btn-primary" id="start-conversation-btn" disabled>Start Conversation</button>
+                                    <button class="btn btn-primary" id="start-conversation-btn" data-bs-dismiss="modal" aria-label="Close" disabled>Start Conversation</button>
                                 </div>
 
                                 
@@ -90,22 +90,23 @@
                     </div>
                     </div>
                     <!-- Create Conversation Modal End -->
-
                 </div>
 
-                {% for conversation in conversations %}
-                <a href="#" class="" id="conversation-tile-link" onclick="(e) => e.preventDefault; startWebsocket({{conversation.pk}}); setActiveConversation({{conversation.pk}});">
-                    <div class="row p-1 mx-1 shadow mb-2 conversation-tile" id="conversation-tile-{{conversation.pk}}" style="height: 75px; overflow-y: hidden; text-overflow: ellipsis;">
-                        <div class="col-3">
-                            <img class="border border-secondary rounded-circle" src="{% for participant in conversation.participants.all %} {% if participant != request.user %} {% if participant.image %} {{participant.image.url}} {% else %} https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg {% endif %} {% endif %} {% endfor %}" alt="Messaging User Image" height="65px" width="65px">
+                <div id="conversations">
+                    {% for conversation in conversations %}
+                    <a href="#" class="" id="conversation-tile-link" onclick="(e) => e.preventDefault; conversationWebsocket({{conversation.pk}}); setActiveConversation({{conversation.pk}});">
+                        <div class="row p-1 mx-1 shadow mb-2 conversation-tile" id="conversation-tile-{{conversation.pk}}" style="height: 75px; overflow-y: hidden; text-overflow: ellipsis;">
+                            <div class="col-3">
+                                <img class="border border-secondary rounded-circle" src="{% for participant in conversation.participants.all %} {% if participant != request.user %} {% if participant.image %} {{participant.image.url}} {% else %} https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg {% endif %} {% endif %} {% endfor %}" alt="Messaging User Image" height="65px" width="65px">
+                            </div>
+                            <div class="col-9">
+                                <h6><b>{% for participant in conversation.participants.all %} {% if participant != request.user %} {{participant}} {% endif %} {% endfor %}</b></h6>
+                                <p><small id="last-message-{{conversation.pk}}">{{conversation.last_message}}</small></p>
+                            </div>
                         </div>
-                        <div class="col-9">
-                            <h6><b>{% for participant in conversation.participants.all %} {% if participant != request.user %} {{participant}} {% endif %} {% endfor %}</b></h6>
-                            <p><small>{{conversation.last_message}}</small></p>
-                        </div>
-                    </div>
-                </a>
-                {% endfor %}
+                    </a>
+                    {% endfor %}
+                </div>
 
             </div>
             <div class="col-8 bg-white p-1 shadow" id="chat-section">
@@ -181,19 +182,20 @@
     const conversationTileLink = $('#conversation-tile-link');
     
 
-    $('#start-conversation-form').on('submit', () => {
-        let receiverValue = $('#recipient-dropdown').val();
-        localStorage.setItem('receiver', receiverValue);
-        startWebsocket();
+    $('#start-conversation-btn').on('click', () => {
+        let selectedReceiver = $('#recipient-dropdown').val();
+        localStorage.setItem('receiver', selectedReceiver);
+        conversationWebsocket();
     });
 
     
     // Conversation WebSocket Starting
-    function startWebsocket (conversationId = undefined) {
+    function conversationWebsocket (conversationId = undefined) {
         var conversationSocket = undefined;        
 
         if (conversationId) {
-            console.log("websocket on conversation")
+            console.log("Conversation Websocket Started")
+            localStorage.setItem('conversationId', conversationId)
             conversationSocket = new WebSocket(
                 `ws://${window.location.host}/ws/chat/${conversationId}/`
             );
@@ -222,8 +224,6 @@
                         localStorage.setItem('receiver', data.messages[0].receiver_id);
                         $('#chat-heading').html(data.messages[0].receiver_full_name);
                     };
-
-                    console.log(localStorage.getItem('receiver'))
 
                     $('#chat-section').show();
 
@@ -257,6 +257,7 @@
                                     </div>`;
                         }
                         $('#chat-box').append(html)
+                        $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
                     });
                 };
             };
@@ -270,9 +271,6 @@
 
     var receiver = localStorage.getItem('receiver');
     const sender = "{{request.user.pk}}";
-
-    console.log(receiver)
-    console.log(sender)
 
     chatSocket = new WebSocket(
         'ws://' + window.location.host + '/ws/chat/' + sender + '/' + receiver + '/'
@@ -294,104 +292,149 @@
     chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
         
-        if (data.type === 'initial_messages') {
-            if (data.messages[0].sender != "{{request.user.username}}") {
-                $('#chat-heading').html(data.messages[0].sender_full_name);
+        if (data.type === 'chat_message') {
+
+            if (data.sender != "{{request.user.username}}") {
+                $('#chat-heading').html(data.sender_full_name);
             } else {
-                $('#chat-heading').html(data.messages[0].receiver_full_name);
+                $('#chat-heading').html(data.receiver_full_name);
             };
 
+            $('#last-message-' + localStorage.getItem('conversationId')).html(data.message);
+
             $('#chat-section').show();
+            if (data.sender != "{{request.user.username}}") {
+                     html = `<div class="mb-2 ms-2" style="width:fit-content">
+                                 <div class="d-flex justify-content-between align-items-center">
+                                     <div class="p-1 mx-1 mb-1 d-flex justify-content-start align-items-center">                    
+                                         <img class="border border-dark rounded-circle me-2" src=${data.sender_image ? (data.sender_image) : 'https:static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg'} alt="" height="25px" width="25px">
+                                         <h6 class="p-0 m-0">${data.sender}</h6>                    
+                                     </div>
+                                     <div>
+                                         <span class="text-secondary"><small>${data.timestamp}</small></span>
+                                     </div>
+                                 </div>
+                                 <div class="rounded-3 text-light shadow px-1" style="background: linear-gradient(to right, #da8cff, #9a55ff);">
+                                     <p class="p-2 m-0"><small>${data.data}</small></p>
+                                 </div>
+                             </div>`;
+                 } else {
+                     html = `<div class="d-flex flex-column align-items-end me-2">
+                                 <div class="d-flex justify-content-end w-75">
+                                     <span class="text-secondary"><small>${data.timestamp}</small></span>
+                                 </div>
+                                 <div class="rounded-3 text-light shadow px-1 mb-2 bg-secondary" style="width:fit-content">
+                                     <p class="p-2 m-0"><small>${data.message}</small></p>
+                                 </div>
+                             </div>`;
+                 }
 
-            $('#chat-box').html('')
+                 $('#chat-box').append(html);
+                 $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
 
-            data.messages.forEach(message => {
 
-                if (message.sender != "{{request.user.username}}") {
-                    html = `<div class="mb-2 ms-2" style="width:fit-content">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="p-1 mx-1 mb-1 d-flex justify-content-start align-items-center">                    
-                                        <img class="border border-dark rounded-circle me-2" src=${message.sender_image ? (message.sender_image) : 'https:static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg'} alt="" height="25px" width="25px">
-                                        <h6 class="p-0 m-0">${message.sender}</h6>                    
-                                    </div>
-                                    <div>
-                                        <span class="text-secondary"><small>${message.timestamp}</small></span>
-                                    </div>
-                                </div>
-                                <div class="rounded-3 text-light shadow px-1" style="background: linear-gradient(to right, #da8cff, #9a55ff);">
-                                    <p class="p-2 m-0"><small>${message.message}</small></p>
-                                </div>
-                            </div>`;
-                } else {
-                    html = `<div class="d-flex flex-column align-items-end me-2">
-                                <div class="d-flex justify-content-end w-75">
-                                    <span class="text-secondary"><small>${message.timestamp}</small></span>
-                                </div>
-                                <div class="rounded-3 text-light shadow px-1 mb-2 bg-secondary" style="width:fit-content">
-                                    <p class="p-2 m-0"><small>${message.message}</small></p>
-                                </div>
-                            </div>`;
-                }
-                $('#chat-box').append(html)
-            });
 
-            $('#message-tile-heading').html(data.messages.at(-1).sender);
-            $('#message-tile-message').html(data.messages.at(-1).message);
-            data.messages.forEach(message => {
-                // document.getElementById('chat-box').innerHTML += `<div>${message.sender}: ${message.message}</div>`;
-                // if (message.sender != currentUserUsername) {
-                //     document.getElementById('chat-box').innerHTML += `<div class="mb-2 ms-2" style="width:fit-content">
-                //     <div class="d-flex justify-content-between align-items-center">
-                //         <div class="p-1 mx-1 mb-1 d-flex justify-content-start align-items-center">                    
-                //             <img class="border border-dark rounded-circle me-2" src="https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg" alt="" height="25px" width="25px">
-                //             <h6 class="p-0 m-0">${message.sender}</h6>                    
-                //         </div>
-                //         <div>
-                //             <span class="text-secondary"><small>${message.timestamp}</small></span>
-                //         </div>
-                //     </div>
-                //     <div class="rounded-3 text-light shadow px-1" style="background: linear-gradient(to right, #da8cff, #9a55ff);">
-                //         <p class="p-2 m-0"><small>${message.message}</small></p>
-                //     </div>
-                // </div>`;
-                // } else {
-                //     document.getElementById('chat-box').innerHTML += `<div class="d-flex flex-column align-items-end me-2">
-                //     <div class="d-flex justify-content-end w-75">
-                //         <span class="text-secondary"><small>${message.timestamp}</small></span>
-                //     </div>
-                //     <div class="rounded-3 text-light shadow px-1 mb-2 bg-secondary" style="width:fit-content">
-                //         <p class="p-2 m-0"><small>${message.message}</small></p>
-                //     </div>
-                // </div>`; 
-                // }
-            });
-        } else if (data.type === 'chat_message') {
-            // document.getElementById('chat-box').innerHTML += `<div>${data.sender}: ${data.message}</div>`;
-            // if (data.sender != currentUserId) {
-            //     document.getElementById('chat-box').innerHTML += `<div class="mb-2 ms-2" style="width:fit-content">
-            //     <div class="d-flex justify-content-between align-items-center">
-            //         <div class="p-1 mx-1 mb-1 d-flex justify-content-start align-items-center">                    
-            //             <img class="border border-dark rounded-circle me-2" src="https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg" alt="" height="25px" width="25px">
-            //             <h6 class="p-0 m-0">${data.sender}</h6>                    
-            //         </div>
-            //         <div>
-            //             <span class="text-secondary"><small>${data.timestamp}</small></span>
-            //         </div>
-            //     </div>
-            //     <div class="rounded-3 text-light shadow px-1" style="background: linear-gradient(to right, #da8cff, #9a55ff);">
-            //         <p class="p-2 m-0"><small>${data.message}</small></p>
-            //     </div>
-            // </div>`;
-            // } else {
-            //     document.getElementById('chat-box').innerHTML += `<div class="d-flex flex-column align-items-end me-2">
-            //     <div class="d-flex justify-content-end w-75">
-            //         <span class="text-secondary"><small>${message.timestamp}</small></span>
-            //     </div>
-            //     <div class="rounded-3 text-light shadow px-1 mb-2 bg-secondary" style="width:fit-content">
-            //         <p class="p-2 m-0"><small>${message.content}</small></p>
-            //     </div>
-            // </div>`; 
-            // }
+            // data.messages.forEach(message => {
+
+            //     if (message.sender != "{{request.user.username}}") {
+            //         html = `<div class="mb-2 ms-2" style="width:fit-content">
+            //                     <div class="d-flex justify-content-between align-items-center">
+            //                         <div class="p-1 mx-1 mb-1 d-flex justify-content-start align-items-center">                    
+            //                             <img class="border border-dark rounded-circle me-2" src=${message.sender_image ? (message.sender_image) : 'https:static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg'} alt="" height="25px" width="25px">
+            //                             <h6 class="p-0 m-0">${message.sender}</h6>                    
+            //                         </div>
+            //                         <div>
+            //                             <span class="text-secondary"><small>${message.timestamp}</small></span>
+            //                         </div>
+            //                     </div>
+            //                     <div class="rounded-3 text-light shadow px-1" style="background: linear-gradient(to right, #da8cff, #9a55ff);">
+            //                         <p class="p-2 m-0"><small>${message.message}</small></p>
+            //                     </div>
+            //                 </div>`;
+            //     } else {
+            //         html = `<div class="d-flex flex-column align-items-end me-2">
+            //                     <div class="d-flex justify-content-end w-75">
+            //                         <span class="text-secondary"><small>${message.timestamp}</small></span>
+            //                     </div>
+            //                     <div class="rounded-3 text-light shadow px-1 mb-2 bg-secondary" style="width:fit-content">
+            //                         <p class="p-2 m-0"><small>${message.message}</small></p>
+            //                     </div>
+            //                 </div>`;
+            //     }
+            //     $('#chat-box').append(html)
+            // });
+            
+            // data.messages.forEach(message => {
+            //     // document.getElementById('chat-box').innerHTML += `<div>${message.sender}: ${message.message}</div>`;
+            //     // if (message.sender != currentUserUsername) {
+            //     //     document.getElementById('chat-box').innerHTML += `<div class="mb-2 ms-2" style="width:fit-content">
+            //     //     <div class="d-flex justify-content-between align-items-center">
+            //     //         <div class="p-1 mx-1 mb-1 d-flex justify-content-start align-items-center">                    
+            //     //             <img class="border border-dark rounded-circle me-2" src="https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg" alt="" height="25px" width="25px">
+            //     //             <h6 class="p-0 m-0">${message.sender}</h6>                    
+            //     //         </div>
+            //     //         <div>
+            //     //             <span class="text-secondary"><small>${message.timestamp}</small></span>
+            //     //         </div>
+            //     //     </div>
+            //     //     <div class="rounded-3 text-light shadow px-1" style="background: linear-gradient(to right, #da8cff, #9a55ff);">
+            //     //         <p class="p-2 m-0"><small>${message.message}</small></p>
+            //     //     </div>
+            //     // </div>`;
+            //     // } else {
+            //     //     document.getElementById('chat-box').innerHTML += `<div class="d-flex flex-column align-items-end me-2">
+            //     //     <div class="d-flex justify-content-end w-75">
+            //     //         <span class="text-secondary"><small>${message.timestamp}</small></span>
+            //     //     </div>
+            //     //     <div class="rounded-3 text-light shadow px-1 mb-2 bg-secondary" style="width:fit-content">
+            //     //         <p class="p-2 m-0"><small>${message.message}</small></p>
+            //     //     </div>
+            //     // </div>`; 
+            //     // }
+            // });
+        }  else if (data.type === 'initial_data') {
+            $('#chat-box').show();
+            console.log("Executed");
+             $('#conversations').html('');            
+            let html = `<a href="#" class="" id="conversation-tile-link" onclick="(e) => e.preventDefault; conversationWebsocket({{conversation.pk}}); setActiveConversation({{conversation.pk}});">
+                        <div class="row p-1 mx-1 shadow mb-2 conversation-tile" id="conversation-tile-{{conversation.pk}}" style="height: 75px; overflow-y: hidden; text-overflow: ellipsis;">
+                            <div class="col-3">
+                                <img class="border border-secondary rounded-circle" src="{% for participant in conversation.participants.all %} {% if participant != request.user %} {% if participant.image %} {{participant.image.url}} {% else %} https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg {% endif %} {% endif %} {% endfor %}" alt="Messaging User Image" height="65px" width="65px">
+                            </div>
+                            <div class="col-9">
+                                <h6><b>{% for participant in conversation.participants.all %} {% if participant != request.user %} {{participant}} {% endif %} {% endfor %}</b></h6>
+                                <p><small id="last-message-{{conversation.pk}}">{{conversation.last_message}}</small></p>
+                            </div>
+                        </div>
+                    </a>`
+            $('#conversations').append(html);
+
+        //     // document.getElementById('chat-box').innerHTML += `<div>${data.sender}: ${data.message}</div>`;
+        //     // if (data.sender != currentUserId) {
+        //     //     document.getElementById('chat-box').innerHTML += `<div class="mb-2 ms-2" style="width:fit-content">
+        //     //     <div class="d-flex justify-content-between align-items-center">
+        //     //         <div class="p-1 mx-1 mb-1 d-flex justify-content-start align-items-center">                    
+        //     //             <img class="border border-dark rounded-circle me-2" src="https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg" alt="" height="25px" width="25px">
+        //     //             <h6 class="p-0 m-0">${data.sender}</h6>                    
+        //     //         </div>
+        //     //         <div>
+        //     //             <span class="text-secondary"><small>${data.timestamp}</small></span>
+        //     //         </div>
+        //     //     </div>
+        //     //     <div class="rounded-3 text-light shadow px-1" style="background: linear-gradient(to right, #da8cff, #9a55ff);">
+        //     //         <p class="p-2 m-0"><small>${data.message}</small></p>
+        //     //     </div>
+        //     // </div>`;
+        //     // } else {
+        //     //     document.getElementById('chat-box').innerHTML += `<div class="d-flex flex-column align-items-end me-2">
+        //     //     <div class="d-flex justify-content-end w-75">
+        //     //         <span class="text-secondary"><small>${message.timestamp}</small></span>
+        //     //     </div>
+        //     //     <div class="rounded-3 text-light shadow px-1 mb-2 bg-secondary" style="width:fit-content">
+        //     //         <p class="p-2 m-0"><small>${message.content}</small></p>
+        //     //     </div>
+        //     // </div>`; 
+        //     // }
         }
     };
 
