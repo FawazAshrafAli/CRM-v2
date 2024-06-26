@@ -33,19 +33,21 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    #django-channels
+    'channels',
+    # Daphne
+    'daphne',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    # Daphne
-    'daphne',
 
     'django.contrib.staticfiles',
     
     # neccessary apps,
     'corsheaders',
-    'channels',
 
     # 'csp',
     'crispy_forms',

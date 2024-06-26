@@ -30,7 +30,13 @@ class MessageListView(CrmLoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['users'] = User.objects.filter(organization_id = self.request.user.organization_id).exclude(id = self.request.user.id)
 
+        # for conversation in Conversation.objects.filter(participants = self.request.user):
+        #     if not Message.objects.filter(conversation = conversation):
+        #         conversation.delete()
+
         context['conversations'] = Conversation.objects.filter(participants = self.request.user)
+
+
 
         return context
 
