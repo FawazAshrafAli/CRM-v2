@@ -75,12 +75,12 @@
                             <form action="#" id="start-conversation-form">                                
                                 <select class="form-control" name="participants" id="recipient-dropdown" multiple required>
                                     {% for user in users %}
-                                    <option value="{{ user.id }}">{{ user.username }}</option>
+                                    <option value="{{ user.id }}">{{ user.full_name }}</option>
                                     {% endfor %}
                                 </select>
                                 
                                 <div class="modal-footer text-center">
-                                    <button class="btn btn-primary" id="start-conversation-btn" data-bs-dismiss="modal" aria-label="Close" disabled>Start Conversation</button>
+                                    <button type="button" class="btn btn-primary" id="start-conversation-btn" data-bs-dismiss="modal" aria-label="Close" disabled>Start Conversation</button>
                                 </div>
 
                                 
@@ -149,7 +149,7 @@
                         {% csrf_token %}
                         <div class="form-group d-flex align-items-center">
                             <input class="form-control" type="text" name="message" id="chat-input" placeholder="Message">
-                            <button type="button" class="btn btn-primary text-light ms-2" onclick="sendMessage();">Send</button>
+                            <button type="button" class="btn btn-primary text-light ms-2" id="send-message-btn">Send</button>
                         </div>
                     </form>
                 </div>
@@ -179,19 +179,10 @@
 <!-- Create Conversation Submit button function End -->
 
 <script>
-    window.onload = () => {
-        localStorage.setItem('receiver', undefined);
-    };
-
+    
     const conversationTileLink = $('#conversation-tile-link');
     
-
-    $('#start-conversation-btn').on('click', () => {
-        let selectedReceiver = $('#recipient-dropdown').val();
-        localStorage.setItem('receiver', selectedReceiver);
-        // startWebSocket();
-    });
-
+    
     
     // Conversation WebSocket Starting
     {% comment %} function conversationWebsocket (conversationId = undefined) {
@@ -371,108 +362,121 @@
 
     {% comment %} ###################################### {% endcomment %}
 
-    localStorage.setItem('sender', '{{request.user.pk}}')
-
     
     {% comment %} console.log("working") {% endcomment %}
     {% comment %} function startWebSocket() { {% endcomment %}
-    var receiver = localStorage.getItem('receiver');
-    const sender = localStorage.getItem('sender');
 
-    console.log(receiver);
-    
-    var chatSocket = undefined
+    document.addEventListener('DOMContentLoaded', (event) => {
+            
 
-    if (receiver != undefined) {
-        chatSocket = new WebSocket(
-            'ws://' + window.location.host + '/ws/chat/' + sender + '/' + receiver + '/'
-        );
-    };
+        function runScript() {     
+            let receiver = localStorage.getItem('receiver');
+            let sender = localStorage.getItem('sender');
 
-    // on socket open
-    chatSocket.onopen = function (e) {
-        console.log('Chat socket successfully connected.');
-    };
+            var chatSocket = new WebSocket(
+                'ws://' + window.location.host + '/ws/chat/' + sender + '/' + receiver + '/'
+            );        
 
-    // on socket close
-    chatSocket.onclose = function (e) {
-        console.log('Chat socket closed unexpectedly');
-    };
-
-    chatSocket.onmessage = function(e) {
-        console.log("Working");
-        const data = JSON.parse(e.data);
-        
-        if (data.type === 'chat_message') {
-
-            if (data.sender != "{{request.user.username}}") {
-                $('#chat-heading').html(data.sender_full_name);
-            } else {
-                $('#chat-heading').html(data.receiver_full_name);
+            // on socket open
+            chatSocket.onopen = function (e) {
+                console.log('Chat socket successfully connected.');
             };
 
-            let conversationId = localStorage.getItem('conversationId');
-            console.log(conversationId)
-            $('#last-message-' + conversationId).html(data.message);
+            // on socket close
+            chatSocket.onclose = function (e) {
+                console.log('Chat socket closed unexpectedly');
+            };
 
-            $('#chat-section').show();
-            if (data.sender != "{{request.user.username}}") {
-                    html = `<div class="mb-2 ms-2" style="width:fit-content">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="p-1 mx-1 mb-1 d-flex justify-content-start align-items-center">                    
-                                        <img class="border border-dark rounded-circle me-2" src=${data.sender_image ? (data.sender_image) : 'https:static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg'} alt="" height="25px" width="25px">
-                                        <h6 class="p-0 m-0">${data.sender}</h6>                    
-                                    </div>
-                                    <div>
-                                        <span class="text-secondary"><small>${data.timestamp}</small></span>
-                                    </div>
-                                </div>
-                                <div class="rounded-3 text-light shadow px-1" style="background: linear-gradient(to right, #da8cff, #9a55ff);">
-                                    <p class="p-2 m-0"><small>${data.data}</small></p>
-                                </div>
-                            </div>`;
-                } else {
-                    html = `<div class="d-flex flex-column align-items-end me-2">
-                                <div class="d-flex justify-content-end w-75">
-                                    <span class="text-secondary"><small>${data.timestamp}</small></span>
-                                </div>
-                                <div class="rounded-3 text-light shadow px-1 mb-2 bg-secondary" style="width:fit-content">
-                                    <p class="p-2 m-0"><small>${data.message}</small></p>
-                                </div>
-                            </div>`;
+            chatSocket.onmessage = function(e) {
+                console.log("Working");
+                const data = JSON.parse(e.data);
+
+                if (data.type === 'no_data') {
+                    console.log("No Data");
                 }
+                
+                if (data.type === 'chat_message') {
 
-                $('#chat-box').append(html);
-                $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
+                    // if (data.sender_id != "{{request.user.pk}}") {
+                    //     $('#chat-heading').html(data.sender_full_name);
+                    // } else {
+                    //     $('#chat-heading').html(data.receiver_full_name);
+                    // };
 
-        }  else if (data.type === 'conversation_data') {
-            console.log("Executed");
-            localStorage.setItem('conversationId', data.conversation_id)
-            $('#chat-section').show();                      
-            let html = `<a href="#" id="conversation-tile-link" onclick="(e) => e.preventDefault; conversationWebsocket(${data.conversation_id}); setActiveConversation(${data.conversation_id});">
-                        <div class="row p-1 mx-1 shadow mb-2 conversation-tile active-conversation" id="conversation-tile-${data.conversation_id}" style="height: 75px; overflow-y: hidden; text-overflow: ellipsis;">
-                            <div class="col-3">
-                                <img class="border border-secondary rounded-circle" src=${data.conversation_image ? data.conversation_image : "https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg" } alt="Messaging User Image" height="65px" width="65px">
-                            </div>
-                            <div class="col-9">
-                                <h6><b>${data.conversation_name}</b></h6>
-                                <p id="last-message-${data.conversation_id}"><span class="text-success">typing ...</span></p>
-                            </div>
-                        </div>
-                    </a>`
-            $('#conversations').append(html);
+                    let conversationId = localStorage.getItem('conversationId');
+                    console.log(conversationId)
+                    $('#last-message-' + conversationId).html(data.message);
+
+                    $('#chat-section').show();
+                    if (data.sender_id != "{{request.user.pk}}") {
+                            html = `<div class="mb-2 ms-2" style="width:fit-content">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="p-1 mx-1 mb-1 d-flex justify-content-start align-items-center">                    
+                                                <img class="border border-dark rounded-circle me-2" src=${data.sender_image ? (data.sender_image) : 'https:static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg'} alt="" height="25px" width="25px">
+                                                <h6 class="p-0 m-0">${data.sender}</h6>                    
+                                            </div>
+                                            <div>
+                                                <span class="text-secondary"><small>${data.timestamp}</small></span>
+                                            </div>
+                                        </div>
+                                        <div class="rounded-3 text-light shadow px-1" style="background: linear-gradient(to right, #da8cff, #9a55ff);">
+                                            <p class="p-2 m-0"><small>${data.data}</small></p>
+                                        </div>
+                                    </div>`;
+                        } else {
+                            html = `<div class="d-flex flex-column align-items-end me-2">
+                                        <div class="d-flex justify-content-end w-75">
+                                            <span class="text-secondary"><small>${data.timestamp}</small></span>
+                                        </div>
+                                        <div class="rounded-3 text-light shadow px-1 mb-2 bg-secondary" style="width:fit-content">
+                                            <p class="p-2 m-0"><small>${data.message}</small></p>
+                                        </div>
+                                    </div>`;
+                        }
+
+                        $('#chat-box').append(html);
+                        $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
+
+                }  else if (data.type === 'conversation_data') {
+                    console.log("Executed");
+                    $('#chat-heading').html(data.conversation_name)
+                    $('#chat-section').show();                      
+                    let html = `<a href="#" id="conversation-tile-link" onclick="(e) => e.preventDefault; conversationWebsocket(${data.conversation_id}); setActiveConversation(${data.conversation_id});">
+                                    <div class="row p-1 mx-1 shadow mb-2 conversation-tile active-conversation" id="conversation-tile-${data.conversation_id}" style="height: 75px; overflow-y: hidden; text-overflow: ellipsis;">
+                                        <div class="col-3">
+                                            <img class="border border-secondary rounded-circle" src=${data.conversation_image ? data.conversation_image : "https://static.vecteezy.com/system/resources/thumbnails/001/840/612/small/picture-profile-icon-male-icon-human-or-people-sign-and-symbol-free-vector.jpg" } alt="Messaging User Image" height="65px" width="65px">
+                                        </div>
+                                        <div class="col-9">
+                                            <h6><b>${data.conversation_name}</b></h6>
+                                            <p id="last-message-${data.conversation_id}"><span class="text-success">typing ...</span></p>
+                                        </div>
+                                    </div>
+                                </a>`
+                    $('#conversations').prepend(html);
+                };
+            };
+
+            function sendMessage() {
+                const messageInputDom = document.getElementById('chat-input');
+                const message = messageInputDom.value;
+                chatSocket.send(JSON.stringify({
+                    'message': message
+                }));
+                messageInputDom.value = '';
+            };
+    
+            $('#send-message-btn').on('click', sendMessage);
         };
-    };
-    {% comment %} }; {% endcomment %}
 
-    function sendMessage() {
-        const messageInputDom = document.getElementById('chat-input');
-        const message = messageInputDom.value;
-        chatSocket.send(JSON.stringify({
-            'message': message
-        }));
-        messageInputDom.value = '';
-    }
+        $('#start-conversation-btn').on('click', () => {
+            let selectedReceiver = $('#recipient-dropdown').val();
+            localStorage.setItem('receiver', selectedReceiver);
+            localStorage.setItem('sender', '{{request.user.pk}}');
+            runScript();
+        });
+
+    });
+    {% comment %} }; {% endcomment %}
 
     // Chat WebSocket Ending
 </script>

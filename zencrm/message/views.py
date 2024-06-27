@@ -34,7 +34,7 @@ class MessageListView(CrmLoginRequiredMixin, ListView):
         #     if not Message.objects.filter(conversation = conversation):
         #         conversation.delete()
 
-        context['conversations'] = Conversation.objects.filter(participants = self.request.user)
+        context['conversations'] = Conversation.objects.filter(participants = self.request.user).order_by('-created')
 
 
 

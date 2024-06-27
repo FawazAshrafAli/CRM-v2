@@ -7,66 +7,120 @@ from authentication.models import User
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.sender = self.scope['url_route']['kwargs']['sender']        
+        self.sender = self.scope['url_route']['kwargs']['sender']
         self.receiver = self.scope['url_route']['kwargs']['receiver']
+        self.room_group_name = f"chat_{min(self.sender, self.receiver)}_{max(self.sender, self.receiver)}"
+
+        await self.get_user_objects()
+
+        # Join room group
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
 
         await self.accept()
 
         self.conversation, just_created = await self.get_conversation()
 
+
         if just_created == True:
-            print("populating")
-            await self.send_conversation_data()
+            await self.send_initial_data()
 
-    async def receive(self):
-        message = self.scope['message']
+        else:
+            await self.send(text_data=json.dumps({
+                'type': 'no_data',
+            }))
 
-        get_message = await self.save_message()
+    async def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        message = text_data_json['message']
+        print(message)
+
+        await self.save_message(message)
+
+        # Send message to room group
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'chat_message',
+                'message': message
+            }
+        )
+
 
     async def disconnect(self, close_code):
-        pass
+        # Leave room group
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+
+    @sync_to_async
+    def get_user_objects(self):
+        self.sender_obj = User.objects.get(pk = self.sender)
+        self.receiver_obj = User.objects.get(pk = self.receiver)
 
     @sync_to_async
     def get_conversation(self):
-        self.sender_obj = User.objects.get(pk = self.sender)
-        self.receiver_obj = User.objects.get(pk = self.receiver)
-        
-        conversation = Conversation.objects.filter(participants=self.sender_obj).filter(participants=self.receiver_obj).first()
+        try:                        
+            conversation = Conversation.objects.filter(participants=self.sender_obj).filter(participants=self.receiver_obj).first()
 
-        just_created = False
+            just_created = False
 
-        if not conversation:
-            participants = sorted([self.sender_obj, self.receiver_obj], key=lambda x: x.pk)
+            if not conversation:
+                participants = sorted([self.sender_obj, self.receiver_obj], key=lambda x: x.pk)
 
-            conversation = Conversation.objects.create()
-            conversation.participants.set(participants)
-            conversation.save()
+                conversation = Conversation.objects.create()
+                conversation.participants.set(participants)
+                conversation.save()
 
-            just_created = True
+                just_created = True
 
-        return conversation, just_created
+            return conversation, just_created
+        except Exception as e:
+            print(f"Exception at get_conversation: {e}")
+            return None, False
+
+
     
-    @sync_to_async
-    def save_message(self):
-        self.sender = sender
-        self.receiver = receiver
-        
-        sender = User.objects.get(pk = self.sender)
-        receiver = User.objects.get(pk = self.receiver)
-        participants = sorted([sender, receiver], key=lambda x: x.pk)
+    @database_sync_to_async
+    def save_message(self, message):
+        participants = sorted([self.sender_obj, self.receiver_obj], key=lambda x: x.pk)
         conversation = Conversation.objects.filter(participants = participants[0]).filter(participants = participants[1]).first()
         if not conversation:
             conversation = Conversation.objects.create()
             conversation.participants.set(participants)
             conversation.save()
+        
+        message = Message.objects.create(conversation = conversation, sender = self.sender_obj, receiver = self.receiver_obj, message = message)
 
-    
-    async def send_conversation_data(self):
+        self.message_data =  {
+            'sender_id': message.sender.pk, 
+            'receiver_id': message.receiver.pk, 
+            'sender': message.sender.full_name, 
+            'receiver': message.receiver.full_name,  
+            'sender_image': message.sender.image.url if message.sender.image else None, 
+            'receiver_image': message.receiver.image.url if message.receiver.image else None, 
+            'message': message.message, 
+            'conversationId': conversation.pk
+            }
+
+    async def chat_message(self, event):
+        message = event['message']
+        
+        if message:
+            await self.send(text_data=json.dumps({
+                'type': 'chat_message',
+                'message': self.message_data
+            }))
+
+    async def send_initial_data(self):        
         await self.send(text_data = json.dumps({
                 'type': 'conversation_data',
                 'conversation_id': self.conversation.pk,
                 'conversation_image': self.receiver_obj.image.url if self.receiver_obj.image else None,
-                'conversation_name': self.receiver_obj.full_name,                
+                'conversation_name': self.receiver_obj.full_name,
             }))
 
 # class ChatConsumer(AsyncWebsocketConsumer):
