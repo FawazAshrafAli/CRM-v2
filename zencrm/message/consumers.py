@@ -9,6 +9,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.sender = self.scope['url_route']['kwargs']['sender']
         self.receiver = self.scope['url_route']['kwargs']['receiver']
+
+        print("\nInitial values")
+        print("Sender: ", self.sender)
+        print("Receiver: ", self.receiver)
+
+
         self.room_group_name = f"chat_{min(self.sender, self.receiver)}_{max(self.sender, self.receiver)}"
 
         await self.get_user_objects()
@@ -28,14 +34,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.send_initial_data()
 
         else:
+            messages = await self.unpack_conversation()
             await self.send(text_data=json.dumps({
-                'type': 'no_data',
+                'type': 'conversation_history',
+                'messages': messages,
+                'conversation_id': self.conversation.pk
             }))
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
-        print(message)
+        print("New Message ", message)
 
         await self.save_message(message)
 
@@ -58,13 +67,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @sync_to_async
     def get_user_objects(self):
+        print("\nValues inside Get User Object")
+        print("Sender: ", self.sender)
+        print("Receiver: ", self.receiver)
         self.sender_obj = User.objects.get(pk = self.sender)
         self.receiver_obj = User.objects.get(pk = self.receiver)
 
     @sync_to_async
     def get_conversation(self):
-        try:                        
+        try:
+            print("\nInside Get Conversation.")
+            print("Sender Object: ", self.sender_obj)
+            print("Receiver Object: ", self.receiver_obj)                        
             conversation = Conversation.objects.filter(participants=self.sender_obj).filter(participants=self.receiver_obj).first()
+
+            print("Conversation Id: ", conversation.pk)
 
             just_created = False
 
@@ -81,6 +98,34 @@ class ChatConsumer(AsyncWebsocketConsumer):
         except Exception as e:
             print(f"Exception at get_conversation: {e}")
             return None, False
+        
+    @sync_to_async
+    def unpack_conversation(self):
+        messages = Message.objects.filter(conversation = self.conversation)
+        messages_list = []
+        for message in messages:
+
+            sender_id = message.sender.pk
+            receiver_id = message.receiver.pk
+
+            sender = message.sender.full_name
+            receiver = message.receiver.full_name
+            timestamp = message.timestamp.strftime("%I:%M %p %d-%b-%y")
+
+            message = message.message
+
+
+            messages_list.append({
+                "sender_id": sender_id,
+                "receiver_id": receiver_id,
+                "sender": sender,
+                "receiver": receiver,
+                "message": message,
+                "timestamp": timestamp,
+            })
+
+        return messages_list
+
 
 
     
@@ -101,9 +146,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'sender': message.sender.full_name, 
             'receiver': message.receiver.full_name,  
             'sender_image': message.sender.image.url if message.sender.image else None, 
-            'receiver_image': message.receiver.image.url if message.receiver.image else None, 
+            'receiver_image': message.receiver.image.url if message.receiver.image else None,
+            'timestamp': message.timestamp.strftime("%I:%M %p %d-%b-%y"),
             'message': message.message, 
-            'conversationId': conversation.pk
+            'conversation_id': conversation.pk
             }
 
     async def chat_message(self, event):
@@ -119,6 +165,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data = json.dumps({
                 'type': 'conversation_data',
                 'conversation_id': self.conversation.pk,
+                'receiver_id': self.receiver_obj.pk,
                 'conversation_image': self.receiver_obj.image.url if self.receiver_obj.image else None,
                 'conversation_name': self.receiver_obj.full_name,
             }))
